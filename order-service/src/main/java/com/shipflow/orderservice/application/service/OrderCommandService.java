@@ -117,6 +117,6 @@ public class OrderCommandService {
 
     private Order findOrThrow(UUID orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 }

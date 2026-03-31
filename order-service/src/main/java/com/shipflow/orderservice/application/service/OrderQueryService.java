@@ -23,7 +23,7 @@ public class OrderQueryService {
 
     public OrderResult getOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         return OrderResult.from(order);
     }
 
@@ -35,6 +35,6 @@ public class OrderQueryService {
 
     public OrderReadModel getReadModel(UUID orderId) {
         return orderReadModelRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("주문 읽기 모델을 찾을 수 없습니다: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 }
