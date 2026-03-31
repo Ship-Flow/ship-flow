@@ -105,6 +105,36 @@ public class Order {
         this.shipmentId = shipmentId;
     }
 
+    public static Order reconstruct(
+            UUID id, UUID ordererId, UUID productId, UUID shipmentId,
+            CompanyInfo companyInfo, HubInfo hubInfo, Quantity quantity,
+            OrderStatus status, String cancelReason,
+            LocalDateTime requestDeadline, String requestNote,
+            UUID createdBy, LocalDateTime createdAt,
+            UUID updatedBy, LocalDateTime updatedAt,
+            UUID deletedBy, LocalDateTime deletedAt
+    ) {
+        Order order = new Order();
+        order.id = id;
+        order.ordererId = ordererId;
+        order.productId = productId;
+        order.shipmentId = shipmentId;
+        order.companyInfo = companyInfo;
+        order.hubInfo = hubInfo;
+        order.quantity = quantity;
+        order.status = status;
+        order.cancelReason = cancelReason;
+        order.requestDeadline = requestDeadline;
+        order.requestNote = requestNote;
+        order.createdBy = createdBy;
+        order.createdAt = createdAt;
+        order.updatedBy = updatedBy;
+        order.updatedAt = updatedAt;
+        order.deletedBy = deletedBy;
+        order.deletedAt = deletedAt;
+        return order;
+    }
+
     public void softDelete(UUID deletedBy) {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = deletedBy;
