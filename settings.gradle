@@ -1,0 +1,9 @@
+rootProject.name = 'ship-flow'
+
+include 'com.flowship.user-service'
+include 'com.flowship.company-service'
+include 'com.flowship.product-service'
+include 'com.flowship.shipment-service'
+include 'com.flowship.order-service'
+include 'com.flowship.notification-service'
+include 'com.flowship.hub-service'
