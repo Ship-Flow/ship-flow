@@ -67,14 +67,17 @@ public class Order {
     }
 
     public void fail() {
-        if (this.status == OrderStatus.COMPLETED) {
+        if (this.status != OrderStatus.CREATING && this.status != OrderStatus.CREATED) {
             throw new InvalidOrderStateException(
-                    "COMPLETED 상태의 주문은 FAILED로 전환할 수 없습니다.");
+                    "현재 상태 " + this.status + "에서는 실패 처리가 불가합니다.");
         }
         this.status = OrderStatus.FAILED;
     }
 
     public void cancel(String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("취소 사유는 필수입니다.");
+        }
         if (this.status != OrderStatus.CREATING && this.status != OrderStatus.CREATED) {
             throw new InvalidOrderStateException(
                     "cancel은 CREATING 또는 CREATED 상태에서만 가능합니다. 현재 상태: " + this.status);
@@ -95,6 +98,9 @@ public class Order {
         if (this.status != OrderStatus.CREATED) {
             throw new InvalidOrderStateException(
                     "linkShipment는 CREATED 상태에서만 가능합니다. 현재 상태: " + this.status);
+        }
+        if (this.shipmentId != null) {
+            throw new InvalidOrderStateException("이미 배송과 연결된 주문입니다.");
         }
         this.shipmentId = shipmentId;
     }

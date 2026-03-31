@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Embeddable
@@ -16,6 +17,8 @@ public class HubInfo {
     private UUID arrivalHubId;
 
     public HubInfo(UUID departureHubId, UUID arrivalHubId) {
+        Objects.requireNonNull(departureHubId, "departureHubId는 필수입니다.");
+        Objects.requireNonNull(arrivalHubId, "arrivalHubId는 필수입니다.");
         this.departureHubId = departureHubId;
         this.arrivalHubId = arrivalHubId;
     }
