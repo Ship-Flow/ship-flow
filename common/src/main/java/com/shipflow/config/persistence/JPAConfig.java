@@ -1,4 +1,4 @@
-package com.flowship.config.persistence;
+package com.shipflow.config.persistence;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

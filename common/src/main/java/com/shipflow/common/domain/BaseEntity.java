@@ -1,4 +1,4 @@
-package com.flowship.common.domain;
+package com.shipflow.common.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;

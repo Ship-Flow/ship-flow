@@ -1,4 +1,4 @@
-package com.flowship.common;
+package com.shipflow.common;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
