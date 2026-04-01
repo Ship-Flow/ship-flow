@@ -1,4 +1,4 @@
-package com.flowship.common.domain;
+package com.shipflow.common.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @MappedSuperclass
@@ -22,7 +23,7 @@ public abstract class BaseEntity {
 
     @Column(nullable = false)
     @CreatedBy
-    private Long createdBy;
+    private UUID createdBy;
 
     @LastModifiedDate
     @Column(nullable = false)
@@ -30,13 +31,13 @@ public abstract class BaseEntity {
 
     @LastModifiedBy
     @Column(nullable = false)
-    private Long updatedBy;
+    private UUID updatedBy;
 
     private LocalDateTime deletedAt;
 
-    private Long deletedBy;
+    private UUID deletedBy;
 
-    protected void softDelete(Long userId) {
+    protected void softDelete(UUID userId) {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = userId;
     }
