@@ -3,28 +3,22 @@ spring:
     name: order-service
 
   datasource:
-    # driver-class-name은 오타 없이 전체 경로를 적어줘야 합니다.
     driver-class-name: org.postgresql.Driver
-    # DB 연결 정보 (환경 변수 활용 권장)
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:orderdb}?currentSchema=${DB_SCHEMA:public}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
 
   jpa:
     hibernate:
-      # 운영 환경에서는 반드시 update나 none을 사용하세요.
       ddl-auto: update
     properties:
       hibernate:
-        # SQL 가독성을 높여주는 설정
         format_sql: true
         highlight_sql: true
-        default_batch_fetch_size: 100 # N+1 문제 완화를 위한 필수 설정
+        default_batch_fetch_size: 100
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        # 스키마를 동적으로 지정할 경우
         default_schema: ${DB_SCHEMA:public}
     show-sql: true
-    # Querydsl/JPA Open-in-view 설정 (성능 최적화를 위해 false 권장)
     open-in-view: false
 
   rabbitmq:
@@ -43,7 +37,7 @@ spring:
 server:
   port: 8082
 
-# OpenFeign 설정 (의존성에 Feign이 있으므로 추가 필요)
+
 feign:
   client:
     config:
