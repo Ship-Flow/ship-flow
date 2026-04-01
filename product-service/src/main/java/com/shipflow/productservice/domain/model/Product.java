@@ -63,21 +63,24 @@ public class Product extends BaseEntity {
 		this.update(updatedBy);
 	}
 
-	public void updateVendorInfo(UUID companyId, String companyName, UUID hubId) {
+	public void updateVendorInfo(UUID companyId, String companyName, UUID hubId, UUID updatedBy) {
 		this.vendorInfo = new VendorInfo(companyId, companyName, hubId);
+		this.update(updatedBy);
 	}
 
-	public void updateStatus(ProductStatus status) {
+	public void updateStatus(ProductStatus status, UUID updatedBy) {
 		this.status = status;
 		if (status.equals(ProductStatus.STOPPED) || status.equals(ProductStatus.DISCONTINUED)
 			|| status.equals(ProductStatus.OUT_OF_STOCK))
 			this.isHide = true;
+		this.update(updatedBy);
 	}
 
-	public void updateStock(Integer stock) {
+	public void updateStock(Integer stock, UUID updatedBy) {
 		this.stockInfo.setStock(stock);
 		if (stock == 0)
 			this.isHide = true;
+		this.update(updatedBy);
 	}
 
 	public void decreaseStock(Integer quantity) {

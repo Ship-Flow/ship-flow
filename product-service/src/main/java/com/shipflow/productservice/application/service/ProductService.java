@@ -22,9 +22,9 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ProductService {
-	private ProductRepository productRepository;
-	private ProductMapper mapper;
-	private VendorFeignClient vendorClient;
+	private final ProductRepository productRepository;
+	private final ProductMapper mapper;
+	private final VendorFeignClient vendorClient;
 
 	@Transactional
 	public ProductCreateResponse create(UUID companyId, ProductCreateRequest request, UUID createrId) {
@@ -57,7 +57,7 @@ public class ProductService {
 	@Transactional
 	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request, UUID updaterId) {
 		Product product = findUserById(productId);
-		product.updateStock(request.stock());
+		product.updateStock(request.stock(), updaterId);
 		return mapper.toUpdateResponse(product);
 	}
 
