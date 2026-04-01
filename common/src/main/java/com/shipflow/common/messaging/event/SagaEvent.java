@@ -18,7 +18,7 @@ public abstract class SagaEvent {
         this.occurredAt = LocalDateTime.now();
     }
 
-    protected SagaEvent() {
-        // Jackson 역직렬화시 빈생성자가 필요
+    protected SagaEvent(){
+        // JSON 역직렬화 용도 -> 기본 생성자 필요
     }
 }
