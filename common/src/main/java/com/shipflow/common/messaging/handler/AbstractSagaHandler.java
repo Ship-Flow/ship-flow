@@ -1,6 +1,6 @@
-package com.flowship.common.messaging.handler;
+package com.shipflow.common.messaging.handler;
 
-import com.flowship.common.messaging.event.SagaEvent;
+import com.shipflow.common.messaging.event.SagaEvent;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

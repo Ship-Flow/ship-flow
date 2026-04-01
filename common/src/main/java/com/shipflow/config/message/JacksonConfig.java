@@ -1,4 +1,4 @@
-package com.flowship.config.message;
+package com.shipflow.config.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
