@@ -22,18 +22,19 @@ import lombok.RequiredArgsConstructor;
 
 @RestController("/api/companies")
 @RequiredArgsConstructor
-public class CompanyOuterController {
+public class CompanyExternalController {
 	private final CompanyService companyService;
 
-	@PostMapping("/")   //todo: 인증부분 확인 후 수정, 반환 데이터 추가 - dto
+	@PostMapping("/")
 	public ResponseEntity<CompanyCreateResponse> createCompany(CompanyCreateRequest request,
 		HttpServletRequest httpRequest) {
 		UUID createrId = setUserInfo(httpRequest);
 		CompanyCreateResponse response = companyService.createCompany(request, createrId);
+		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	@DeleteMapping("/{companyId}")
+	@DeleteMapping("/{companyId}")    //todo: 서비스에서 사용자 권한 추가 검증 고려
 	public ResponseEntity<String> deleteCompany(HttpServletRequest httpRequest, @PathVariable UUID companyId) {
 		UUID deleterId = setUserInfo(httpRequest);
 		companyService.deleteCompany(companyId, deleterId);
@@ -45,6 +46,7 @@ public class CompanyOuterController {
 		CompanyUpdateByCompanyRequest request) {
 		UUID updaterId = setUserInfo(httpRequest);
 		CompanyUpdateResponse response = companyService.updateByCompany(request, updaterId);
+		UserContext.clear();
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -53,6 +55,7 @@ public class CompanyOuterController {
 		CompanyUpdateByAdminRequest request, @PathVariable UUID companyId) {
 		UUID updaterId = setUserInfo(httpRequest);
 		CompanyUpdateResponse response = companyService.updateByAdmin(companyId, request, updaterId);
+		UserContext.clear();
 		return ResponseEntity.ok().body(response);
 	}
 

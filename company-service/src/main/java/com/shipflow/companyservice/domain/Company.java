@@ -16,17 +16,8 @@ public class Company extends BaseEntity {
 	private UUID managerId;
 	private String managerName;
 
-	public static Company create(UUID id, String name,
-		CompanyType type, UUID hubId,
-		String address, UUID managerId, String managerName, UUID createdBy) {
-		Company company = new Company(id, name, type, hubId, address, managerId, managerName);
-		company.create(createdBy);
-		return company;
-	}
-
-	private Company(UUID id, String name, CompanyType type, UUID hubId,
+	private Company(String name, CompanyType type, UUID hubId,
 		String address, UUID managerId, String managerName) {
-		this.id = Objects.requireNonNull(id, "id는 필수값입니다.");
 		this.name = Objects.requireNonNull(name, "name은 필수값입니다.");
 		this.type = Objects.requireNonNull(type, "type은 필수값입니다.");
 		this.hubId = Objects.requireNonNull(hubId, "hubId는 필수값입니다.");
@@ -35,10 +26,18 @@ public class Company extends BaseEntity {
 		this.managerName = Objects.requireNonNull(managerName, "managerName은 필수값입니다.");
 	}
 
+	public static Company create(String name, CompanyType type, UUID hubId,
+		String address, UUID managerId, String managerName, UUID createdBy) {
+		Company company = new Company(name, type, hubId, address, managerId, managerName);
+		company.create(createdBy);
+		return company;
+	}
+
 	public static Company reconstruct(UUID id, String name, CompanyType type, UUID hubId, String address,
 		UUID managerId, String managerName, LocalDateTime createdAt, UUID createdBy,
 		LocalDateTime updatedAt, UUID updatedBy, LocalDateTime deletedAt, UUID deletedBy) {
-		Company company = new Company(id, name, type, hubId, address, managerId, managerName);
+		Company company = new Company(name, type, hubId, address, managerId, managerName);
+		company.id = id;
 		company.createdAt = createdAt;
 		company.createdBy = createdBy;
 		company.updatedAt = updatedAt;
