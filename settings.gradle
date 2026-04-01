@@ -1,5 +1,6 @@
 rootProject.name = 'ship-flow'
 
+include 'common'
 include 'user-service'
 include 'company-service'
 include 'product-service'
@@ -7,4 +8,3 @@ include 'shipment-service'
 include 'order-service'
 include 'notification-service'
 include 'hub-service'
-include 'common'

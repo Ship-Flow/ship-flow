@@ -14,7 +14,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @EnableJpaAuditing
 @ConditionalOnProperty(name = "spring.datasource.url")
-@EnableJpaRepositories(basePackages = "com.flowship")
+@EnableJpaRepositories(basePackages = "com.shipflow")
 @EntityScan(basePackages = "com.flowship")
 public class JPAConfig {
 
