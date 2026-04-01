@@ -1,4 +1,4 @@
-package com.flowship.common.config;
+package com.flowship.config.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowship.common.messaging.event.EventType;

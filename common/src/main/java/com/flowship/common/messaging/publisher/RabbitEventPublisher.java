@@ -1,6 +1,6 @@
 package com.flowship.common.messaging.publisher;
 
-import com.flowship.common.config.RabbitMqConfig;
+import com.flowship.config.message.RabbitMqConfig;
 import com.flowship.common.messaging.event.SagaEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

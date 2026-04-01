@@ -196,7 +196,7 @@ public class OrderService {
 // product-service/infrastructure/messaging/handler/StockDecreaseHandler.java
 package com.shipflow.productservice.infrastructure.messaging.handler;
 
-import com.flowship.common.config.RabbitMqConfig;
+import com.flowship.config.message.RabbitMqConfig;
 import com.flowship.common.messaging.handler.AbstractSagaHandler;
 import com.shipflow.orderservice.infrastructure.messaging.event.OrderCreationStartedEvent;
 import lombok.RequiredArgsConstructor;
