@@ -1,0 +1,10 @@
+package com.shipflow.companyservice.presentation.dto.response;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record CompanyUpdateResponse(UUID companyId, String companyName,
+                                    String type, UUID hubId,
+                                    String address, UUID managerId,
+                                    String managerName, LocalDateTime updatedAt) {
+}
