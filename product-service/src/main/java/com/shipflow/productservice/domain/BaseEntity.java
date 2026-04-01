@@ -3,7 +3,10 @@ package com.shipflow.productservice.domain;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class BasicEntity {
+import lombok.Getter;
+
+@Getter
+public class BaseEntity {
 	LocalDateTime createdAt;
 	UUID createdBy;
 	LocalDateTime updatedAt;

@@ -5,7 +5,10 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Product extends BasicEntity{
+import lombok.Getter;
+
+@Getter
+public class Product extends BaseEntity {
 	private UUID id;
 	private String name;
 	private BigDecimal price;
