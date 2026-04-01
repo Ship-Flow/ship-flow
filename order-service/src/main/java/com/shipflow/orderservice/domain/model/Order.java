@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-public class Order {
+public class Order { // 도메인 모델
 
     private UUID id;
     private UUID ordererId;

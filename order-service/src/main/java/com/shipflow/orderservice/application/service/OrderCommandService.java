@@ -4,7 +4,8 @@ import com.shipflow.orderservice.application.dto.CancelOrderCommand;
 import com.shipflow.orderservice.application.dto.CreateOrderCommand;
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.dto.UpdateOrderCommand;
-import com.shipflow.orderservice.application.event.*;
+import com.shipflow.common.messaging.publisher.EventPublisher;
+import com.shipflow.orderservice.infrastructure.messaging.event.outbound.*;
 import com.shipflow.orderservice.domain.exception.OrderNotFoundException;
 import com.shipflow.orderservice.domain.model.Order;
 import com.shipflow.orderservice.domain.repository.OrderRepository;
@@ -23,7 +24,7 @@ import java.util.UUID;
 public class OrderCommandService {
 
     private final OrderRepository orderRepository;
-    private final OrderEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
 
     public OrderResult createOrder(CreateOrderCommand cmd, UUID requesterId) {
         Order order = Order.create(
@@ -39,8 +40,7 @@ public class OrderCommandService {
         Order saved = orderRepository.save(order);
 
         eventPublisher.publish(
-                new OrderCreationStartedEvent(saved.getId(), saved.getProductId(), saved.getQuantity().getValue()),
-                "order.creation.started"
+                new OrderCreationStartedEvent(saved.getId(), saved.getProductId(), saved.getQuantity().getValue())
         );
 
         return OrderResult.from(saved);
@@ -61,8 +61,7 @@ public class OrderCommandService {
                         saved.getHubInfo().getDepartureHubId(),
                         saved.getHubInfo().getArrivalHubId(),
                         saved.getRequestDeadline()
-                ),
-                "order.created"
+                )
         );
     }
 
@@ -78,8 +77,7 @@ public class OrderCommandService {
         Order saved = orderRepository.save(order);
 
         eventPublisher.publish(
-                new OrderCanceledEvent(saved.getId(), saved.getProductId(), saved.getQuantity().getValue()),
-                "order.canceled"
+                new OrderCanceledEvent(saved.getId(), saved.getProductId(), saved.getQuantity().getValue())
         );
     }
 

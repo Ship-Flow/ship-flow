@@ -33,7 +33,7 @@ dependencies {
     // Spring Boot & Core (기본 설정)
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation(project(":common")) // 내부 공통 모듈
+    implementation(project(":common")) // 내부 공통 모듈 설정
 
     // Database & Persistence (JPA, Querydsl)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
