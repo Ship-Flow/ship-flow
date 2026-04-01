@@ -28,7 +28,7 @@ public class SlackAppService {
 		this.slackApiClient = slackApiClient;
 	}
 
-	//메세지 전송
+	// 메시지 전송
 	@Transactional
 	public SlackMessage sendSlackMessage(
 		String receiverSlackId,
@@ -37,39 +37,39 @@ public class SlackAppService {
 		String message,
 		SlackMessageType messageType
 	) {
-		SlackMessage slackMessage = new SlackMessage(
-			receiverSlackId,
-			relatedShipmentId,
-			relatedAiLogId,
-			message,
-			messageType
+		SlackMessage slackMessage = slackMessageRepository.save(
+			new SlackMessage(
+				receiverSlackId,
+				relatedShipmentId,
+				relatedAiLogId,
+				message,
+				messageType
+			)
 		);
-
-		slackMessageRepository.save(slackMessage);
 
 		try {
 			SlackSendResult result = slackApiClient.sendMessage(receiverSlackId, message);
 			slackMessage.markSuccess(result.slackTs(), result.slackChannelId());
-			return slackMessage;
 		} catch (Exception e) {
+			// TODO: Slack 전용 예외 처리 및 ErrorCode 적용
 			slackMessage.markFail();
-			return slackMessage;
 		}
+
+		return slackMessage;
 	}
 
-	//단건조회
+	// 단건 조회
 	public SlackMessage getSlackMessage(UUID slackMessageId) {
 		return slackMessageRepository.findByIdAndDeletedAtIsNull(slackMessageId)
 			.orElseThrow(() -> new IllegalArgumentException("슬랙 메시지를 찾을 수 없습니다. id=" + slackMessageId));
 	}
 
-	//목록 조회
+	// 목록 조회
 	public Page<SlackMessage> getSlackMessageList(Pageable pageable) {
 		return slackMessageRepository.findAllByDeletedAtIsNull(pageable);
 	}
 
 	/*
-	 * Todo : 수정 및 삭제 처리 필요
+	 * TODO : 수정 및 삭제 처리 필요
 	 */
-
 }
