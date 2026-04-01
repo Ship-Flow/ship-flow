@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.shipflow.productservice.domain.Product;
+import com.shipflow.productservice.domain.model.Product;
 
 public interface ProductRepository {
 	Optional<Product> findById(UUID id);

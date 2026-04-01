@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.shipflow.productservice.domain.Product;
-import com.shipflow.productservice.domain.ProductStatus;
+import com.shipflow.productservice.domain.model.Product;
+import com.shipflow.productservice.domain.model.ProductStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor(access= AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_products")
 public class ProductJpaEntity {
 	@Id
@@ -63,27 +63,27 @@ public class ProductJpaEntity {
 	private UUID deletedBy;
 
 	public static ProductJpaEntity from(Product product) {
-		ProductJpaEntity entity=new ProductJpaEntity();
-		entity.id=product.getId();
-		entity.name=product.getName();
-		entity.price=product.getPrice();
-		entity.stock=product.getStock();
-		entity.status=product.getStatus();
-		entity.companyId=product.getCompanyId();
-		entity.companyName=product.getCompanyName();
-		entity.hubId=product.getHubId();
-		entity.isHide=product.getIsHide();
-		entity.createdAt=product.getCreatedAt();
-		entity.createdBy=product.getCreatedBy();
-		entity.updatedAt=product.getUpdatedAt();
-		entity.updatedBy=product.getUpdatedBy();
-		entity.deletedAt=product.getDeletedAt();
-		entity.deletedBy=product.getDeletedBy();
+		ProductJpaEntity entity = new ProductJpaEntity();
+		entity.id = product.getId();
+		entity.name = product.getName();
+		entity.price = product.getPrice();
+		entity.stock = product.getStockInfo().getStock();
+		entity.status = product.getStatus();
+		entity.companyId = product.getVendorInfo().getCompanyId();
+		entity.companyName = product.getVendorInfo().getCompanyName();
+		entity.hubId = product.getVendorInfo().getHubId();
+		entity.isHide = product.getIsHide();
+		entity.createdAt = product.getCreatedAt();
+		entity.createdBy = product.getCreatedBy();
+		entity.updatedAt = product.getUpdatedAt();
+		entity.updatedBy = product.getUpdatedBy();
+		entity.deletedAt = product.getDeletedAt();
+		entity.deletedBy = product.getDeletedBy();
 		return entity;
 	}
 
 	public Product toDomain() {
-		return Product.reconstruct(id, name, price, stock,
+		return Product.reconstruct(name, price, stock,
 			status, companyId, companyName, hubId, isHide,
 			createdBy, createdAt, updatedAt, updatedBy, deletedAt, deletedBy);
 	}

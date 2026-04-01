@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
-import com.shipflow.productservice.domain.Product;
+import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.domain.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
