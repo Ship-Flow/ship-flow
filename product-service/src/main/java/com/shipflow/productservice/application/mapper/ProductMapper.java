@@ -4,6 +4,8 @@ import org.mapstruct.Mapper;
 
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.presentation.dto.response.ProductCreateResponse;
+import com.shipflow.productservice.presentation.dto.response.ProductInfoResponse;
+import com.shipflow.productservice.presentation.dto.response.ProductListResponse;
 import com.shipflow.productservice.presentation.dto.response.ProductUpdateResponse;
 
 @Mapper(componentModel = "spring")
@@ -12,4 +14,8 @@ public interface ProductMapper {
 	ProductCreateResponse toCreateResponse(Product product);
 
 	ProductUpdateResponse toUpdateResponse(Product product);
+
+	ProductInfoResponse toProductInfoResponse(Product product);
+
+	ProductListResponse toProductListResponse(Product product);
 }
