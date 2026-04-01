@@ -1,10 +1,10 @@
 package com.shipflow.companyservice.infrastructure.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
 import com.shipflow.companyservice.domain.Company;
@@ -26,24 +26,15 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 	}
 
 	@Override
-	public Company save(Company company) {
+	public void save(Company company) {
 		CompanyJpaEntity jpaEntity = CompanyJpaEntity.from(company);
 		jpaRepository.save(jpaEntity);
-		return company;
 	}
 
 	@Override
-	public List<Company> findAll() {
-		List<CompanyJpaEntity> jpaEntities = jpaRepository.findAll();
-		if (jpaEntities.isEmpty())
-			return new ArrayList<>();
-
-		List<Company> companies = new ArrayList<>();
-		for (CompanyJpaEntity jpaEntity : jpaEntities) {
-			Company company = jpaEntity.toDomain();
-			companies.add(company);
-		}
-		return companies;
+	public Slice<Company> findAll(Pageable pageable) {
+		Slice<CompanyJpaEntity> jpaEntities = jpaRepository.findAll(pageable);
+		return jpaEntities.map(CompanyJpaEntity::toDomain);
 	}
 
 	@Override

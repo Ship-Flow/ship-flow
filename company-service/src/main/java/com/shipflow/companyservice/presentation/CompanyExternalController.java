@@ -2,9 +2,14 @@ package com.shipflow.companyservice.presentation;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +20,9 @@ import com.shipflow.companyservice.presentation.dto.request.CompanyCreateRequest
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByAdminRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByCompanyRequest;
 import com.shipflow.companyservice.presentation.dto.response.CompanyCreateResponse;
+import com.shipflow.companyservice.presentation.dto.response.CompanyInfoForAdminResponse;
+import com.shipflow.companyservice.presentation.dto.response.CompanyInfoForCompanyResponse;
+import com.shipflow.companyservice.presentation.dto.response.CompanyListResponse;
 import com.shipflow.companyservice.presentation.dto.response.CompanyUpdateResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +46,7 @@ public class CompanyExternalController {
 	public ResponseEntity<String> deleteCompany(HttpServletRequest httpRequest, @PathVariable UUID companyId) {
 		UUID deleterId = setUserInfo(httpRequest);
 		companyService.deleteCompany(companyId, deleterId);
-		return ResponseEntity.ok().body("요청이 정상 처리되었습니다.");
+		return ResponseEntity.ok().build();
 	}
 
 	@PatchMapping("/me")
@@ -59,6 +67,34 @@ public class CompanyExternalController {
 		return ResponseEntity.ok().body(response);
 	}
 
+	@GetMapping("/me")
+	public ResponseEntity<CompanyInfoForCompanyResponse> getInfoForCompany(HttpServletRequest httpRequest) {
+		UUID userId = setUserInfo(httpRequest);
+		CompanyInfoForCompanyResponse response = companyService.getCompanyInfoForCompany(userId);
+		UserContext.clear();
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/{companyId}")
+	public ResponseEntity<CompanyInfoForAdminResponse> getInfoForAdmin(@PathVariable UUID companyId) {
+		CompanyInfoForAdminResponse response = companyService.getCompanyInfoForAdmin(companyId);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/")
+	public ResponseEntity<Slice<CompanyListResponse>> getCompanies(
+		@PageableDefault(size = 10, page = 0, sort = {"createdAt",
+			"deletedAt"}) Pageable pageable) {
+		int size = pageable.getPageSize();
+		if (size != 10 && size != 30 && size != 50) {
+			pageable = PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
+		}
+
+		Slice<CompanyListResponse> response = companyService.getCompanies(pageable);
+		return ResponseEntity.ok().body(response);
+	}
+
+	//util
 	private UUID setUserInfo(HttpServletRequest request) {
 		UserContext.setUserContext(request);
 		return UserContext.getUserId();

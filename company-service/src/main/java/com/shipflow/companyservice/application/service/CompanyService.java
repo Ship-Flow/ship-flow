@@ -2,6 +2,8 @@ package com.shipflow.companyservice.application.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import com.shipflow.companyservice.application.dto.response.VendorInfoResponse;
@@ -12,6 +14,9 @@ import com.shipflow.companyservice.presentation.dto.request.CompanyCreateRequest
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByAdminRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByCompanyRequest;
 import com.shipflow.companyservice.presentation.dto.response.CompanyCreateResponse;
+import com.shipflow.companyservice.presentation.dto.response.CompanyInfoForAdminResponse;
+import com.shipflow.companyservice.presentation.dto.response.CompanyInfoForCompanyResponse;
+import com.shipflow.companyservice.presentation.dto.response.CompanyListResponse;
 import com.shipflow.companyservice.presentation.dto.response.CompanyUpdateResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +27,7 @@ public class CompanyService {
 	private final CompanyRepository companyRepository;
 	private final CompanyMapper mapper;
 
+	//external
 	public CompanyCreateResponse createCompany(CompanyCreateRequest request, UUID createrId) {
 		Company newCompany = Company.create(
 			request.name(), request.type(), request.hubId(),
@@ -38,8 +44,7 @@ public class CompanyService {
 
 	public CompanyUpdateResponse updateByCompany(CompanyUpdateByCompanyRequest request,
 		UUID updaterId) {
-		Company company = companyRepository.findByManagerId(updaterId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 업체를 찾을 수 없습니다."));
+		Company company = findCompanyById(updaterId);
 		company.updateByCompany(request.name(), request.address(), updaterId);
 		companyRepository.save(company);
 		return mapper.toUpdateResponse(company);
@@ -52,13 +57,35 @@ public class CompanyService {
 		return mapper.toUpdateResponse(company);
 	}
 
+	public CompanyInfoForCompanyResponse getCompanyInfoForCompany(UUID managerId) {
+		Company company = findCompanyByManagerId(managerId);
+		return mapper.toCompanyInfoForCompany(company);
+	}
+
+	public CompanyInfoForAdminResponse getCompanyInfoForAdmin(UUID companyId) {
+		Company company = findCompanyById(companyId);
+		return mapper.toCompanyInfoForAdmin(company);
+	}
+
+	public Slice<CompanyListResponse> getCompanies(Pageable pageable) {
+		Slice<Company> companies = companyRepository.findAll(pageable);
+		return companies.map(mapper::toCompanyListResponse);
+	}
+
+	//internal
 	public VendorInfoResponse getVendorInfo(UUID companyId) {
 		Company company = findCompanyById(companyId);
 		return mapper.toVendorInfoResponse(company);
 	}
 
+	//util
 	private Company findCompanyById(UUID companyId) {
 		return companyRepository.findById(companyId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 업체를 찾을 수 없습니다."));
+	}
+
+	private Company findCompanyByManagerId(UUID managerId) {
+		return companyRepository.findByManagerId(managerId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 업체를 찾을 수 없습니다."));
 	}
 }
