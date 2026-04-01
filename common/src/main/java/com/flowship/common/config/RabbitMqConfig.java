@@ -1,7 +1,7 @@
-package com.shipflow.global.config;
+package com.flowship.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shipflow.global.messaging.event.EventType;
+import com.flowship.common.messaging.event.EventType;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -70,14 +70,14 @@ public class RabbitMqConfig {
 
     // ── Binding Bean ───────────────────────────────
     @Bean public Binding bindProductOrderCreationStarted() {
-        return BindingBuilder.bind(queueProductOrderCreationStarted()). // 1. 보낼 Queue 지정
-                to(sagaExchange())                                      // 2. 어떤 Exchange로부터 온것인지 확인
-                .with(EventType.ORDER_CREATION_STARTED);                // 3. 해당 이벤트의 타입인지 확인
+        return BindingBuilder.bind(queueProductOrderCreationStarted())
+                .to(sagaExchange())
+                .with(EventType.ORDER_CREATION_STARTED);
     }
     @Bean public Binding bindOrderStockDecreased() {
         return BindingBuilder.bind(queueOrderStockDecreased())
-                .to(sagaExchange()).
-                with(EventType.PRODUCT_STOCK_DECREASED);
+                .to(sagaExchange())
+                .with(EventType.PRODUCT_STOCK_DECREASED);
     }
     @Bean public Binding bindOrderStockDecreasedFailed() {
         return BindingBuilder.bind(queueOrderStockDecreasedFailed())
@@ -111,12 +111,12 @@ public class RabbitMqConfig {
     }
     @Bean public Binding bindProductOrderCanceled() {
         return BindingBuilder.bind(queueProductOrderCanceled())
-                .to(sagaExchange()).
-                with(EventType.ORDER_CANCELED);
+                .to(sagaExchange())
+                .with(EventType.ORDER_CANCELED);
     }
     @Bean public Binding bindShipmentOrderCanceled() {
-        return BindingBuilder.bind(queueShipmentOrderCanceled()).
-                to(sagaExchange())
+        return BindingBuilder.bind(queueShipmentOrderCanceled())
+                .to(sagaExchange())
                 .with(EventType.ORDER_CANCELED);
     }
     @Bean public Binding bindOrderShipmentCreated() {
@@ -130,8 +130,8 @@ public class RabbitMqConfig {
                 .with(EventType.SHIPMENT_CREATED);
     }
     @Bean public Binding bindOrderShipmentCreationFailed() {
-        return BindingBuilder.bind(queueOrderShipmentCreationFailed()).
-                to(sagaExchange())
+        return BindingBuilder.bind(queueOrderShipmentCreationFailed())
+                .to(sagaExchange())
                 .with(EventType.SHIPMENT_CREATION_FAILED);
     }
     @Bean public Binding bindOrderShipmentCompleted() {

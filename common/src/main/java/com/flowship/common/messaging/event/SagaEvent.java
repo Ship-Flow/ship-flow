@@ -1,4 +1,4 @@
-package com.shipflow.global.messaging.event;
+package com.flowship.common.messaging.event;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package com.shipflow.global.config;
+package com.flowship.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

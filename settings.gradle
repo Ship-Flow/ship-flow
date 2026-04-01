@@ -1,6 +1,6 @@
 rootProject.name = 'ship-flow'
 
-include 'global'
+include 'common'
 include 'user-service'
 include 'company-service'
 include 'product-service'

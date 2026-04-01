@@ -112,8 +112,8 @@ public class OrderserviceApplication {
 // order-service/infrastructure/messaging/event/OrderCreationStartedEvent.java
 package com.shipflow.orderservice.infrastructure.messaging.event;
 
-import com.shipflow.global.messaging.event.EventType;
-import com.shipflow.global.messaging.event.SagaEvent;
+import com.flowship.common.messaging.event.EventType;
+import com.flowship.common.messaging.event.SagaEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -162,7 +162,7 @@ public class OrderCreationStartedEvent extends SagaEvent {
 // order-service/application/OrderService.java
 package com.shipflow.orderservice.application;
 
-import com.shipflow.global.messaging.publisher.EventPublisher;
+import com.flowship.common.messaging.publisher.EventPublisher;
 import com.shipflow.orderservice.infrastructure.messaging.event.OrderCreationStartedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -196,8 +196,8 @@ public class OrderService {
 // product-service/infrastructure/messaging/handler/StockDecreaseHandler.java
 package com.shipflow.productservice.infrastructure.messaging.handler;
 
-import com.shipflow.global.config.RabbitMqConfig;
-import com.shipflow.global.messaging.handler.AbstractSagaHandler;
+import com.flowship.common.config.RabbitMqConfig;
+import com.flowship.common.messaging.handler.AbstractSagaHandler;
 import com.shipflow.orderservice.infrastructure.messaging.event.OrderCreationStartedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

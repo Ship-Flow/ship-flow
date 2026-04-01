@@ -1,12 +1,14 @@
 plugins {
 	id 'org.springframework.boot'
+	id 'io.spring.dependency-management'
 }
 
 dependencies {
+	// Messaging
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
-// global 모듈은 실행 가능한 jar가 아닌 일반 jar로 빌드
+// common 모듈은 실행 가능한 jar가 아닌 일반 jar로 빌드
 bootJar.enabled = false
 jar.enabled = true

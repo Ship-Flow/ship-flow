@@ -1,4 +1,4 @@
-package com.shipflow.global.messaging.event;
+package com.flowship.common.messaging.event;
 
 /**
  * Saga 이벤트 타입 상수.
