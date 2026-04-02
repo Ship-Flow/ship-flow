@@ -9,6 +9,6 @@ import com.shipflow.productservice.domain.model.ProductStatus;
 public record ProductUpdateResponse(
 	String name, String description, BigDecimal price, Integer stock,
 	ProductStatus productStatus, UUID companyId, String companyName,
-	UUID hubId, Boolean isHide, LocalDateTime updateAt
+	UUID hubId, Boolean isHide, LocalDateTime updatedAt
 ) {
 }

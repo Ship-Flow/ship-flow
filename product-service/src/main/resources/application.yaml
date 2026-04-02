@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema={schema}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema=p_product
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
@@ -10,5 +10,5 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        default_schema: products //본인 스키마명으로 변경
+        default_schema: p_products
     show-sql: true
