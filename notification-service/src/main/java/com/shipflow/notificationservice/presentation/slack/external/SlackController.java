@@ -21,7 +21,9 @@ import com.shipflow.notificationservice.presentation.slack.dto.response.SlackMes
 @RestController
 @RequestMapping("/api/slack")
 public class SlackController {
-
+	// TODO: Gateway + Keycloak 연동 후 @AuthenticationPrincipal 적용
+	// TODO: external API 권한 체크(@PreAuthorize) 추가
+	// TODO: internal API 서비스 간 인증 방식 반영
 	private final SlackAppService slackAppService;
 
 	public SlackController(SlackAppService slackAppService) {

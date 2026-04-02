@@ -6,6 +6,7 @@ import java.util.Collections;
 import org.springframework.stereotype.Component;
 
 import com.shipflow.common.exception.BusinessException;
+import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
 import com.shipflow.notificationservice.infrastructure.client.slack.config.SlackProperties;
 import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackDeleteResult;
@@ -19,7 +20,7 @@ import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.methods.response.conversations.ConversationsOpenResponse;
 
 @Component
-public class SlackApiClient {
+public class SlackApiClient implements SlackSender {
 
 	private final Slack slack;
 	private final SlackProperties slackProperties;

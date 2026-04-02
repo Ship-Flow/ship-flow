@@ -11,31 +11,27 @@ import com.shipflow.notificationservice.application.slack.dto.command.SendSlackM
 import com.shipflow.notificationservice.application.slack.dto.command.UpdateSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.result.SlackMessageResult;
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
+import com.shipflow.notificationservice.domain.slack.SlackMessageRepository;
+import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
-import com.shipflow.notificationservice.infrastructure.client.slack.SlackApiClient;
 import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendResult;
-import com.shipflow.notificationservice.infrastructure.persistence.slack.SlackMessageJpaRepository;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class SlackAppService {
 
-	private final SlackMessageJpaRepository slackMessageJpaRepository;
-	private final SlackApiClient slackApiClient;
-
-	public SlackAppService(
-		SlackMessageJpaRepository slackMessageJpaRepository,
-		SlackApiClient slackApiClient
-	) {
-		this.slackMessageJpaRepository = slackMessageJpaRepository;
-		this.slackApiClient = slackApiClient;
-	}
+	private final SlackMessageRepository slackMessageRepository;
+	private final SlackSender slackSender;
 
 	// 메시지 전송
+	// TODO: 인증 적용 후 userId 받아 createdBy 처리
 	@Transactional
 	public SlackMessageResult sendSlackMessage(SendSlackMessageCommand command) {
 
-		SlackMessage slackMessage = slackMessageJpaRepository.save(
+		SlackMessage slackMessage = slackMessageRepository.save(
 			new SlackMessage(
 				command.receiverSlackId(),
 				command.relatedShipmentId(),
@@ -46,7 +42,7 @@ public class SlackAppService {
 		);
 
 		try {
-			SlackSendResult result = slackApiClient.sendMessage(
+			SlackSendResult result = slackSender.sendMessage(
 				command.receiverSlackId(),
 				command.message()
 			);
@@ -60,7 +56,7 @@ public class SlackAppService {
 
 	// 단건 조회
 	public SlackMessageResult getSlackMessage(UUID slackId) {
-		SlackMessage slackMessage = slackMessageJpaRepository.findByIdAndDeletedAtIsNull(slackId)
+		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(slackId)
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
 
 		return SlackMessageResult.from(slackMessage);
@@ -68,17 +64,18 @@ public class SlackAppService {
 
 	// 목록 조회
 	public List<SlackMessageResult> getSlackMessages() {
-		return slackMessageJpaRepository.findAllByDeletedAtIsNull()
+		return slackMessageRepository.findAllByDeletedAtIsNull()
 			.stream()
 			.map(SlackMessageResult::from)
 			.toList();
 	}
 
 	//슬랙 메세지 수정
+	// TODO: 인증 적용 후 userId 받아 updatedBy 처리
 	@Transactional
 	public SlackMessageResult updateSlackMessage(UpdateSlackMessageCommand command) {
 
-		SlackMessage slackMessage = slackMessageJpaRepository.findByIdAndDeletedAtIsNull(command.slackId())
+		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(command.slackId())
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
 
 		// 이미 발송된 메시지만 수정 가능 (선택)
@@ -86,7 +83,7 @@ public class SlackAppService {
 			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
 		}
 
-		slackApiClient.updateMessage(
+		slackSender.updateMessage(
 			slackMessage.getSlackChannelId(),
 			slackMessage.getSlackTs(),
 			command.message()
@@ -98,12 +95,13 @@ public class SlackAppService {
 	}
 
 	//슬랙 메세지 삭제
+	// TODO: 인증 적용 후 userId 받아 deletedBy 처리
 	@Transactional
 	public void deleteSlackMessage(UUID slackId, UUID userId) {
-		SlackMessage slackMessage = slackMessageJpaRepository.findByIdAndDeletedAtIsNull(slackId)
+		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(slackId)
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
 
-		slackApiClient.deleteMessage(
+		slackSender.deleteMessage(
 			slackMessage.getSlackChannelId(),
 			slackMessage.getSlackTs()
 		);
