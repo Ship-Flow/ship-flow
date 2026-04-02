@@ -2,6 +2,7 @@ package com.shipflow.hubservice.config;
 
 import java.time.Duration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableCaching
 @RequiredArgsConstructor
+@ConditionalOnBean(RedisConnectionFactory.class)
 public class RedisCacheConfig {
 
 	private final RedisConnectionFactory redisConnectionFactory;
