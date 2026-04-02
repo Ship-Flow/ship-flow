@@ -2,6 +2,7 @@ package com.shipflow.common.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,32 +18,30 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
-    @Column(nullable = false, updatable = false)
-    @CreatedDate
-    private LocalDateTime createdAt;
+	@Column(nullable = false, updatable = false)
+	@CreatedDate
+	private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    @CreatedBy
-    private UUID createdBy;
+	@Column(nullable = false)
+	@CreatedBy
+	private UUID createdBy;
 
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
+	@LastModifiedDate
+	private LocalDateTime updatedAt;
 
-    @LastModifiedBy
-    @Column(nullable = false)
-    private UUID updatedBy;
+	@LastModifiedBy
+	private UUID updatedBy;
 
-    private LocalDateTime deletedAt;
+	private LocalDateTime deletedAt;
 
-    private UUID deletedBy;
+	private UUID deletedBy;
 
-    protected void softDelete(UUID userId) {
-        this.deletedAt = LocalDateTime.now();
-        this.deletedBy = userId;
-    }
+	protected void softDelete(UUID userId) {
+		this.deletedAt = LocalDateTime.now();
+		this.deletedBy = userId;
+	}
 
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
+	public boolean isDeleted() {
+		return deletedAt != null;
+	}
 }

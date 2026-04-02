@@ -11,9 +11,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -52,8 +55,9 @@ public class Shipment extends BaseEntity {
 	@Column(name = "recipient_slack_id", nullable = false, length = 30)
 	private String recipientSlackId;
 
-	@Column(name = "shipment_manager_id", nullable = false)
-	private UUID shipmentManagerId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "shipment_manager_id", nullable = false)
+	private ShipmentManager shipmentManager;
 
 	@OneToMany(mappedBy = "shipment", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ShipmentRoute> routes = new ArrayList<>();
@@ -66,7 +70,7 @@ public class Shipment extends BaseEntity {
 		String shipmentAddress,
 		String recipientName,
 		String recipientSlackId,
-		UUID shipmentManagerId
+		ShipmentManager shipmentManager
 	) {
 		this.orderId = orderId;
 		this.status = status;
@@ -75,7 +79,7 @@ public class Shipment extends BaseEntity {
 		this.shipmentAddress = shipmentAddress;
 		this.recipientName = recipientName;
 		this.recipientSlackId = recipientSlackId;
-		this.shipmentManagerId = shipmentManagerId;
+		this.shipmentManager = shipmentManager;
 	}
 
 	public static Shipment create(
@@ -85,7 +89,7 @@ public class Shipment extends BaseEntity {
 		String shipmentAddress,
 		String recipientName,
 		String recipientSlackId,
-		UUID shipmentManagerId,
+		ShipmentManager shipmentManager,
 		List<ShipmentRoute> routes
 	) {
 		Shipment shipment = new Shipment(
@@ -96,7 +100,7 @@ public class Shipment extends BaseEntity {
 			shipmentAddress,
 			recipientName,
 			recipientSlackId,
-			shipmentManagerId
+			shipmentManager
 		);
 
 		for (ShipmentRoute route : routes) {
