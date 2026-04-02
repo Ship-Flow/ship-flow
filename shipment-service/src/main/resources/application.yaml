@@ -1,3 +1,18 @@
 spring:
   application:
     name: shipmentservice
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:shipflow}?currentSchema=shipment
+    username: ${DB_USER:shipflow}
+    password: ${DB_PASSWORD:1234}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: shipment
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
