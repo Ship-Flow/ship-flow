@@ -39,7 +39,7 @@ import lombok.RequiredArgsConstructor;
 public class CompanyExternalController {
 	private final CompanyService companyService;
 
-	@PostMapping("/")
+	@PostMapping
 	public ResponseEntity<ApiResponse<CompanyCreateResponse>> createCompany(@RequestBody @Valid CompanyCreateRequest request,
 		HttpServletRequest httpRequest) {
 		UserContext.setUserContext(httpRequest);
@@ -90,7 +90,7 @@ public class CompanyExternalController {
 		return ResponseEntity.ok().body(ApiResponse.ok(response));
 	}
 
-	@GetMapping("/")
+	@GetMapping
 	public ResponseEntity<ApiResponse<Slice<CompanyListResponse>>> getCompanies(
 		@PageableDefault(size = 10, page = 0, sort = {"createdAt",
 			"deletedAt"}) Pageable pageable) {

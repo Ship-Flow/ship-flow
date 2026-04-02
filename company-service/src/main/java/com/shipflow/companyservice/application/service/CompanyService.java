@@ -97,7 +97,7 @@ public class CompanyService {
 	}
 
 	public CompanyInfoForCompanyResponse getCompanyInfoForCompany() {
-		UUID managerId = UserContext.getUserId();
+		UUID managerId = getUserId();
 		Company company = findCompanyByManagerId(managerId);
 		return mapper.toCompanyInfoForCompany(company);
 	}
