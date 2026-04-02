@@ -3,13 +3,13 @@ x-service-env: &service-env
   POSTGRES_DB: ${POSTGRES_DB}
   POSTGRES_USER: ${POSTGRES_USER}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryservice:8761/eureka/
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryserver:8761/eureka/
 
 x-service-depends-on: &service-depends-on
-  discoveryservice:
+  discoveryserver:
     condition: service_healthy
   postgres:
-    condition: service_started
+    condition: service_healthy
 
 services:
   postgres:
@@ -24,6 +24,12 @@ services:
     volumes:
       - shipflow_postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   redis:
     image: redis:7-alpine
@@ -31,7 +37,7 @@ services:
     ports:
       - "6379:6379"
 
-  discoveryservice:
+  discoveryserver:
     build:
       context: .
       dockerfile: Dockerfile
@@ -41,7 +47,7 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
