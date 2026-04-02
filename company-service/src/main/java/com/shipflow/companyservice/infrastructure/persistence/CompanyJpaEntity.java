@@ -1,8 +1,10 @@
 package com.shipflow.companyservice.infrastructure.persistence;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.SQLRestriction;
+
+import com.shipflow.common.domain.BaseEntity;
 import com.shipflow.companyservice.domain.Company;
 import com.shipflow.companyservice.domain.CompanyType;
 
@@ -17,8 +19,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("deleted_at IS NULL")
 @Table(name = "p_company")
-public class CompanyJpaEntity {
+public class CompanyJpaEntity extends BaseEntity {
 	@Id
 	@Column(columnDefinition = "uuid")
 	private UUID id;
@@ -40,22 +43,7 @@ public class CompanyJpaEntity {
 
 	private String managerName;
 
-	@Column(nullable = false)
-	private LocalDateTime createdAt;
-
-	@Column(columnDefinition = "uuid")
-	private UUID createdBy;
-
-	private LocalDateTime updatedAt;
-
-	@Column(columnDefinition = "uuid")
-	private UUID updatedBy;
-
-	private LocalDateTime deletedAt;
-
-	@Column(columnDefinition = "uuid")
-	private UUID deletedBy;
-
+	//domain->jpa_entity
 	public static CompanyJpaEntity from(Company company) {
 		CompanyJpaEntity entity = new CompanyJpaEntity();
 		entity.id = company.getId();
@@ -74,6 +62,7 @@ public class CompanyJpaEntity {
 		return entity;
 	}
 
+	//jpa_entity->domain
 	public Company toDomain() {
 		return Company.reconstruct(id, name, type,
 			hubId, address, managerId, managerName,

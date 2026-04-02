@@ -1,15 +1,20 @@
 package com.shipflow.common.domain;
 
-import jakarta.persistence.*;
-import lombok.Getter;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
 
 @Getter
 @MappedSuperclass
@@ -17,32 +22,32 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
-    @Column(nullable = false, updatable = false)
-    @CreatedDate
-    private LocalDateTime createdAt;
+	@Column(nullable = false, updatable = false)
+	@CreatedDate
+	protected LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    @CreatedBy
-    private UUID createdBy;
+	@Column(nullable = false)
+	@CreatedBy
+	protected UUID createdBy;
 
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
+	@LastModifiedDate
+	@Column(nullable = false)
+	protected LocalDateTime updatedAt;
 
-    @LastModifiedBy
-    @Column(nullable = false)
-    private UUID updatedBy;
+	@LastModifiedBy
+	@Column(nullable = false)
+	protected UUID updatedBy;
 
-    private LocalDateTime deletedAt;
+	protected LocalDateTime deletedAt;
 
-    private UUID deletedBy;
+	protected UUID deletedBy;
 
-    protected void softDelete(UUID userId) {
-        this.deletedAt = LocalDateTime.now();
-        this.deletedBy = userId;
-    }
+	protected void softDelete(UUID userId) {
+		this.deletedAt = LocalDateTime.now();
+		this.deletedBy = userId;
+	}
 
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
+	public boolean isDeleted() {
+		return deletedAt != null;
+	}
 }

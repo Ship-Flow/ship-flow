@@ -1,4 +1,4 @@
-package com.shipflow.companyservice.presentation;
+package com.shipflow.companyservice.infrastructure.persistence;
 
 import java.util.UUID;
 
