@@ -1,4 +1,4 @@
-package com.shipflow.productservice.presentation;
+package com.shipflow.productservice.infrastructure.web;
 
 import java.util.UUID;
 

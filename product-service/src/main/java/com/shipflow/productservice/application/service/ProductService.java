@@ -7,11 +7,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.shipflow.common.exception.BusinessException;
 import com.shipflow.productservice.application.client.VendorFeignClient;
 import com.shipflow.productservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.productservice.application.mapper.ProductMapper;
+import com.shipflow.productservice.domain.exception.ProductErrorCode;
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.domain.repository.ProductRepository;
+import com.shipflow.productservice.infrastructure.web.UserContext;
 import com.shipflow.productservice.presentation.dto.request.ProductCreateRequest;
 import com.shipflow.productservice.presentation.dto.request.ProductUpdateInfoRequest;
 import com.shipflow.productservice.presentation.dto.request.ProductUpdateStockRequest;
@@ -31,7 +34,8 @@ public class ProductService {
 	private final VendorFeignClient vendorClient;
 
 	@Transactional
-	public ProductCreateResponse create(UUID companyId, ProductCreateRequest request, UUID createrId) {
+	public ProductCreateResponse create(UUID companyId, ProductCreateRequest request) {
+		UUID createrId = UserContext.getUserId();
 		VendorInfoResponse response = vendorClient.getVendorInfo(companyId);
 		Product product = Product.create(
 			request.name(), request.price(), request.stock(),
@@ -42,14 +46,16 @@ public class ProductService {
 	}
 
 	@Transactional
-	public void delete(UUID productId, UUID deleterId) {
+	public void delete(UUID productId) {
+		UUID deleterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.delete(deleterId);
 		productRepository.save(product);
 	}
 
 	@Transactional
-	public ProductUpdateResponse updateInfo(UUID productId, ProductUpdateInfoRequest request, UUID updaterId) {
+	public ProductUpdateResponse updateInfo(UUID productId, ProductUpdateInfoRequest request) {
+		UUID updaterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.updateInfo(
 			request.productName(), request.price(), updaterId
@@ -59,7 +65,8 @@ public class ProductService {
 	}
 
 	@Transactional
-	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request, UUID updaterId) {
+	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request) {
+		UUID updaterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.updateStock(request.stock(), updaterId);
 		return mapper.toUpdateResponse(product);
@@ -78,6 +85,6 @@ public class ProductService {
 	//util
 	private Product findProductById(UUID productId) {
 		return productRepository.findById(productId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 제품을 찾을 수 없습니다."));
+			.orElseThrow(() -> new BusinessException(ProductErrorCode.PRODUCT_NOT_FOUND, "해당 제품을 찾을 수 없습니다."));
 	}
 }

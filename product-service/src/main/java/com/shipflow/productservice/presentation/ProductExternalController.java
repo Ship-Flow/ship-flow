@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.productservice.application.service.ProductService;
+import com.shipflow.productservice.infrastructure.web.UserContext;
 import com.shipflow.productservice.presentation.dto.request.ProductCreateRequest;
 import com.shipflow.productservice.presentation.dto.request.ProductUpdateInfoRequest;
 import com.shipflow.productservice.presentation.dto.request.ProductUpdateStockRequest;
@@ -33,56 +35,50 @@ public class ProductExternalController {
 	private final ProductService productService;
 
 	@PostMapping("/")
-	public ResponseEntity<ProductCreateResponse> addProduct(@PathVariable UUID companyId,
+	public ResponseEntity<ApiResponse<ProductCreateResponse>> addProduct(@PathVariable UUID companyId,
 		@RequestBody ProductCreateRequest productCreateRequest, HttpServletRequest request) {
-		UUID createrId = getUserId(request);
-		ProductCreateResponse response = productService.create(companyId, productCreateRequest, createrId);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		UserContext.setUserContext(request);
+		ProductCreateResponse response = productService.create(companyId, productCreateRequest);
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
 	}
 
 	@DeleteMapping("/{productId}")
 	public ResponseEntity<String> deleteProduct(@PathVariable UUID productId,
 		HttpServletRequest request) {
-		UUID deleterId = getUserId(request);
-		productService.delete(deleterId, productId);
+		UserContext.setUserContext(request);
+		productService.delete(productId);
 		return ResponseEntity.status(HttpStatus.OK).body("요청이 정상 처리되었습니다.");
 	}
 
 	@PatchMapping("/{productId}")
-	public ResponseEntity<ProductUpdateResponse> updateProductInfo(@PathVariable UUID productId,
+	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateProductInfo(@PathVariable UUID productId,
 		@RequestBody ProductUpdateInfoRequest productUpdateInfoRequest,
 		HttpServletRequest request) {
-		UUID updaterId = getUserId(request);
-		ProductUpdateResponse response = productService.updateInfo(productId, productUpdateInfoRequest, updaterId);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+		UserContext.setUserContext(request);
+		ProductUpdateResponse response = productService.updateInfo(productId, productUpdateInfoRequest);
+		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@PostMapping("/{productId}/stock")
-	public ResponseEntity<ProductUpdateResponse> updateStock(@PathVariable UUID productId,
+	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateStock(@PathVariable UUID productId,
 		ProductUpdateStockRequest productUpdateStockRequest, HttpServletRequest request) {
-		UUID updaterId = getUserId(request);
+		UserContext.setUserContext(request);
 		ProductUpdateResponse response = productService.updateStock(productId,
-			productUpdateStockRequest, updaterId);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+			productUpdateStockRequest);
+		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@GetMapping("/{productId}")
-	public ResponseEntity<ProductInfoResponse> getProductInfo(@PathVariable UUID productId) {
+	public ResponseEntity<ApiResponse<ProductInfoResponse>> getProductInfo(@PathVariable UUID productId) {
 		ProductInfoResponse response = productService.getProductInfo(productId);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@GetMapping
-	public ResponseEntity<Slice<ProductListResponse>> getProductList(@PathVariable UUID companyId,
+	public ResponseEntity<ApiResponse<Slice<ProductListResponse>>> getProductList(@PathVariable UUID companyId,
 		@PageableDefault(size = 10, page = 0, sort = {"createdAt",
 			"deletedAt"}) Pageable pageable) {
 		Slice<ProductListResponse> response = productService.getProductList(companyId, pageable);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
-	}
-
-	//util
-	private UUID getUserId(HttpServletRequest request) {
-		UserContext.setUserContext(request);
-		return UserContext.getUserId();
+		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 }

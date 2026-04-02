@@ -1,9 +1,9 @@
 package com.shipflow.productservice.infrastructure.persistence;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.shipflow.common.domain.BaseEntity;
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.domain.model.ProductStatus;
 
@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "p_products")
-public class ProductJpaEntity {
+@Table(name = "p_product")
+public class ProductJpaEntity extends BaseEntity {
 	@Id
 	@Column(columnDefinition = "uuid")
 	private UUID id;
@@ -45,22 +45,6 @@ public class ProductJpaEntity {
 	private UUID hubId;
 
 	private Boolean isHide;
-
-	@Column(nullable = false)
-	private LocalDateTime createdAt;
-
-	@Column(columnDefinition = "uuid")
-	private UUID createdBy;
-
-	private LocalDateTime updatedAt;
-
-	@Column(columnDefinition = "uuid")
-	private UUID updatedBy;
-
-	private LocalDateTime deletedAt;
-
-	@Column(columnDefinition = "uuid")
-	private UUID deletedBy;
 
 	public static ProductJpaEntity from(Product product) {
 		ProductJpaEntity entity = new ProductJpaEntity();
