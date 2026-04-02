@@ -13,7 +13,14 @@ public interface ProductMapper {
 	//Entity->DTO
 	ProductCreateResponse toCreateResponse(Product product);
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+`@Mapper`(componentModel = "spring")
+public interface ProductMapper {
+	`@Mapping`(target = "updateAt", source = "updatedAt")
 	ProductUpdateResponse toUpdateResponse(Product product);
+}
 
 	ProductInfoResponse toProductInfoResponse(Product product);
 
