@@ -1,1 +1,2 @@
 com.shipflow.common.config.CommonAutoConfiguration
+com.shipflow.common.config.RabbitMessagingAutoConfiguration
