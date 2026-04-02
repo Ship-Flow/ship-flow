@@ -1,20 +1,9 @@
 spring:
   application:
-    name: hubservice
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${POSTGRES_DB:shipflow}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        default_schema: hub
+    name: hubservice //이름 수정 필요.
 
 server:
-  port: 8080
+  port: 8080 // 변경 안하셔도 됩니다.
 
 eureka:
   client:
