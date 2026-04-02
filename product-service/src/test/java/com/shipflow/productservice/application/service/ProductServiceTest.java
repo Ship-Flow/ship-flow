@@ -1,7 +1,6 @@
 package com.shipflow.productservice.application.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.List;
@@ -18,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -28,11 +26,9 @@ import com.shipflow.common.exception.BusinessException;
 import com.shipflow.productservice.application.client.VendorFeignClient;
 import com.shipflow.productservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.productservice.application.mapper.ProductMapper;
-import com.shipflow.productservice.domain.exception.ProductErrorCode;
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.domain.model.ProductStatus;
 import com.shipflow.productservice.domain.repository.ProductRepository;
-import com.shipflow.productservice.domain.vo.VendorInfo;
 import com.shipflow.productservice.fixture.ProductFixture;
 import com.shipflow.productservice.infrastructure.web.UserContext;
 import com.shipflow.productservice.presentation.dto.request.ProductCreateRequest;
