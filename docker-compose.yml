@@ -1,5 +1,3 @@
-version: "3.9"
-
 x-service-env: &service-env
   DB_HOST: postgres
   POSTGRES_DB: ${POSTGRES_DB}
@@ -55,9 +53,8 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: company-service
-    container_name: shipflow-company
     ports:
-      - "8081:8080"
+      - "8080"
     environment:
       <<: *service-env
     depends_on:
@@ -69,9 +66,8 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: hub-service
-    container_name: shipflow-hub
     ports:
-      - "8082:8080"
+      - "8080"
     environment:
       <<: *service-env
     depends_on:
@@ -83,9 +79,8 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: notification-service
-    container_name: shipflow-notification
     ports:
-      - "8083:8080"
+      - "8080"
     environment:
       <<: *service-env
     depends_on:
@@ -97,9 +92,8 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: order-service
-    container_name: shipflow-order
     ports:
-      - "8084:8080"
+      - "8080"
     environment:
       <<: *service-env
     depends_on:
@@ -111,9 +105,8 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: product-service
-    container_name: shipflow-product
     ports:
-      - "8085:8080"
+      - "8080"
     environment:
       <<: *service-env
     depends_on:
@@ -125,9 +118,8 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: shipment-service
-    container_name: shipflow-shipment
     ports:
-      - "8086:8080"
+      - "8080"
     environment:
       <<: *service-env
     depends_on:
@@ -139,9 +131,8 @@ services:
       dockerfile: Dockerfile
       args:
         MODULE: user-service
-    container_name: shipflow-user
     ports:
-      - "8087:8080"
+      - "8080"
     environment:
       <<: *service-env
     depends_on:
