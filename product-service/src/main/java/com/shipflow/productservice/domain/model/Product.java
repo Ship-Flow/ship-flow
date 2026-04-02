@@ -57,7 +57,7 @@ public class Product extends BaseEntity {
 		if (name != null && !name.isBlank())
 			this.name = name;
 
-		if (price.compareTo(BigDecimal.ZERO) <= 0)
+		if (price!=null|| price.compareTo(BigDecimal.ZERO) <= 0)
 			throw new IllegalArgumentException("price는 0보다 커야 합니다.");
 		else
 			this.price = price;
