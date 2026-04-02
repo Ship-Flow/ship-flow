@@ -9,6 +9,9 @@ import com.shipflow.productservice.domain.model.ProductStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -17,10 +20,11 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Table(name = "p_product")
 public class ProductJpaEntity extends BaseEntity {
 	@Id
+	@GeneratedValue
 	@Column(columnDefinition = "uuid")
 	private UUID id;
 
@@ -33,6 +37,7 @@ public class ProductJpaEntity extends BaseEntity {
 	@Column(nullable = false)
 	private Integer stock;
 
+	@Enumerated(value= EnumType.STRING)
 	@Column(nullable = false)
 	private ProductStatus status;
 
@@ -67,7 +72,7 @@ public class ProductJpaEntity extends BaseEntity {
 	}
 
 	public Product toDomain() {
-		return Product.reconstruct(name, price, stock,
+		return Product.reconstruct(id,name, price, stock,
 			status, companyId, companyName, hubId, isHide,
 			createdBy, createdAt, updatedAt, updatedBy, deletedAt, deletedBy);
 	}

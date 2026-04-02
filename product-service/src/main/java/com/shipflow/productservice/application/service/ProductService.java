@@ -39,10 +39,10 @@ public class ProductService {
 		VendorInfoResponse response = vendorClient.getVendorInfo(companyId);
 		Product product = Product.create(
 			request.name(), request.price(), request.stock(),
-			request.status(), companyId, response.companyName(), response.hubId(),
+			request.status(), companyId, response.name(), response.hubId(),
 			createrId);
-		productRepository.save(product);
-		return mapper.toCreateResponse(product);
+		Product savedProduct =productRepository.save(product);
+		return mapper.toCreateResponse(savedProduct);
 	}
 
 	@Transactional
@@ -58,7 +58,7 @@ public class ProductService {
 		UUID updaterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.updateInfo(
-			request.productName(), request.price(), updaterId
+			request.name(), request.price(), updaterId
 		);
 		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
@@ -69,6 +69,7 @@ public class ProductService {
 		UUID updaterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.updateStock(request.stock(), updaterId);
+		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
 	}
 

@@ -37,11 +37,12 @@ public class Product extends BaseEntity {
 		return product;
 	}
 
-	public static Product reconstruct(String name, BigDecimal price,
+	public static Product reconstruct(UUID id,String name, BigDecimal price,
 		Integer stock, ProductStatus status, UUID companyId, String companyName,
 		UUID hubId, Boolean isHide, UUID createdBy, LocalDateTime createdAt,
 		LocalDateTime updatedAt, UUID updatedBy, LocalDateTime deletedAt, UUID deletedBy) {
 		Product product = new Product(name, price, stock, status, companyId, companyName, hubId);
+		product.id=id;
 		product.isHide = isHide;
 		product.createdAt = createdAt;
 		product.createdBy = createdBy;
@@ -79,7 +80,8 @@ public class Product extends BaseEntity {
 	public void updateStock(Integer stock, UUID updatedBy) {
 		this.stockInfo.setStock(stock);
 		if (stock == 0)
-			this.isHide = true;
+			updateStatus(ProductStatus.OUT_OF_STOCK, updatedBy);
+		this.stockInfo.setStock(stock);
 		this.update(updatedBy);
 	}
 
@@ -92,5 +94,21 @@ public class Product extends BaseEntity {
 	public void delete(UUID deletedBy) {
 		super.delete(deletedBy);
 		this.isHide = true;
+	}
+
+	public Integer getStock() {
+		return this.stockInfo.getStock();
+	}
+
+	public UUID getCompanyId () {
+		return this.vendorInfo.getCompanyId();
+	}
+
+	public String getCompanyName () {
+		return this.vendorInfo.getCompanyName();
+	}
+
+	public UUID getHubId () {
+		return this.vendorInfo.getHubId();
 	}
 }

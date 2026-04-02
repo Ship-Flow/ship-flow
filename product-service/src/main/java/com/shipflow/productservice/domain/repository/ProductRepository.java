@@ -11,7 +11,7 @@ import com.shipflow.productservice.domain.model.Product;
 public interface ProductRepository {
 	Optional<Product> findById(UUID id);
 
-	void save(Product product);
+	Product save(Product product);
 
 	Slice<Product> findAllByCompanyId(UUID companyId, Pageable pageable);
 }

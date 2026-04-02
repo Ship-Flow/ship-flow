@@ -10,8 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.NonNull;
 
 public record ProductInfoResponse(
-	@NonNull UUID productId,
-	@NotBlank String productName,
+	@NonNull UUID id,
+	@NotBlank String name,
 	@NonNull BigDecimal price,
 	@NonNull Integer stock,
 	@NonNull ProductStatus status, // Enum 타입 가정

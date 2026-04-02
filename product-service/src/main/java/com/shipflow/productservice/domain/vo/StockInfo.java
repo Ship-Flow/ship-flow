@@ -1,5 +1,8 @@
 package com.shipflow.productservice.domain.vo;
 
+import com.shipflow.common.exception.BusinessException;
+import com.shipflow.productservice.domain.exception.ProductErrorCode;
+
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,19 +16,21 @@ public class StockInfo {
 
 	public StockInfo(Integer stock) {
 		if (stock == null || stock < 0)
-			throw new IllegalArgumentException("재고는 0보다 작을 수 없습니다.");
+			throw new BusinessException(ProductErrorCode.INVALID_STOCK_VALUE);
 		this.stock = stock;
 	}
 
 	public void setStock(Integer stock) {
+		if (stock == null || stock < 0)
+			throw new BusinessException(ProductErrorCode.INVALID_STOCK_VALUE);
 		this.stock = stock;
 	}
 
 	public void decrease(Integer quantity) {
 		if (quantity == null || quantity < 0)
-			throw new IllegalArgumentException("유효하지 않은 수량입니다.");
+			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
 		else if (quantity > stock)
-			throw new IllegalArgumentException("보유 재고보다 많은 요청입니다.");
+			throw new BusinessException(ProductErrorCode.OUT_OF_STOCK);
 		this.stock -= quantity;
 	}
 }

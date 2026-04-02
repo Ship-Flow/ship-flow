@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.NonNull;
 
 public record ProductListResponse(
-	@NonNull UUID productId,
-	@NotBlank String productName
+	@NonNull UUID id,
+	@NotBlank String name
 ) {
 }
