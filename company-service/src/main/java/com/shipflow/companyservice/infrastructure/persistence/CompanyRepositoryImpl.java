@@ -19,10 +19,8 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 
 	@Override
 	public Optional<Company> findById(UUID id) {
-		CompanyJpaEntity jpaEntity = jpaRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("해당 업체를 찾을 수 없습니다."));
-		Company company = jpaEntity.toDomain();
-		return Optional.of(company);
+		return jpaRepository.findById(id)
+			.map(CompanyJpaEntity::toDomain);
 	}
 
 	@Override
@@ -40,8 +38,7 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 
 	@Override
 	public Optional<Company> findByManagerId(UUID id) {
-		CompanyJpaEntity entity = jpaRepository.findByManagerId(id)
-			.orElseThrow(() -> new IllegalArgumentException("해당 업체를 찾을 수 없습니다."));
-		return Optional.of(entity.toDomain());
+		return jpaRepository.findByManagerId(id)
+			.map(CompanyJpaEntity::toDomain);
 	}
 }

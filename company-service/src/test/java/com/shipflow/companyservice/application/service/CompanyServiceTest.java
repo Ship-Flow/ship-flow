@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -51,6 +52,11 @@ class CompanyServiceTest {
 
 	@Captor
 	private ArgumentCaptor<Company> companyCaptor;
+
+	@AfterEach
+	void tearDown() {
+		UserContext.clear();
+	}
 
 	@Test
 	void createCompany_success() {
@@ -192,5 +198,6 @@ class CompanyServiceTest {
 		MockHttpServletRequest httpRequest = new MockHttpServletRequest();
 		httpRequest.addHeader("X-User-Id", userId);
 		httpRequest.addHeader("X-User-Role", role);
+		UserContext.setUserContext(httpRequest);
 	}
 }

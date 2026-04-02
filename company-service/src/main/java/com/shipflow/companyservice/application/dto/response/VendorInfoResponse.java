@@ -5,6 +5,6 @@ import java.util.UUID;
 import lombok.NonNull;
 
 public record VendorInfoResponse(
-	@NonNull UUID companyId
+	@NonNull UUID id
 ) {
 }

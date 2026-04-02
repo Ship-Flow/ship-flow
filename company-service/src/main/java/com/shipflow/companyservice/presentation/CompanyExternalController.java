@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
@@ -28,33 +30,36 @@ import com.shipflow.companyservice.presentation.dto.response.CompanyListResponse
 import com.shipflow.companyservice.presentation.dto.response.CompanyUpdateResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@RestController("/api/companies")
+@RestController
+@RequestMapping("/api/companies")
 @RequiredArgsConstructor
 public class CompanyExternalController {
 	private final CompanyService companyService;
 
 	@PostMapping("/")
-	public ResponseEntity<ApiResponse<CompanyCreateResponse>> createCompany(CompanyCreateRequest request,
+	public ResponseEntity<ApiResponse<CompanyCreateResponse>> createCompany(@RequestBody @Valid CompanyCreateRequest request,
 		HttpServletRequest httpRequest) {
 		UserContext.setUserContext(httpRequest);
 		CompanyCreateResponse response = companyService.createCompany(request);
-		UserContext.clear();
+		UserContext.clear();	//todo: clear는 인터셉트 방식으로 변경예정
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
 	}
 
-	@DeleteMapping("/{companyId}")    //todo: 서비스에서 사용자 권한 추가 검증 고려
+	@DeleteMapping("/{companyId}")
 	public ResponseEntity<ApiResponse<Void>> deleteCompany(HttpServletRequest httpRequest,
 		@PathVariable UUID companyId) {
 		UserContext.setUserContext(httpRequest);
 		companyService.deleteCompany(companyId);
+		UserContext.clear();
 		return ResponseEntity.ok().body(ApiResponse.ok(null));
 	}
 
 	@PatchMapping("/me")
 	public ResponseEntity<ApiResponse<CompanyUpdateResponse>> updateByCompany(HttpServletRequest httpRequest,
-		CompanyUpdateByCompanyRequest request) {
+		@RequestBody CompanyUpdateByCompanyRequest request) {
 		UserContext.setUserContext(httpRequest);
 		CompanyUpdateResponse response = companyService.updateByCompany(request);
 		UserContext.clear();
@@ -63,7 +68,7 @@ public class CompanyExternalController {
 
 	@PatchMapping("/{companyId}")
 	public ResponseEntity<ApiResponse<CompanyUpdateResponse>> updateByAdmin(HttpServletRequest httpRequest,
-		CompanyUpdateByAdminRequest request, @PathVariable UUID companyId) {
+		@RequestBody CompanyUpdateByAdminRequest request, @PathVariable UUID companyId) {
 		UserContext.setUserContext(httpRequest);
 		CompanyUpdateResponse response = companyService.updateByAdmin(companyId, request);
 		UserContext.clear();

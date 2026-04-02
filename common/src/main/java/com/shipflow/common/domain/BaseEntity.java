@@ -31,11 +31,9 @@ public abstract class BaseEntity {
 	protected UUID createdBy;
 
 	@LastModifiedDate
-	@Column(nullable = false)
 	protected LocalDateTime updatedAt;
 
 	@LastModifiedBy
-	@Column(nullable = false)
 	protected UUID updatedBy;
 
 	protected LocalDateTime deletedAt;

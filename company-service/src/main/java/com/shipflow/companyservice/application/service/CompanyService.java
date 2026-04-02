@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.common.exception.BusinessException;
+import com.shipflow.common.exception.CommonErrorCode;
 import com.shipflow.companyservice.application.client.UserFeignClient;
 import com.shipflow.companyservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.companyservice.application.mapper.CompanyMapper;
@@ -37,7 +38,7 @@ public class CompanyService {
 	//external
 	@Transactional
 	public CompanyCreateResponse createCompany(CompanyCreateRequest request) {
-		UUID createrId = UserContext.getUserId();
+		UUID createrId = getUserId();
 		String managerName = userFeignClient.getUserNameById(request.managerId()).name();
 		Company newCompany = Company.create(
 			request.name(), request.type(), request.hubId(),
@@ -48,7 +49,7 @@ public class CompanyService {
 
 	@Transactional
 	public void deleteCompany(UUID companyId) {
-		UUID deleterId = UserContext.getUserId();
+		UUID deleterId = getUserId();
 		Company company = findCompanyById(companyId);
 		company.delete(deleterId);
 		companyRepository.save(company);
@@ -56,7 +57,7 @@ public class CompanyService {
 
 	@Transactional
 	public CompanyUpdateResponse updateByCompany(CompanyUpdateByCompanyRequest request) {
-		UUID updaterId = UserContext.getUserId();
+		UUID updaterId = getUserId();
 		Company company = findCompanyByManagerId(updaterId);
 		company.updateByCompany(request.name(), request.address(), updaterId);
 		companyRepository.save(company);
@@ -65,7 +66,7 @@ public class CompanyService {
 
 	@Transactional
 	public CompanyUpdateResponse updateByAdmin(UUID companyId, CompanyUpdateByAdminRequest request) {
-		UUID updaterId = UserContext.getUserId();
+		UUID updaterId = getUserId();
 		Company company = findCompanyById(companyId);
 
 		UUID requestedManagerId = request.managerId();
@@ -126,5 +127,12 @@ public class CompanyService {
 	private Company findCompanyByManagerId(UUID managerId) {
 		return companyRepository.findByManagerId(managerId)
 			.orElseThrow(() -> new BusinessException(CompanyErrorCode.COMPANY_NOT_FOUND));
+	}
+
+	private UUID getUserId() {
+		UUID userId = UserContext.getUserId();
+		if(userId == null)
+			throw new BusinessException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+		return userId;
 	}
 }
