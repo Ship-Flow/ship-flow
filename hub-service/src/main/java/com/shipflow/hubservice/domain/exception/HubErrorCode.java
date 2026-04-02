@@ -1,4 +1,4 @@
-package com.shipflow.hubservice.hub.error;
+package com.shipflow.hubservice.domain.exception;
 
 import com.shipflow.common.exception.ErrorCode;
 
