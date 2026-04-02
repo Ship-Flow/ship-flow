@@ -17,12 +17,10 @@ import lombok.RequiredArgsConstructor;
 public class ProductRepositoryImpl implements ProductRepository {
 	private final ProductJpaRepository jpaRepository;
 
-	@Override
+	`@Override`
 	public Optional<Product> findById(UUID id) {
-		ProductJpaEntity entity = jpaRepository.findById(id)
-			.orElseThrow(() -> new RuntimeException("해당 제품을 찾을 수 없습니다."));
-		Product product = entity.toDomain();
-		return Optional.of(product);
+		return jpaRepository.findById(id)
+			.map(ProductJpaEntity::toDomain);
 	}
 
 	@Override
