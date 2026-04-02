@@ -144,5 +144,18 @@ services:
     depends_on:
       <<: *service-depends-on
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: shipflow-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - shipflow_rabbitmq_data:/var/lib/rabbitmq
+
 volumes:
   shipflow_postgres_data:
+  shipflow_rabbitmq_data:
