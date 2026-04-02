@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.shipflow.common.domain.BaseEntity;
+import com.shipflow.common.exception.BusinessException;
+import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,6 +76,45 @@ public class SlackMessage extends BaseEntity {
 		this.slackTs = slackTs;
 		this.slackChannelId = slackChannelId;
 		this.sentAt = LocalDateTime.now();
+	}
+
+	public void markDeleted(UUID userId) {
+		validateDeletable();
+		super.softDelete(userId);
+	}
+
+	public void validateUpdatable() {
+		if (this.getDeletedAt() != null) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND);
+		}
+
+		if (this.sendStatus != SlackSendStatus.SUCCESS) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
+		}
+
+		if (this.slackTs == null || this.slackChannelId == null) {
+			throw new BusinessException(SlackErrorCode.INVALID_SLACK_ID_FORMAT);
+		}
+	}
+
+	public void updateMessage(String newMessage) {
+		validateUpdatable();
+
+		if (newMessage == null || newMessage.isBlank()) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_REQUIRED);
+		}
+
+		this.message = newMessage;
+	}
+
+	public void validateDeletable() {
+		if (this.getDeletedAt() != null) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND);
+		}
+
+		if (this.sendStatus != SlackSendStatus.SUCCESS) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_DELETE_FAILED);
+		}
 	}
 
 	public void markFail() {

@@ -1,4 +1,4 @@
-package com.shipflow.notificationservice.presentation.slack.dto;
+package com.shipflow.notificationservice.application.slack.dto.result;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -7,8 +7,8 @@ import com.shipflow.notificationservice.domain.slack.SlackMessage;
 import com.shipflow.notificationservice.domain.slack.SlackMessageType;
 import com.shipflow.notificationservice.domain.slack.SlackSendStatus;
 
-public record SlackMessageResponse(
-	UUID id,
+public record SlackMessageResult(
+	UUID slackId,
 	String receiverSlackId,
 	UUID relatedShipmentId,
 	UUID relatedAiLogId,
@@ -17,10 +17,11 @@ public record SlackMessageResponse(
 	String message,
 	SlackMessageType messageType,
 	SlackSendStatus sendStatus,
-	LocalDateTime sentAt
+	LocalDateTime sentAt,
+	LocalDateTime createdAt
 ) {
-	public static SlackMessageResponse from(SlackMessage slackMessage) {
-		return new SlackMessageResponse(
+	public static SlackMessageResult from(SlackMessage slackMessage) {
+		return new SlackMessageResult(
 			slackMessage.getId(),
 			slackMessage.getReceiverSlackId(),
 			slackMessage.getRelatedShipmentId(),
@@ -30,7 +31,8 @@ public record SlackMessageResponse(
 			slackMessage.getMessage(),
 			slackMessage.getMessageType(),
 			slackMessage.getSendStatus(),
-			slackMessage.getSentAt()
+			slackMessage.getSentAt(),
+			slackMessage.getCreatedAt()
 		);
 	}
 }

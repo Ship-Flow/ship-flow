@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
 
-public interface SlackMessageRepository extends JpaRepository<SlackMessage, UUID> {
+public interface SlackMessageJpaRepository extends JpaRepository<SlackMessage, UUID> {
 
 	// TODO: 단건 조회 시 soft delete 제외
 	Optional<SlackMessage> findByIdAndDeletedAtIsNull(UUID id);

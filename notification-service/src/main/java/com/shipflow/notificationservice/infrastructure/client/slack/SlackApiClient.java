@@ -8,10 +8,14 @@ import org.springframework.stereotype.Component;
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
 import com.shipflow.notificationservice.infrastructure.client.slack.config.SlackProperties;
+import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackDeleteResult;
 import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendResult;
+import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackUpdateResult;
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
+import com.slack.api.methods.response.chat.ChatDeleteResponse;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.methods.response.conversations.ConversationsOpenResponse;
 
 @Component
@@ -25,10 +29,11 @@ public class SlackApiClient {
 		this.slackProperties = slackProperties;
 	}
 
-	// TODO: SlackErrorCode 적용 필요
+	//슬랙 메세지 발송 진입 메서드
 	public SlackSendResult sendMessage(String receiverSlackId, String message) {
 		try {
 			validateReceiverSlackId(receiverSlackId);
+			validateMessage(message);
 
 			if (isUserId(receiverSlackId)) {
 				return sendDirectMessage(receiverSlackId, message);
@@ -45,6 +50,7 @@ public class SlackApiClient {
 		}
 	}
 
+	//메세지(개별 DM)
 	private SlackSendResult sendDirectMessage(String userSlackId, String message)
 		throws IOException, SlackApiException {
 
@@ -73,6 +79,7 @@ public class SlackApiClient {
 		);
 	}
 
+	//메세지(채널)
 	private SlackSendResult sendChannelMessage(String channelId, String message)
 		throws IOException, SlackApiException {
 
@@ -92,12 +99,83 @@ public class SlackApiClient {
 		);
 	}
 
+	//슬랙 메세지 수정
+	public SlackUpdateResult updateMessage(String channelId, String ts, String message) {
+		try {
+			validateSlackChannelId(channelId);
+			validateSlackTs(ts);
+			validateMessage(message);
+
+			ChatUpdateResponse response = slack.methods(slackProperties.getBotToken())
+				.chatUpdate(req -> req
+					.channel(channelId)
+					.ts(ts)
+					.text(message)
+				);
+			if (!response.isOk()) {
+				throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
+			}
+			return new SlackUpdateResult(
+				response.getTs(),
+				response.getChannel(),
+				response.getText()
+			);
+
+		} catch (IOException | SlackApiException e) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
+		}
+	}
+
+	//슬랙 메세지 삭제
+	public SlackDeleteResult deleteMessage(String channelId, String ts) {
+		try {
+			validateSlackChannelId(channelId);
+			validateSlackTs(ts);
+
+			ChatDeleteResponse response = slack.methods(slackProperties.getBotToken())
+				.chatDelete(req -> req
+					.channel(channelId)
+					.ts(ts)
+				);
+			if (!response.isOk()) {
+				throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_DELETE_FAILED);
+			}
+			return new SlackDeleteResult(
+				response.getTs(),
+				response.getChannel()
+			);
+
+		} catch (IOException | SlackApiException e) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_DELETE_FAILED);
+		}
+	}
+
+	//유효성 검증
 	private void validateReceiverSlackId(String receiverSlackId) {
 		if (receiverSlackId == null || receiverSlackId.isBlank()) {
 			throw new BusinessException(SlackErrorCode.RECEIVER_SLACK_ID_REQUIRED);
 		}
 	}
 
+	private void validateSlackChannelId(String slackChannelId) {
+		if (slackChannelId == null || slackChannelId.isBlank()) {
+			throw new BusinessException(SlackErrorCode.SLACK_CHANNEL_ID_REQUIRED);
+		}
+	}
+
+	private void validateSlackTs(String slackTs) {
+		if (slackTs == null || slackTs.isBlank()) {
+			throw new BusinessException(SlackErrorCode.SLACK_TS_REQUIRED);
+		}
+	}
+
+	private void validateMessage(String message) {
+		if (message == null || message.isBlank()) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_REQUIRED);
+		}
+	}
+
+	//SlackID 유형별로 처리
 	private boolean isUserId(String receiverSlackId) {
 		return receiverSlackId.startsWith("U");
 	}
