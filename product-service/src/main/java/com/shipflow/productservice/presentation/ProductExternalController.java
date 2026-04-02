@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
@@ -27,18 +28,21 @@ import com.shipflow.productservice.presentation.dto.response.ProductListResponse
 import com.shipflow.productservice.presentation.dto.response.ProductUpdateResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@RestController("/api/companies/{companyId}/products")
+@RestController
+@RequestMapping("/api/companies/{companyId}/products")
 @RequiredArgsConstructor
 public class ProductExternalController {
 	private final ProductService productService;
 
-	@PostMapping("/")
+	@PostMapping
 	public ResponseEntity<ApiResponse<ProductCreateResponse>> addProduct(@PathVariable UUID companyId,
-		@RequestBody ProductCreateRequest productCreateRequest, HttpServletRequest request) {
+		@Valid @RequestBody ProductCreateRequest productCreateRequest, HttpServletRequest request) {
 		UserContext.setUserContext(request);
 		ProductCreateResponse response = productService.create(companyId, productCreateRequest);
+		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
 	}
 
@@ -47,6 +51,7 @@ public class ProductExternalController {
 		HttpServletRequest request) {
 		UserContext.setUserContext(request);
 		productService.delete(productId);
+		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.OK).body("요청이 정상 처리되었습니다.");
 	}
 
@@ -56,15 +61,17 @@ public class ProductExternalController {
 		HttpServletRequest request) {
 		UserContext.setUserContext(request);
 		ProductUpdateResponse response = productService.updateInfo(productId, productUpdateInfoRequest);
+		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@PostMapping("/{productId}/stock")
 	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateStock(@PathVariable UUID productId,
-		ProductUpdateStockRequest productUpdateStockRequest, HttpServletRequest request) {
+		@RequestBody ProductUpdateStockRequest productUpdateStockRequest, HttpServletRequest request) {
 		UserContext.setUserContext(request);
 		ProductUpdateResponse response = productService.updateStock(productId,
 			productUpdateStockRequest);
+		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
