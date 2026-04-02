@@ -6,12 +6,12 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import com.shipflow.companyservice.domain.Company;
+import com.shipflow.companyservice.domain.model.Company;
 
 public interface CompanyRepository {
 	Optional<Company> findById(UUID id);
 
-	void save(Company company);
+	Company save(Company company);
 
 	Slice<Company> findAll(Pageable pageable);
 

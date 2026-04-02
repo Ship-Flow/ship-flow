@@ -1,4 +1,4 @@
-package com.shipflow.companyservice.domain;
+package com.shipflow.companyservice.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -76,5 +76,9 @@ public class Company extends BaseEntity {
 
 	public void delete(UUID deletedBy) {
 		super.delete(deletedBy);
+	}
+
+	public boolean isDeleted() {
+		return this.deletedAt != null;
 	}
 }

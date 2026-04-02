@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.companyservice.application.service.CompanyService;
-import com.shipflow.companyservice.infrastructure.persistence.UserContext;
+import com.shipflow.companyservice.infrastructure.web.UserContext;
 import com.shipflow.companyservice.presentation.dto.request.CompanyCreateRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByAdminRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByCompanyRequest;

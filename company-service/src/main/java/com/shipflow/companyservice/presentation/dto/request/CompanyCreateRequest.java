@@ -2,7 +2,7 @@ package com.shipflow.companyservice.presentation.dto.request;
 
 import java.util.UUID;
 
-import com.shipflow.companyservice.domain.CompanyType;
+import com.shipflow.companyservice.domain.model.CompanyType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,4 +1,4 @@
-package com.shipflow.companyservice.domain;
+package com.shipflow.companyservice.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

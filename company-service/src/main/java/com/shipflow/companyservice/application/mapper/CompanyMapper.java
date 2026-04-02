@@ -3,7 +3,7 @@ package com.shipflow.companyservice.application.mapper;
 import org.mapstruct.Mapper;
 
 import com.shipflow.companyservice.application.dto.response.VendorInfoResponse;
-import com.shipflow.companyservice.domain.Company;
+import com.shipflow.companyservice.domain.model.Company;
 import com.shipflow.companyservice.presentation.dto.response.CompanyCreateResponse;
 import com.shipflow.companyservice.presentation.dto.response.CompanyInfoForAdminResponse;
 import com.shipflow.companyservice.presentation.dto.response.CompanyInfoForCompanyResponse;

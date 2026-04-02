@@ -1,8 +1,8 @@
 package com.shipflow.companyservice.presentation.dto.request;
 
-import org.hibernate.validator.constraints.UUID;
+import java.util.UUID;
 
-import com.shipflow.companyservice.domain.CompanyType;
+import com.shipflow.companyservice.domain.model.CompanyType;
 
 public record CompanyUpdateByAdminRequest(
 	String name,

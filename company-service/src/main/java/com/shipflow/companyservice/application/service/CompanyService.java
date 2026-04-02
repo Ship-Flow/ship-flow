@@ -5,14 +5,16 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.common.exception.BusinessException;
-import com.shipflow.common.exception.CommonErrorCode;
+import com.shipflow.companyservice.application.client.UserFeignClient;
 import com.shipflow.companyservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.companyservice.application.mapper.CompanyMapper;
-import com.shipflow.companyservice.domain.Company;
+import com.shipflow.companyservice.domain.exception.CompanyErrorCode;
+import com.shipflow.companyservice.domain.model.Company;
 import com.shipflow.companyservice.domain.repository.CompanyRepository;
-import com.shipflow.companyservice.infrastructure.persistence.UserContext;
+import com.shipflow.companyservice.infrastructure.web.UserContext;
 import com.shipflow.companyservice.presentation.dto.request.CompanyCreateRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByAdminRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByCompanyRequest;
@@ -26,20 +28,25 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CompanyService {
 	private final CompanyRepository companyRepository;
 	private final CompanyMapper mapper;
+	private final UserFeignClient userFeignClient;
 
 	//external
+	@Transactional
 	public CompanyCreateResponse createCompany(CompanyCreateRequest request) {
 		UUID createrId = UserContext.getUserId();
+		String managerName = userFeignClient.getUserNameById(request.managerId()).name();
 		Company newCompany = Company.create(
 			request.name(), request.type(), request.hubId(),
-			request.address(), request.managerId(), request.name(), createrId);
-		companyRepository.save(newCompany);
-		return mapper.toCreateResponse(newCompany);
+			request.address(), request.managerId(), managerName, createrId);
+		Company savedCompany = companyRepository.save(newCompany);
+		return mapper.toCreateResponse(savedCompany);
 	}
 
+	@Transactional
 	public void deleteCompany(UUID companyId) {
 		UUID deleterId = UserContext.getUserId();
 		Company company = findCompanyById(companyId);
@@ -47,18 +54,22 @@ public class CompanyService {
 		companyRepository.save(company);
 	}
 
+	@Transactional
 	public CompanyUpdateResponse updateByCompany(CompanyUpdateByCompanyRequest request) {
 		UUID updaterId = UserContext.getUserId();
-		Company company = findCompanyById(updaterId);
+		Company company = findCompanyByManagerId(updaterId);
 		company.updateByCompany(request.name(), request.address(), updaterId);
 		companyRepository.save(company);
 		return mapper.toUpdateResponse(company);
 	}
 
+	@Transactional
 	public CompanyUpdateResponse updateByAdmin(UUID companyId, CompanyUpdateByAdminRequest request) {
 		UUID updaterId = UserContext.getUserId();
 		Company company = findCompanyById(companyId);
-		company.updateByCompany(request.name(), request.address(), updaterId);
+		String managerName = userFeignClient.getUserNameById(request.managerId()).name();
+		company.updateByAdmin(request.name(), request.type(), request.hubId(), request.address(), request.managerId(),
+			managerName, updaterId);
 		companyRepository.save(company);
 		return mapper.toUpdateResponse(company);
 	}
@@ -88,11 +99,11 @@ public class CompanyService {
 	//util
 	private Company findCompanyById(UUID companyId) {
 		return companyRepository.findById(companyId)
-			.orElseThrow(() -> new BusinessException(CommonErrorCode.VALIDATION_ERROR, "해당 업체를 찾을 수 없습니다."));
+			.orElseThrow(() -> new BusinessException(CompanyErrorCode.COMPANY_NOT_FOUND));
 	}
 
 	private Company findCompanyByManagerId(UUID managerId) {
 		return companyRepository.findByManagerId(managerId)
-			.orElseThrow(() -> new BusinessException(CommonErrorCode.VALIDATION_ERROR, "해당 업체를 찾을 수 없습니다."));
+			.orElseThrow(() -> new BusinessException(CompanyErrorCode.COMPANY_NOT_FOUND));
 	}
 }

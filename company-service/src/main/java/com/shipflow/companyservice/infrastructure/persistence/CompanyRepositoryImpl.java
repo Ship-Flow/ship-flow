@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
-import com.shipflow.companyservice.domain.Company;
+import com.shipflow.companyservice.domain.model.Company;
 import com.shipflow.companyservice.domain.repository.CompanyRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,9 +26,10 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 	}
 
 	@Override
-	public void save(Company company) {
+	public Company save(Company company) {
 		CompanyJpaEntity jpaEntity = CompanyJpaEntity.from(company);
-		jpaRepository.save(jpaEntity);
+		CompanyJpaEntity savedCompany = jpaRepository.save(jpaEntity);
+		return savedCompany.toDomain();
 	}
 
 	@Override
