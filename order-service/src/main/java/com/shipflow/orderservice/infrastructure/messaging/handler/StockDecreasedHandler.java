@@ -21,6 +21,6 @@ public class StockDecreasedHandler extends AbstractSagaHandler<ProductStockDecre
 
     @Override
     protected void process(ProductStockDecreasedEvent event) {
-        orderCommandService.confirmCreation(event.getOrderId());
+        orderCommandService.confirmCreation(event.getOrderId(), event.getProductName());
     }
 }

@@ -14,4 +14,9 @@ public class ShipmentCreatedEvent extends SagaEvent {
 
     private UUID orderId;
     private UUID shipmentId;
+    private String shipmentStatus;
+    private UUID departureHubId;
+    private String departureHubName;
+    private UUID arrivalHubId;
+    private String arrivalHubName;
 }

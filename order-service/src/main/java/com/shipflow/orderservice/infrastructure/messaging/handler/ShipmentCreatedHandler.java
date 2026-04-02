@@ -21,6 +21,11 @@ public class ShipmentCreatedHandler extends AbstractSagaHandler<ShipmentCreatedE
 
     @Override
     protected void process(ShipmentCreatedEvent event) {
-        orderCommandService.linkShipment(event.getOrderId(), event.getShipmentId());
+        orderCommandService.linkShipment(
+                event.getOrderId(), event.getShipmentId(),
+                event.getShipmentStatus(),
+                event.getDepartureHubId(), event.getDepartureHubName(),
+                event.getArrivalHubId(), event.getArrivalHubName()
+        );
     }
 }

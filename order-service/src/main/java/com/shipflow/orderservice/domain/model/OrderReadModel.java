@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class OrderReadModel {
 
     private UUID orderId;

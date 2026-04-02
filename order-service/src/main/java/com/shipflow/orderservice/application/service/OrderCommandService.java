@@ -5,6 +5,7 @@ import com.shipflow.orderservice.application.dto.CreateOrderCommand;
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.dto.UpdateOrderCommand;
 import com.shipflow.common.messaging.publisher.EventPublisher;
+import com.shipflow.orderservice.domain.event.*;
 import com.shipflow.orderservice.infrastructure.messaging.event.publish.*;
 import com.shipflow.orderservice.domain.exception.OrderNotFoundException;
 import com.shipflow.orderservice.domain.model.Order;
@@ -13,6 +14,7 @@ import com.shipflow.orderservice.domain.vo.CompanyInfo;
 import com.shipflow.orderservice.domain.vo.HubInfo;
 import com.shipflow.orderservice.domain.vo.Quantity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +26,8 @@ import java.util.UUID;
 public class OrderCommandService {
 
     private final OrderRepository orderRepository;
-    private final EventPublisher eventPublisher;
+    private final EventPublisher rabbitPublisher;
+    private final ApplicationEventPublisher domainEventPublisher;
 
     public OrderResult createOrder(CreateOrderCommand cmd, UUID requesterId) {
         Order order = Order.create(
@@ -39,19 +42,32 @@ public class OrderCommandService {
         );
         Order saved = orderRepository.save(order);
 
-        eventPublisher.publish(
+        domainEventPublisher.publishEvent(new OrderCreatingEvent(
+                saved.getId(), saved.getOrdererId(), saved.getProductId(),
+                saved.getCompanyInfo().getSupplierCompanyId(),
+                saved.getCompanyInfo().getReceiverCompanyId(),
+                saved.getHubInfo().getDepartureHubId(),
+                saved.getHubInfo().getArrivalHubId(),
+                saved.getQuantity().getValue(),
+                saved.getRequestDeadline(), saved.getRequestNote(),
+                saved.getCreatedBy(), saved.getCreatedAt()
+        ));
+
+        rabbitPublisher.publish(
                 new OrderCreationStartedEvent(saved.getId(), saved.getProductId(), saved.getQuantity().getValue())
         );
 
         return OrderResult.from(saved);
     }
 
-    public void confirmCreation(UUID orderId) {
+    public void confirmCreation(UUID orderId, String productName) {
         Order order = findOrThrow(orderId);
         order.confirmCreation();
         Order saved = orderRepository.save(order);
 
-        eventPublisher.publish(
+        domainEventPublisher.publishEvent(new OrderConfirmedEvent(saved.getId(), productName));
+
+        rabbitPublisher.publish(
                 new OrderCreatedEvent(
                         saved.getId(),
                         saved.getCompanyInfo().getSupplierCompanyId(),
@@ -69,6 +85,7 @@ public class OrderCommandService {
         Order order = findOrThrow(orderId);
         order.fail();
         orderRepository.save(order);
+        domainEventPublisher.publishEvent(new OrderFailedEvent(orderId));
     }
 
     public void cancelOrder(UUID orderId, CancelOrderCommand cmd) {
@@ -76,7 +93,9 @@ public class OrderCommandService {
         order.cancel(cmd.reason());
         Order saved = orderRepository.save(order);
 
-        eventPublisher.publish(
+        domainEventPublisher.publishEvent(new OrderCanceledProjectionEvent(saved.getId(), cmd.reason()));
+
+        rabbitPublisher.publish(
                 new OrderCanceledEvent(saved.getId(), saved.getProductId(), saved.getQuantity().getValue())
         );
     }
@@ -85,12 +104,21 @@ public class OrderCommandService {
         Order order = findOrThrow(orderId);
         order.complete();
         orderRepository.save(order);
+        domainEventPublisher.publishEvent(new OrderCompletedEvent(orderId));
     }
 
-    public void linkShipment(UUID orderId, UUID shipmentId) {
+    public void linkShipment(UUID orderId, UUID shipmentId,
+                             String shipmentStatus,
+                             UUID departureHubId, String departureHubName,
+                             UUID arrivalHubId, String arrivalHubName) {
         Order order = findOrThrow(orderId);
         order.linkShipment(shipmentId);
         orderRepository.save(order);
+        domainEventPublisher.publishEvent(new OrderShipmentLinkedEvent(
+                orderId, shipmentId, shipmentStatus,
+                departureHubId, departureHubName,
+                arrivalHubId, arrivalHubName
+        ));
     }
 
     public OrderResult updateOrder(UUID orderId, UpdateOrderCommand cmd, UUID requesterId) {
@@ -110,7 +138,10 @@ public class OrderCommandService {
     public void deleteOrder(UUID orderId, UUID deleterId) {
         Order order = findOrThrow(orderId);
         order.softDelete(deleterId);
-        orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        domainEventPublisher.publishEvent(new OrderDeletedEvent(
+                saved.getId(), saved.getDeletedBy(), saved.getDeletedAt()
+        ));
     }
 
     private Order findOrThrow(UUID orderId) {

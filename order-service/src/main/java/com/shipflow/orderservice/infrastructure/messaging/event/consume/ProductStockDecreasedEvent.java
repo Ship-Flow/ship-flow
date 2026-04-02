@@ -13,4 +13,5 @@ import java.util.UUID;
 public class ProductStockDecreasedEvent extends SagaEvent {
 
     private UUID orderId;
+    private String productName;
 }
