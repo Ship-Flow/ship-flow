@@ -1,6 +1,5 @@
-package com.shipflow.orderservice.infrastructure.messaging.event.outbound;
+package com.shipflow.orderservice.infrastructure.messaging.event.publish;
 
-import com.shipflow.common.messaging.event.EventType;
 import com.shipflow.common.messaging.event.SagaEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +10,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class OrderCreatedEvent extends SagaEvent {
+
+    private static final String EVENT_TYPE = "order.created";
 
     private UUID orderId;
     private UUID supplierCompanyId;
@@ -25,7 +26,7 @@ public class OrderCreatedEvent extends SagaEvent {
                              UUID productId, int quantity,
                              UUID departureHubId, UUID arrivalHubId,
                              LocalDateTime requestDeadline) {
-        super(EventType.ORDER_CREATED);
+        super(EVENT_TYPE);
         this.orderId = orderId;
         this.supplierCompanyId = supplierCompanyId;
         this.receiverCompanyId = receiverCompanyId;

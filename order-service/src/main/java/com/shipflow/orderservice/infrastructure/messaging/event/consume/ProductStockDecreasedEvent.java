@@ -1,4 +1,4 @@
-package com.shipflow.orderservice.infrastructure.messaging.event.inbound;
+package com.shipflow.orderservice.infrastructure.messaging.event.consume;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shipflow.common.messaging.event.SagaEvent;
@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ShipmentCompletedEvent extends SagaEvent {
+public class ProductStockDecreasedEvent extends SagaEvent {
 
     private UUID orderId;
 }

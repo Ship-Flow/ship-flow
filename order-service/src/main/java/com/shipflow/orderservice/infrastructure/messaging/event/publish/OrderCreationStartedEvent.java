@@ -1,8 +1,10 @@
-package com.shipflow.orderservice.infrastructure.messaging.publish;
+package com.shipflow.orderservice.infrastructure.messaging.event.publish;
 
 import com.shipflow.common.messaging.event.SagaEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
@@ -10,11 +12,11 @@ public class OrderCreationStartedEvent extends SagaEvent {
 
     private static final String EVENT_TYPE = "order.creation.started";
 
-    private String orderId;
-    private String productId;
+    private UUID orderId;
+    private UUID productId;
     private Integer quantity;
 
-    public OrderCreationStartedEvent(String orderId, String productId, Integer quantity) {
+    public OrderCreationStartedEvent(UUID orderId, UUID productId, Integer quantity) {
         super(EVENT_TYPE);
         this.orderId = orderId;
         this.productId = productId;

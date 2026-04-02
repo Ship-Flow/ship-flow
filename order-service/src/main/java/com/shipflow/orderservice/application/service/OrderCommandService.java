@@ -5,7 +5,7 @@ import com.shipflow.orderservice.application.dto.CreateOrderCommand;
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.dto.UpdateOrderCommand;
 import com.shipflow.common.messaging.publisher.EventPublisher;
-import com.shipflow.orderservice.infrastructure.messaging.event.outbound.*;
+import com.shipflow.orderservice.infrastructure.messaging.event.publish.*;
 import com.shipflow.orderservice.domain.exception.OrderNotFoundException;
 import com.shipflow.orderservice.domain.model.Order;
 import com.shipflow.orderservice.domain.repository.OrderRepository;

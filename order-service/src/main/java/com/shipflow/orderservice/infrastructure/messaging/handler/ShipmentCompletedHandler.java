@@ -1,9 +1,9 @@
 package com.shipflow.orderservice.infrastructure.messaging.handler;
 
 import com.shipflow.common.messaging.handler.AbstractSagaHandler;
-import com.shipflow.config.message.RabbitMqConfig;
 import com.shipflow.orderservice.application.service.OrderCommandService;
-import com.shipflow.orderservice.infrastructure.messaging.event.inbound.ShipmentCompletedEvent;
+import com.shipflow.orderservice.infrastructure.messaging.config.OrderRabbitConfig;
+import com.shipflow.orderservice.infrastructure.messaging.event.consume.ShipmentCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ public class ShipmentCompletedHandler extends AbstractSagaHandler<ShipmentComple
 
     private final OrderCommandService orderCommandService;
 
-    @RabbitListener(queues = RabbitMqConfig.QUEUE_ORDER_SHIPMENT_COMPLETED)
+    @RabbitListener(queues = OrderRabbitConfig.QUEUE_ORDER_SHIPMENT_COMPLETED)
     public void receive(ShipmentCompletedEvent event) {
         handle(event);
     }

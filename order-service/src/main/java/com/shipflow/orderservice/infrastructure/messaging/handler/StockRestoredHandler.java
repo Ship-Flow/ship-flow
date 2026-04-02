@@ -1,15 +1,15 @@
 package com.shipflow.orderservice.infrastructure.messaging.handler;
 
 import com.shipflow.common.messaging.handler.AbstractSagaHandler;
-import com.shipflow.config.message.RabbitMqConfig;
-import com.shipflow.orderservice.infrastructure.messaging.event.inbound.ProductStockRestoredEvent;
+import com.shipflow.orderservice.infrastructure.messaging.config.OrderRabbitConfig;
+import com.shipflow.orderservice.infrastructure.messaging.event.consume.ProductStockRestoredEvent;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StockRestoredHandler extends AbstractSagaHandler<ProductStockRestoredEvent> {
 
-    @RabbitListener(queues = RabbitMqConfig.QUEUE_ORDER_STOCK_RESTORED)
+    @RabbitListener(queues = OrderRabbitConfig.QUEUE_ORDER_STOCK_RESTORED)
     public void receive(ProductStockRestoredEvent event) {
         handle(event);
     }
