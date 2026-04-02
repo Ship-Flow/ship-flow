@@ -67,9 +67,30 @@ public class CompanyService {
 	public CompanyUpdateResponse updateByAdmin(UUID companyId, CompanyUpdateByAdminRequest request) {
 		UUID updaterId = UserContext.getUserId();
 		Company company = findCompanyById(companyId);
-		String managerName = userFeignClient.getUserNameById(request.managerId()).name();
-		company.updateByAdmin(request.name(), request.type(), request.hubId(), request.address(), request.managerId(),
-			managerName, updaterId);
+
+		UUID requestedManagerId = request.managerId();
+		UUID targetManagerId;
+		String managerName;
+
+		if (requestedManagerId != null && !requestedManagerId.equals(company.getManagerId())) {
+			// Manager change requested: lookup new manager name via Feign
+			targetManagerId = requestedManagerId;
+			managerName = userFeignClient.getUserNameById(requestedManagerId).name();
+		} else {
+			// No manager change requested: keep existing manager information
+			targetManagerId = company.getManagerId();
+			managerName = company.getManagerName();
+		}
+
+		company.updateByAdmin(
+			request.name(),
+			request.type(),
+			request.hubId(),
+			request.address(),
+			targetManagerId,
+			managerName,
+			updaterId
+		);
 		companyRepository.save(company);
 		return mapper.toUpdateResponse(company);
 	}
