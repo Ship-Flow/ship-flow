@@ -20,6 +20,9 @@ public class OrderRepositoryImpl implements OrderRepository {
         return jpaRepository.findById(id).map(OrderJpaEntity::toDomain);
     }
 
+    /**
+     * Order -> OrderJpaEntity 로 변환해서 저장
+     * */
     @Override
     public Order save(Order order) {
         OrderJpaEntity saved = jpaRepository.save(OrderJpaEntity.from(order));
