@@ -23,7 +23,9 @@ services:
   discoveryservice:
     build:
       context: .
-      dockerfile: discovery-server/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        MODULE: discovery-server
     container_name: shipflow-eureka
     ports:
       - "8761:8761"
@@ -37,7 +39,9 @@ services:
   hubservice:
     build:
       context: .
-      dockerfile: hub-service/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        MODULE: hub-service
     container_name: shipflow-hub
     ports:
       - "8080:8080"
