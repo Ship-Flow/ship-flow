@@ -25,29 +25,21 @@ public class OrderRabbitConfig {
     public static final String QUEUE_ORDER_SHIPMENT_CREATION_FAILED_DLQ = QUEUE_ORDER_SHIPMENT_CREATION_FAILED  + ".dlq";
     public static final String QUEUE_ORDER_SHIPMENT_COMPLETED_DLQ       = QUEUE_ORDER_SHIPMENT_COMPLETED        + ".dlq";
 
-    // ── Queue 공통 생성 헬퍼 ─────────────────────
-    private Queue durableQueue(String name) {
-        return QueueBuilder.durable(name)
-                .withArgument("x-dead-letter-exchange", RabbitMqConfig.SAGA_DLX)
-                .withArgument("x-dead-letter-routing-key", name + ".dlq")
-                .build();
-    }
-
     // ── Queue Bean ─────────────────────────────────
-    @Bean public Queue queueOrderStockDecreased()          { return durableQueue(QUEUE_ORDER_STOCK_DECREASED); }
-    @Bean public Queue queueOrderStockDecreasedFailed()    { return durableQueue(QUEUE_ORDER_STOCK_DECREASED_FAILED); }
-    @Bean public Queue queueOrderStockRestored()           { return durableQueue(QUEUE_ORDER_STOCK_RESTORED); }
-    @Bean public Queue queueOrderShipmentCreated()         { return durableQueue(QUEUE_ORDER_SHIPMENT_CREATED); }
-    @Bean public Queue queueOrderShipmentCreationFailed()  { return durableQueue(QUEUE_ORDER_SHIPMENT_CREATION_FAILED); }
-    @Bean public Queue queueOrderShipmentCompleted()       { return durableQueue(QUEUE_ORDER_SHIPMENT_COMPLETED); }
+    @Bean public Queue queueOrderStockDecreased()          { return RabbitMqConfig.durableQueue(QUEUE_ORDER_STOCK_DECREASED); }
+    @Bean public Queue queueOrderStockDecreasedFailed()    { return RabbitMqConfig.durableQueue(QUEUE_ORDER_STOCK_DECREASED_FAILED); }
+    @Bean public Queue queueOrderStockRestored()           { return RabbitMqConfig.durableQueue(QUEUE_ORDER_STOCK_RESTORED); }
+    @Bean public Queue queueOrderShipmentCreated()         { return RabbitMqConfig.durableQueue(QUEUE_ORDER_SHIPMENT_CREATED); }
+    @Bean public Queue queueOrderShipmentCreationFailed()  { return RabbitMqConfig.durableQueue(QUEUE_ORDER_SHIPMENT_CREATION_FAILED); }
+    @Bean public Queue queueOrderShipmentCompleted()       { return RabbitMqConfig.durableQueue(QUEUE_ORDER_SHIPMENT_COMPLETED); }
 
     // ── DLQ Bean ──────────────────────────────────
-    @Bean public Queue queueOrderStockDecreasedDlq()         { return QueueBuilder.durable(QUEUE_ORDER_STOCK_DECREASED_DLQ).build(); }
-    @Bean public Queue queueOrderStockDecreasedFailedDlq()   { return QueueBuilder.durable(QUEUE_ORDER_STOCK_DECREASED_FAILED_DLQ).build(); }
-    @Bean public Queue queueOrderStockRestoredDlq()          { return QueueBuilder.durable(QUEUE_ORDER_STOCK_RESTORED_DLQ).build(); }
-    @Bean public Queue queueOrderShipmentCreatedDlq()        { return QueueBuilder.durable(QUEUE_ORDER_SHIPMENT_CREATED_DLQ).build(); }
-    @Bean public Queue queueOrderShipmentCreationFailedDlq() { return QueueBuilder.durable(QUEUE_ORDER_SHIPMENT_CREATION_FAILED_DLQ).build(); }
-    @Bean public Queue queueOrderShipmentCompletedDlq()      { return QueueBuilder.durable(QUEUE_ORDER_SHIPMENT_COMPLETED_DLQ).build(); }
+    @Bean public Queue queueOrderStockDecreasedDlq()         { return RabbitMqConfig.dlqQueue(QUEUE_ORDER_STOCK_DECREASED_DLQ); }
+    @Bean public Queue queueOrderStockDecreasedFailedDlq()   { return RabbitMqConfig.dlqQueue(QUEUE_ORDER_STOCK_DECREASED_FAILED_DLQ); }
+    @Bean public Queue queueOrderStockRestoredDlq()          { return RabbitMqConfig.dlqQueue(QUEUE_ORDER_STOCK_RESTORED_DLQ); }
+    @Bean public Queue queueOrderShipmentCreatedDlq()        { return RabbitMqConfig.dlqQueue(QUEUE_ORDER_SHIPMENT_CREATED_DLQ); }
+    @Bean public Queue queueOrderShipmentCreationFailedDlq() { return RabbitMqConfig.dlqQueue(QUEUE_ORDER_SHIPMENT_CREATION_FAILED_DLQ); }
+    @Bean public Queue queueOrderShipmentCompletedDlq()      { return RabbitMqConfig.dlqQueue(QUEUE_ORDER_SHIPMENT_COMPLETED_DLQ); }
 
     // ── Binding Bean ───────────────────────────────
     @Bean public Binding bindOrderStockDecreased(TopicExchange sagaExchange) {

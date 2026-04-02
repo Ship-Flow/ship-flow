@@ -2,6 +2,8 @@ package com.shipflow.config.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -16,6 +18,18 @@ public class RabbitMqConfig {
     // ── Exchange 이름 ──────────────────────────────
     public static final String SAGA_EXCHANGE = "saga.events";      // Topic Exchange 방식
     public static final String SAGA_DLX      = "saga.events.dlx";  // Direct Exchange 방식 -> 메시지 처리 실패 시 사용
+
+    // ── 공통 Queue 생성 헬퍼 (각 서비스에서 호출) ────
+    public static Queue durableQueue(String name) {
+        return QueueBuilder.durable(name)
+                .withArgument("x-dead-letter-exchange", SAGA_DLX)
+                .withArgument("x-dead-letter-routing-key", name + ".dlq")
+                .build();
+    }
+
+    public static Queue dlqQueue(String name) {
+        return QueueBuilder.durable(name).build();
+    }
 
     // ── Exchange Bean ──────────────────────────────
     @Bean
