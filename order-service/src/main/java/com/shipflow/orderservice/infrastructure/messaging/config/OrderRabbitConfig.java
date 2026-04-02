@@ -1,6 +1,5 @@
 package com.shipflow.orderservice.infrastructure.messaging.config;
 
-import com.shipflow.common.messaging.event.EventType;
 import com.shipflow.config.message.RabbitMqConfig;
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +7,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OrderRabbitConfig {
+
+    private static final String ROUTING_PRODUCT_STOCK_DECREASED        = "product.stock.decreased";
+    private static final String ROUTING_PRODUCT_STOCK_DECREASED_FAILED = "product.stock.decreased.failed";
+    private static final String ROUTING_PRODUCT_STOCK_RESTORED         = "product.stock.restored";
+    private static final String ROUTING_SHIPMENT_CREATED               = "shipment.created";
+    private static final String ROUTING_SHIPMENT_CREATION_FAILED       = "shipment.creation.failed";
+    private static final String ROUTING_SHIPMENT_COMPLETED             = "shipment.completed";
 
     // ── Queue 이름 상수 ────────────────────────────
     public static final String QUEUE_ORDER_STOCK_DECREASED           = "order.product.stock.decreased";
@@ -43,22 +49,22 @@ public class OrderRabbitConfig {
 
     // ── Binding Bean ───────────────────────────────
     @Bean public Binding bindOrderStockDecreased(TopicExchange sagaExchange) {
-        return BindingBuilder.bind(queueOrderStockDecreased()).to(sagaExchange).with(EventType.PRODUCT_STOCK_DECREASED);
+        return BindingBuilder.bind(queueOrderStockDecreased()).to(sagaExchange).with(ROUTING_PRODUCT_STOCK_DECREASED);
     }
     @Bean public Binding bindOrderStockDecreasedFailed(TopicExchange sagaExchange) {
-        return BindingBuilder.bind(queueOrderStockDecreasedFailed()).to(sagaExchange).with(EventType.PRODUCT_STOCK_DECREASED_FAILED);
+        return BindingBuilder.bind(queueOrderStockDecreasedFailed()).to(sagaExchange).with(ROUTING_PRODUCT_STOCK_DECREASED_FAILED);
     }
     @Bean public Binding bindOrderStockRestored(TopicExchange sagaExchange) {
-        return BindingBuilder.bind(queueOrderStockRestored()).to(sagaExchange).with(EventType.PRODUCT_STOCK_RESTORED);
+        return BindingBuilder.bind(queueOrderStockRestored()).to(sagaExchange).with(ROUTING_PRODUCT_STOCK_RESTORED);
     }
     @Bean public Binding bindOrderShipmentCreated(TopicExchange sagaExchange) {
-        return BindingBuilder.bind(queueOrderShipmentCreated()).to(sagaExchange).with(EventType.SHIPMENT_CREATED);
+        return BindingBuilder.bind(queueOrderShipmentCreated()).to(sagaExchange).with(ROUTING_SHIPMENT_CREATED);
     }
     @Bean public Binding bindOrderShipmentCreationFailed(TopicExchange sagaExchange) {
-        return BindingBuilder.bind(queueOrderShipmentCreationFailed()).to(sagaExchange).with(EventType.SHIPMENT_CREATION_FAILED);
+        return BindingBuilder.bind(queueOrderShipmentCreationFailed()).to(sagaExchange).with(ROUTING_SHIPMENT_CREATION_FAILED);
     }
     @Bean public Binding bindOrderShipmentCompleted(TopicExchange sagaExchange) {
-        return BindingBuilder.bind(queueOrderShipmentCompleted()).to(sagaExchange).with(EventType.SHIPMENT_COMPLETED);
+        return BindingBuilder.bind(queueOrderShipmentCompleted()).to(sagaExchange).with(ROUTING_SHIPMENT_COMPLETED);
     }
 
     // ── DLQ Binding Bean ──────────────────────────
