@@ -9,7 +9,7 @@ import java.util.UUID;
 public abstract class SagaEvent {
 
     private String eventId;        // 멱등성 처리용
-    private String eventType;      // EventType 상수값
+    private String eventType;      // Routing Key 값
     private LocalDateTime occurredAt;
 
     protected SagaEvent(String eventType) {
