@@ -4,6 +4,8 @@ x-service-env: &service-env
   POSTGRES_USER: ${POSTGRES_USER}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
   EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discoveryserver:8761/eureka/
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
 
 x-service-depends-on: &service-depends-on
   discoveryserver:
@@ -78,6 +80,8 @@ services:
       <<: *service-env
     depends_on:
       <<: *service-depends-on
+      redis:
+        condition: service_started
 
   notificationservice:
     build:
