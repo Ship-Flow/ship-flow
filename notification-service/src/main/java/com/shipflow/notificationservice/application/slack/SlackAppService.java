@@ -1,17 +1,19 @@
 package com.shipflow.notificationservice.application.slack;
 
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
 import com.shipflow.notificationservice.domain.slack.SlackMessageType;
+import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
 import com.shipflow.notificationservice.infrastructure.client.slack.SlackApiClient;
 import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendResult;
 import com.shipflow.notificationservice.infrastructure.persistence.slack.SlackMessageRepository;
+import com.shipflow.notificationservice.presentation.slack.dto.SlackMessageResponse;
 
 @Service
 @Transactional(readOnly = true)
@@ -50,8 +52,7 @@ public class SlackAppService {
 		try {
 			SlackSendResult result = slackApiClient.sendMessage(receiverSlackId, message);
 			slackMessage.markSuccess(result.slackTs(), result.slackChannelId());
-		} catch (Exception e) {
-			// TODO: Slack 전용 예외 처리 및 ErrorCode 적용
+		} catch (BusinessException e) {
 			slackMessage.markFail();
 		}
 
@@ -59,14 +60,21 @@ public class SlackAppService {
 	}
 
 	// 단건 조회
-	public SlackMessage getSlackMessage(UUID slackMessageId) {
-		return slackMessageRepository.findByIdAndDeletedAtIsNull(slackMessageId)
-			.orElseThrow(() -> new IllegalArgumentException("슬랙 메시지를 찾을 수 없습니다. id=" + slackMessageId));
+	@Transactional
+	public SlackMessageResponse getSlackMessage(UUID slackId) {
+		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(slackId)
+			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
+
+		return SlackMessageResponse.from(slackMessage);
 	}
 
 	// 목록 조회
-	public Page<SlackMessage> getSlackMessageList(Pageable pageable) {
-		return slackMessageRepository.findAllByDeletedAtIsNull(pageable);
+	@Transactional
+	public List<SlackMessageResponse> getSlackMessages() {
+		return slackMessageRepository.findAllByDeletedAtIsNull()
+			.stream()
+			.map(SlackMessageResponse::from)
+			.toList();
 	}
 
 	/*
