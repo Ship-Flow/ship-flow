@@ -70,7 +70,7 @@ class OrderCommandServiceTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-        orderCommandService.confirmCreation(orderId);
+        orderCommandService.confirmCreation(orderId, "상품명");
 
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CREATED);
         verify(eventPublisher).publish(any());
@@ -80,7 +80,7 @@ class OrderCommandServiceTest {
     void confirmCreation_없는ID_예외발생() {
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> orderCommandService.confirmCreation(orderId))
+        assertThatThrownBy(() -> orderCommandService.confirmCreation(orderId, "상품명"))
                 .isInstanceOf(OrderNotFoundException.class);
         verify(orderRepository, never()).save(any());
     }

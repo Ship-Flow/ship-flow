@@ -53,18 +53,20 @@ class OrderInternalControllerTest {
 
     @Test
     void confirmOrder_성공_200반환() throws Exception {
-        doNothing().when(orderCommandService).confirmCreation(orderId);
+        doNothing().when(orderCommandService).confirmCreation(orderId, "상품명");
 
-        mockMvc.perform(patch("/internal/orders/{id}/confirm", orderId))
+        mockMvc.perform(patch("/internal/orders/{id}/confirm", orderId)
+                        .param("productName", "상품명"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void confirmOrder_없는ID_404반환() throws Exception {
         doThrow(new OrderNotFoundException(orderId))
-                .when(orderCommandService).confirmCreation(orderId);
+                .when(orderCommandService).confirmCreation(orderId, "상품명");
 
-        mockMvc.perform(patch("/internal/orders/{id}/confirm", orderId))
+        mockMvc.perform(patch("/internal/orders/{id}/confirm", orderId)
+                        .param("productName", "상품명"))
                 .andExpect(status().isNotFound());
     }
 

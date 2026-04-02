@@ -37,8 +37,11 @@ public class OrderInternalController {
     }
 
     @PatchMapping("/{id}/confirm")
-    public ResponseEntity<Void> confirmOrder(@PathVariable UUID id) {
-        orderCommandService.confirmCreation(id);
+    public ResponseEntity<Void> confirmOrder(
+            @PathVariable UUID id,
+            @RequestParam String productName
+    ) {
+        orderCommandService.confirmCreation(id, productName);
         return ResponseEntity.ok().build();
     }
 
