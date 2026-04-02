@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: hubservice //이름 수정 필요.
+
+server:
+  port: 8080 // 변경 안하셔도 됩니다.
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discoveryservice:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
