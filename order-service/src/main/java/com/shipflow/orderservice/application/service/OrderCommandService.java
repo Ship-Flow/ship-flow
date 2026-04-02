@@ -88,6 +88,20 @@ public class OrderCommandService {
         domainEventPublisher.publishEvent(new OrderFailedEvent(orderId));
     }
 
+    public void failOrderByShipment(UUID orderId) {
+        Order order = findOrThrow(orderId);
+        order.fail();
+        Order saved = orderRepository.save(order);
+        domainEventPublisher.publishEvent(new OrderFailedEvent(orderId));
+        rabbitPublisher.publish(
+                new OrderCreationFailedEvent(
+                        saved.getId(),
+                        saved.getProductId(),
+                        saved.getQuantity().getValue()
+                )
+        );
+    }
+
     public void cancelOrder(UUID orderId, CancelOrderCommand cmd) {
         Order order = findOrThrow(orderId);
         order.cancel(cmd.reason());

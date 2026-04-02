@@ -86,6 +86,22 @@ class OrderCommandServiceTest {
     }
 
     // ─────────────────────────────────────────────
+    // failOrderByShipment
+    // ─────────────────────────────────────────────
+
+    @Test
+    void failOrderByShipment_CREATING상태_FAILED로전이_이벤트발행() {
+        Order order = OrderFixture.order(orderId);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+        orderCommandService.failOrderByShipment(orderId);
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.FAILED);
+        verify(eventPublisher).publish(any());
+    }
+
+    // ─────────────────────────────────────────────
     // cancelOrder
     // ─────────────────────────────────────────────
 
