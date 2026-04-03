@@ -3,6 +3,8 @@ package com.shipflow.shipmentservice.domain;
 import java.util.UUID;
 
 import com.shipflow.common.domain.BaseEntity;
+import com.shipflow.common.exception.BusinessException;
+import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -79,7 +81,7 @@ public class ShipmentManager extends BaseEntity {
 	) {
 
 		if (hubId == null) {
-			throw new IllegalArgumentException("업체 배송 담당자는 hubId가 필수입니다.");
+			throw new BusinessException(ShipmentErrorCode.HUB_ID_REQUIRED_FOR_COMPANY_MANAGER);
 		}
 
 		return new ShipmentManager(

@@ -16,6 +16,9 @@ public enum ShipmentErrorCode implements ErrorCode {
 	PREVIOUS_ROUTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "이전 배송 경로가 존재하지 않아 도착 처리할 수 없습니다."),
 	PREVIOUS_ROUTE_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "이전 배송 경로가 아직 도착 처리되지 않았습니다."),
 
+	// ShipmentManager
+	HUB_ID_REQUIRED_FOR_COMPANY_MANAGER(HttpStatus.BAD_REQUEST, "업체 배송 담당자는 hubId가 필수입니다."),
+
 	// Validation
 	INVALID_ACTUAL_DISTANCE(HttpStatus.BAD_REQUEST, "실제 이동 거리는 0보다 커야 합니다."),
 	INVALID_PREVIOUS_ROUTE_TIME(HttpStatus.BAD_REQUEST, "이전 배송 경로의 시간 정보가 올바르지 않습니다."),

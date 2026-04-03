@@ -37,7 +37,7 @@ public class ShipmentService {
 
 	public ShipmentResult getShipment(UUID shipmentId) {
 		Shipment shipment = shipmentRepository.findByIdWithManager(shipmentId)
-			.orElseThrow(() -> new IllegalArgumentException("배송 정보가 존재하지 않습니다."));
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_NOT_FOUND));
 
 		return ShipmentResult.fromEntity(shipment);
 	}
@@ -45,7 +45,7 @@ public class ShipmentService {
 	@Transactional
 	public ShipmentUpdateResult updateShipment(UUID shipmentId, ShipmentUpdateCommand command) {
 		Shipment shipment = shipmentRepository.findById(shipmentId)
-			.orElseThrow(() -> new IllegalArgumentException("배송 정보가 존재하지 않습니다."));
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_NOT_FOUND));
 
 		shipment.updateStatus(command.getStatus());
 
@@ -54,7 +54,7 @@ public class ShipmentService {
 
 	public List<ShipmentRouteResult> getShipmentRoutes(UUID shipmentId) {
 		Shipment shipment = shipmentRepository.findByIdWithRoutes(shipmentId)
-			.orElseThrow(() -> new IllegalArgumentException("배송 정보가 존재하지 않습니다."));
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_NOT_FOUND));
 
 		return shipment.getRoutes().stream()
 			.map(ShipmentRouteResult::fromEntity)
