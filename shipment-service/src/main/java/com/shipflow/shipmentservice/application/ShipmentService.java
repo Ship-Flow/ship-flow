@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.shipmentservice.application.dto.ShipmentResult;
+import com.shipflow.shipmentservice.application.dto.ShipmentRouteResult;
 import com.shipflow.shipmentservice.application.dto.ShipmentSearchResult;
 import com.shipflow.shipmentservice.application.dto.ShipmentUpdateCommand;
 import com.shipflow.shipmentservice.application.dto.ShipmentUpdateResult;
@@ -44,5 +45,14 @@ public class ShipmentService {
 		shipment.updateStatus(command.getStatus());
 
 		return ShipmentUpdateResult.fromEntity(shipment);
+	}
+
+	public List<ShipmentRouteResult> getShipmentRoutes(UUID shipmentId) {
+		Shipment shipment = shipmentRepository.findByIdWithRoutes(shipmentId)
+			.orElseThrow(() -> new IllegalArgumentException("배송 정보가 존재하지 않습니다."));
+
+		return shipment.getRoutes().stream()
+			.map(ShipmentRouteResult::fromEntity)
+			.toList();
 	}
 }

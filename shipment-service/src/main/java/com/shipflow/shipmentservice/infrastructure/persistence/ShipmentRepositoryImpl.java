@@ -27,4 +27,9 @@ public class ShipmentRepositoryImpl implements ShipmentRepository {
 	public List<Shipment> findAll(Pageable pageable) {
 		return shipmentJpaRepository.findAll();
 	}
+
+	@Override
+	public Optional<Shipment> findByIdWithRoutes(UUID shipmentId) {
+		return shipmentJpaRepository.findByIdWithRoutes(shipmentId);
+	}
 }

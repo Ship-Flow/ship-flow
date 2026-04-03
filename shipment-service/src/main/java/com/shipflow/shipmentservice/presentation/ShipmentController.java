@@ -14,6 +14,7 @@ import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.shipmentservice.application.ShipmentService;
 import com.shipflow.shipmentservice.application.dto.ShipmentUpdateCommand;
 import com.shipflow.shipmentservice.presentation.dto.GetShipmentResDto;
+import com.shipflow.shipmentservice.presentation.dto.GetShipmentRouteListResDto;
 import com.shipflow.shipmentservice.presentation.dto.PatchShipmentReqDto;
 import com.shipflow.shipmentservice.presentation.dto.PatchShipmentResDto;
 import com.shipflow.shipmentservice.presentation.dto.ShipmentSearchResDto;
@@ -48,6 +49,16 @@ public class ShipmentController {
 		@PathVariable UUID shipmentId
 	) {
 		return ApiResponse.ok(GetShipmentResDto.fromResult(shipmentService.getShipment(shipmentId)));
+	}
+
+	@GetMapping("/api/shipments/{shipmentId}/routes")
+	public ApiResponse<List<GetShipmentRouteListResDto>> getShipmentRoutes(
+		@PathVariable UUID shipmentId
+	) {
+		List<GetShipmentRouteListResDto> routes = shipmentService.getShipmentRoutes(shipmentId).stream()
+			.map(GetShipmentRouteListResDto::fromResult)
+			.toList();
+		return ApiResponse.ok(routes);
 	}
 
 	/**

@@ -33,7 +33,7 @@ public class GetShipmentResDto {
 		private String name;
 		private String slackId;
 
-		public static DeliveryManagerResDto fromResult(ShipmentResult.DeliveryManagerResult manager) {
+		public static DeliveryManagerResDto fromResult(ShipmentResult.ShipmentManagerResult manager) {
 			return DeliveryManagerResDto.builder()
 				.id(manager.getId())
 				.name(manager.getName())

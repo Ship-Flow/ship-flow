@@ -12,4 +12,6 @@ public interface ShipmentRepository {
 	Optional<Shipment> findById(UUID shipmentId);
 
 	List<Shipment> findAll(Pageable pageable);
+
+	Optional<Shipment> findByIdWithRoutes(UUID shipmentId);
 }

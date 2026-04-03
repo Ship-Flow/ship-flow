@@ -21,20 +21,20 @@ public class ShipmentResult {
 	private String shipmentAddress;
 	private String recipientName;
 	private String recipientSlackId;
-	private DeliveryManagerResult deliveryManager;
+	private ShipmentManagerResult deliveryManager;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
 	@Getter
 	@Builder
-	public static class DeliveryManagerResult {
+	public static class ShipmentManagerResult {
 
 		private UUID id;
 		private String name;
 		private String slackId;
 
-		public static DeliveryManagerResult fromEntity(ShipmentManager manager) {
-			return DeliveryManagerResult.builder()
+		public static ShipmentManagerResult fromEntity(ShipmentManager manager) {
+			return ShipmentManagerResult.builder()
 				.id(manager.getId())
 				.name(manager.getName())
 				.slackId(manager.getSlackId())
@@ -52,7 +52,7 @@ public class ShipmentResult {
 			.shipmentAddress(result.getShipmentAddress())
 			.recipientName(result.getRecipientName())
 			.recipientSlackId(result.getRecipientSlackId())
-			.deliveryManager(DeliveryManagerResult.fromEntity(result.getShipmentManager()))
+			.deliveryManager(ShipmentManagerResult.fromEntity(result.getShipmentManager()))
 			.createdAt(result.getCreatedAt())
 			.updatedAt(result.getUpdatedAt())
 			.build();
