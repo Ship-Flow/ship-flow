@@ -261,6 +261,24 @@ class ProductServiceTest {
 			.isEqualTo(101);
 	}
 
+	@Test
+	void deleteByCompany() {
+		//given
+		setHttpHeaders(UUID.randomUUID().toString(), "Master");
+		Product product = ProductFixture.create();
+		List<Product> products = List.of(product);
+		given(productRepository.findById(any())).willReturn(Optional.of(product));
+		given(productRepository.findAllByCompanyId(any())).willReturn(products);
+
+		//when
+		productService.deleteByCompany(product.getId());
+
+		//then
+		verify(productRepository).save(productCaptor.capture());
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getDeletedBy()).isNotNull();
+	}
+
 	//util
 	private void setHttpHeaders(String userId, String role) {
 		UserContext.setUserId(UUID.fromString(userId));

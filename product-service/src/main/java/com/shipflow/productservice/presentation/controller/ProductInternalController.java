@@ -3,6 +3,7 @@ package com.shipflow.productservice.presentation.controller;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -15,7 +16,7 @@ import com.shipflow.productservice.application.service.ProductService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/internal/products")
+@RequestMapping("/internal/companies/{companyId}/products")
 @RequiredArgsConstructor
 public class ProductInternalController {
 	private final ProductService productService;
@@ -25,5 +26,11 @@ public class ProductInternalController {
 		@RequestPart Integer quantity) {
 		StockInfoResponse response = productService.getStockInfoAndOccupy(productId,quantity);
 		return ApiResponse.ok(response);
+	}
+
+	@PatchMapping("/deactivate")
+	public ApiResponse<Void> deleteByCompany(@PathVariable UUID companyId) {
+		productService.deleteByCompany(companyId);
+		return ApiResponse.ok(null);
 	}
 }

@@ -1,6 +1,7 @@
 package com.shipflow.productservice.application.service;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -91,7 +92,12 @@ public class ProductService {
 
 
 	//internal
+	public void deleteByCompany(UUID companyId) {
+		List<Product> products = productRepository.findAllByCompanyId(companyId);
+		products.forEach(product -> delete(product.getId()));
+	}
 
+	//event
 	/*
 	* 주문 시 product 측 흐름 :
 	* 1. 주문 전 재고 조회 요청 시) querystring으로 요청 재고 값 전달받음
@@ -156,4 +162,5 @@ public class ProductService {
 			redisTemplate.opsForValue().setIfAbsent(stockKey, dbStock);
 		}
 	}
+
 }

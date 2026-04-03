@@ -30,6 +30,9 @@ public class Product extends BaseEntity {
 		this.vendorInfo = new VendorInfo(companyId, companyName, hubId);
 	}
 
+	private Product() {
+	}
+
 	public static Product create(String name, BigDecimal price, Integer stock, ProductStatus status,
 		UUID companyId, String companyName, UUID hubId, UUID createdBy) {
 		Product product = new Product(name, price, stock, status, companyId, companyName, hubId);
@@ -40,8 +43,13 @@ public class Product extends BaseEntity {
 		Integer stock, ProductStatus status, UUID companyId, String companyName,
 		UUID hubId, Boolean isHide, UUID createdBy, LocalDateTime createdAt,
 		LocalDateTime updatedAt, UUID updatedBy, LocalDateTime deletedAt, UUID deletedBy) {
-		Product product = new Product(name, price, stock, status, companyId, companyName, hubId);
+		Product product = new Product();
 		product.id=id;
+		product.name = name;
+		product.price = price;
+		product.status = status;
+		product.stockInfo = new StockInfo(stock);
+		product.vendorInfo = new VendorInfo(companyId, companyName, hubId);
 		product.isHide = isHide;
 		product.createdAt = createdAt;
 		product.createdBy = createdBy;

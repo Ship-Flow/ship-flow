@@ -19,4 +19,6 @@ public interface ProductRepository {
 	List<Product> findAll();
 
 	Integer findStockById(UUID productId);
+
+	List<Product> findAllByCompanyId(UUID companyId);
 }

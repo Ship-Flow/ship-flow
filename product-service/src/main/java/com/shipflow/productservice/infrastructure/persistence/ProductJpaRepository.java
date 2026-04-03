@@ -1,5 +1,6 @@
 package com.shipflow.productservice.infrastructure.persistence;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -12,4 +13,6 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, UU
 
 	@Query("select stock from ProductJpaEntity where id = :productId and isHide = false")
 	Integer findStockById(UUID productId);
+
+	List<ProductJpaEntity> findAllByCompanyId(UUID companyId);
 }

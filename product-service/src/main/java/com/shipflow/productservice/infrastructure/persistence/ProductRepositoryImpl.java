@@ -47,4 +47,10 @@ public class ProductRepositoryImpl implements ProductRepository {
 	public Integer findStockById(UUID productId) {
 		return jpaRepository.findStockById(productId);
 	}
+
+	@Override
+	public List<Product> findAllByCompanyId(UUID companyId) {
+		List<ProductJpaEntity> entities = jpaRepository.findAllByCompanyId(companyId);
+		return entities.stream().map(ProductJpaEntity::toDomain).toList();
+	}
 }
