@@ -66,10 +66,6 @@ public class Product extends BaseEntity {
 		return price;
 	}
 
-	public void updateVendorInfo(UUID companyId, String companyName, UUID hubId) {
-		this.vendorInfo = new VendorInfo(companyId, companyName, hubId);
-	}
-
 	public void updateStatus(ProductStatus status) {
 		this.status = status;
 		if (status.equals(ProductStatus.STOPPED) || status.equals(ProductStatus.DISCONTINUED)

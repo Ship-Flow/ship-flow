@@ -25,6 +25,7 @@ import com.shipflow.common.exception.BusinessException;
 import com.shipflow.productservice.application.client.VendorFeignClient;
 import com.shipflow.productservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.productservice.application.mapper.ProductMapper;
+import com.shipflow.productservice.domain.exception.ProductErrorCode;
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.domain.model.ProductStatus;
 import com.shipflow.productservice.domain.repository.ProductRepository;
@@ -199,7 +200,68 @@ class ProductServiceTest {
 
 	}
 
+	@Test
+	void getStockInfoAndOccupy() {
 
+	}
+
+	@Test
+	void decreaseStock_success() {
+		//given
+		Product product = ProductFixture.create();
+		given(productRepository.findById(any())).willReturn(Optional.of(product));
+
+		//when
+		productService.decreaseStock(product.getId().toString(), 1);
+
+		//then
+		verify(productRepository).save(productCaptor.capture());
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getStockInfo().getStock())
+			.isEqualTo(99);
+	}
+
+	@Test
+	void decreaseStock_올바르지_않은_차감요청() {
+		//given
+		Product product = ProductFixture.create();
+		given(productRepository.findById(any())).willReturn(Optional.of(product));
+
+		//when&then
+		assertThatThrownBy(() -> productService.decreaseStock(product.getId().toString(), -1))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(ProductErrorCode.INVALID_ORDER_QUANTITY.message());
+	}
+
+	@Test
+	void decreaseStock_재고보다_많은_차감요청() {
+		//given
+		Product product = ProductFixture.create();
+		given(productRepository.findById(any())).willReturn(Optional.of(product));
+
+		//when&then
+		assertThatThrownBy(() -> productService.decreaseStock(product.getId().toString(), 101))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(ProductErrorCode.EXCEEDS_STOCK_LEVEL.message());
+	}
+
+	@Test
+	void restoreStock() {
+		//given
+		Product product = ProductFixture.create();
+		given(productRepository.findById(any())).willReturn(Optional.of(product));
+
+		//when
+		productService.restoreStock(product.getId().toString(), 1);
+
+		//then
+		verify(productRepository).save(productCaptor.capture());
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getStockInfo().getStock())
+			.isEqualTo(101);
+	}
+
+	//util
 	private void setHttpHeaders(String userId, String role) {
 		UserContext.setUserId(UUID.fromString(userId));
 		UserContext.setUserRole(role);

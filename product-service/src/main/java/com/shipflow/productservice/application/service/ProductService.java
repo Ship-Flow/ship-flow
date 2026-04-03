@@ -124,7 +124,7 @@ public class ProductService {
 		Product product = findProductById(UUID.fromString(productId));
 
 		if (product.getStock() < quantity) {
-			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
+			throw new BusinessException(ProductErrorCode.EXCEEDS_STOCK_LEVEL);
 		}
 
 		product.decreaseStock(quantity);

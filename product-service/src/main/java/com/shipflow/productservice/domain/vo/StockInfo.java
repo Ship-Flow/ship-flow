@@ -29,8 +29,8 @@ public class StockInfo {
 	public void decrease(Integer quantity) {
 		if (quantity == null || quantity < 0)
 			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
-		else if (quantity > stock)
-			throw new BusinessException(ProductErrorCode.OUT_OF_STOCK);
+		else if (quantity > this.stock)
+			throw new BusinessException(ProductErrorCode.EXCEEDS_STOCK_LEVEL);
 		this.stock -= quantity;
 	}
 
