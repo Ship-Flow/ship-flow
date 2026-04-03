@@ -16,7 +16,7 @@ public enum SlackErrorCode implements ErrorCode {
 	SLACK_MESSAGE_REQUIRED("SLACK_MESSAGE_REQUIRED", HttpStatus.BAD_REQUEST, "message는 필수입니다."),
 	SLACK_MESSAGE_UPDATE_FAILED("SLACK_MESSAGE_UPDATE_FAILED", HttpStatus.BAD_REQUEST, "슬랙 메시지 수정에 실패했습니다."),
 	//슬랙 삭제
-	SLACK_MESSAGE_DELETE_FAILED("SLACK_MESSAGE_DELETE_FAILED", HttpStatus.BAD_REQUEST, "슬랙 메세지 삭제에 실패했습니다.");
+	SLACK_MESSAGE_DELETE_FAILED("SLACK_MESSAGE_DELETE_FAILED", HttpStatus.BAD_REQUEST, "슬랙 메시지 삭제에 실패했습니다.");
 
 	private final String code;
 	private final HttpStatus status;

@@ -3,7 +3,7 @@ package com.shipflow.notificationservice.presentation.slack.dto.request;
 import java.util.UUID;
 
 import com.shipflow.notificationservice.application.slack.dto.command.SendSlackMessageCommand;
-import com.shipflow.notificationservice.domain.slack.SlackMessageType;
+import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
 
 public record SendSlackMessageRequest(
 	String receiverSlackId,

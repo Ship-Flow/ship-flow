@@ -1,6 +1,6 @@
 package com.shipflow.notificationservice.infrastructure.client.slack.dto;
 
-public record SlackDeleteResult(
+public record SlackSendApiResponse(
 	String slackTs,
 	String slackChannelId
 ) {

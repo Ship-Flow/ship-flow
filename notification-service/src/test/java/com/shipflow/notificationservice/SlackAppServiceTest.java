@@ -22,14 +22,14 @@ import com.shipflow.notificationservice.application.slack.dto.command.SendSlackM
 import com.shipflow.notificationservice.application.slack.dto.command.UpdateSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.result.SlackMessageResult;
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
-import com.shipflow.notificationservice.domain.slack.SlackMessageRepository;
-import com.shipflow.notificationservice.domain.slack.SlackMessageType;
-import com.shipflow.notificationservice.domain.slack.SlackSendStatus;
 import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackDeleteResult;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendResult;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackUpdateResult;
+import com.shipflow.notificationservice.domain.slack.repository.SlackMessageRepository;
+import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
+import com.shipflow.notificationservice.domain.slack.type.SlackSendStatus;
+import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackDeleteApiResponse;
+import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendApiResponse;
+import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackUpdateApiResponse;
 
 @ExtendWith(MockitoExtension.class)
 class SlackAppServiceTest {
@@ -62,7 +62,7 @@ class SlackAppServiceTest {
 				SlackMessageType.MANUAL
 			);
 
-			SlackSendResult sendResult = new SlackSendResult(
+			SlackSendApiResponse sendResult = new SlackSendApiResponse(
 				"1742891400.123456",
 				"C0AQ2G43EUD"
 			);
@@ -245,7 +245,7 @@ class SlackAppServiceTest {
 				.thenReturn(Optional.of(slackMessage));
 
 			when(slackSender.updateMessage("C0AQ2G43EUD", "1742891400.123456", "수정된 메시지"))
-				.thenReturn(new SlackUpdateResult(
+				.thenReturn(new SlackUpdateApiResponse(
 					"1742891400.123456",
 					"C0AQ2G43EUD",
 					"수정된 메시지"
@@ -336,7 +336,7 @@ class SlackAppServiceTest {
 				.thenReturn(Optional.of(slackMessage));
 
 			when(slackSender.deleteMessage("C0AQ2G43EUD", "1742891400.123456"))
-				.thenReturn(new SlackDeleteResult(
+				.thenReturn(new SlackDeleteApiResponse(
 					"1742891400.123456",
 					"C0AQ2G43EUD"
 				));
@@ -390,7 +390,7 @@ class SlackAppServiceTest {
 			// 단, 서비스에서 slackSender.deleteMessage()를 먼저 호출하므로
 			// null channelId/ts로 deleteMessage가 호출될 수 있음 → 실제 동작 확인 후 조정
 			when(slackSender.deleteMessage(isNull(), isNull()))
-				.thenReturn(new SlackDeleteResult(null, null));
+				.thenReturn(new SlackDeleteApiResponse(null, null));
 
 			// when & then
 			assertThatThrownBy(() -> slackAppService.deleteSlackMessage(slackId, userId))

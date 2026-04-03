@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
+import com.shipflow.notificationservice.domain.slack.vo.SlackDeleteResult;
+import com.shipflow.notificationservice.domain.slack.vo.SlackSendResult;
+import com.shipflow.notificationservice.domain.slack.vo.SlackUpdateResult;
 import com.shipflow.notificationservice.infrastructure.client.slack.config.SlackProperties;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackDeleteResult;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendResult;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackUpdateResult;
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.chat.ChatDeleteResponse;
@@ -31,6 +31,7 @@ public class SlackApiClient implements SlackSender {
 	}
 
 	//슬랙 메세지 발송 진입 메서드
+	@Override
 	public SlackSendResult sendMessage(String receiverSlackId, String message) {
 		try {
 			validateReceiverSlackId(receiverSlackId);
@@ -101,6 +102,7 @@ public class SlackApiClient implements SlackSender {
 	}
 
 	//슬랙 메세지 수정
+	@Override
 	public SlackUpdateResult updateMessage(String channelId, String ts, String message) {
 		try {
 			validateSlackChannelId(channelId);
@@ -113,9 +115,11 @@ public class SlackApiClient implements SlackSender {
 					.ts(ts)
 					.text(message)
 				);
+
 			if (!response.isOk()) {
 				throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
 			}
+
 			return new SlackUpdateResult(
 				response.getTs(),
 				response.getChannel(),
@@ -128,6 +132,7 @@ public class SlackApiClient implements SlackSender {
 	}
 
 	//슬랙 메세지 삭제
+	@Override
 	public SlackDeleteResult deleteMessage(String channelId, String ts) {
 		try {
 			validateSlackChannelId(channelId);
@@ -138,9 +143,11 @@ public class SlackApiClient implements SlackSender {
 					.channel(channelId)
 					.ts(ts)
 				);
+
 			if (!response.isOk()) {
 				throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_DELETE_FAILED);
 			}
+
 			return new SlackDeleteResult(
 				response.getTs(),
 				response.getChannel()

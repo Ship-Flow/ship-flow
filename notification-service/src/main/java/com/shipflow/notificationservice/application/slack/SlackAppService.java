@@ -11,10 +11,10 @@ import com.shipflow.notificationservice.application.slack.dto.command.SendSlackM
 import com.shipflow.notificationservice.application.slack.dto.command.UpdateSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.result.SlackMessageResult;
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
-import com.shipflow.notificationservice.domain.slack.SlackMessageRepository;
 import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendResult;
+import com.shipflow.notificationservice.domain.slack.repository.SlackMessageRepository;
+import com.shipflow.notificationservice.domain.slack.vo.SlackSendResult;
 
 import lombok.RequiredArgsConstructor;
 
@@ -78,10 +78,7 @@ public class SlackAppService {
 		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(command.slackId())
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
 
-		// 이미 발송된 메시지만 수정 가능 (선택)
-		if (slackMessage.getSlackTs() == null || slackMessage.getSlackChannelId() == null) {
-			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
-		}
+		slackMessage.validateUpdatable();
 
 		slackSender.updateMessage(
 			slackMessage.getSlackChannelId(),
@@ -101,18 +98,14 @@ public class SlackAppService {
 		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(slackId)
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
 
-		// 이미 발송된 메시지만 삭제 가능 (channel / ts 필수)
-		if (slackMessage.getSlackTs() == null || slackMessage.getSlackChannelId() == null) {
-			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
-		}
-
 		// 도메인 검증을 먼저 수행한 후, 외부 Slack 삭제 API 호출
-		slackMessage.markDeleted(userId);
+		slackMessage.validateDeletable();
 
 		slackSender.deleteMessage(
 			slackMessage.getSlackChannelId(),
 			slackMessage.getSlackTs()
 		);
-	}
 
+		slackMessage.markDeleted(userId);
+	}
 }

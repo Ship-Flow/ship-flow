@@ -63,8 +63,9 @@ public class SlackController {
 	}
 
 	@DeleteMapping("/{slackId}")
-	public ApiResponse<SlackMessageResponse> deleteSlackMessage(@PathVariable UUID slackId) {
-		UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000000"); // TODO: Security 적용 후 교체
+	public ApiResponse<Void> deleteSlackMessage(@PathVariable UUID slackId) {
+		UUID userId = UUID.fromString(
+			"11111111-1111-1111-1111-111111111111"); // TODO: 인증 적용 후 실제 사용자 ID로 교체 (임시 system user) // TODO: Security 적용 후 교체
 		slackAppService.deleteSlackMessage(slackId, userId);
 		return ApiResponse.ok(null);
 	}

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.shipflow.notificationservice.application.slack.dto.result.SlackMessageResult;
-import com.shipflow.notificationservice.domain.slack.SlackMessageType;
-import com.shipflow.notificationservice.domain.slack.SlackSendStatus;
+import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
+import com.shipflow.notificationservice.domain.slack.type.SlackSendStatus;
 
 public record SlackMessageResponse(
 	UUID id,

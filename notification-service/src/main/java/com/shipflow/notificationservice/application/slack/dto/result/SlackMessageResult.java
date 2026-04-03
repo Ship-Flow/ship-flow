@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
-import com.shipflow.notificationservice.domain.slack.SlackMessageType;
-import com.shipflow.notificationservice.domain.slack.SlackSendStatus;
+import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
+import com.shipflow.notificationservice.domain.slack.type.SlackSendStatus;
 
 public record SlackMessageResult(
 	UUID slackId,

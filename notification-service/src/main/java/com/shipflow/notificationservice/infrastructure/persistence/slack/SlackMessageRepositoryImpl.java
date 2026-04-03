@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
-import com.shipflow.notificationservice.domain.slack.SlackMessageRepository;
+import com.shipflow.notificationservice.domain.slack.repository.SlackMessageRepository;
 
 import lombok.RequiredArgsConstructor;
 

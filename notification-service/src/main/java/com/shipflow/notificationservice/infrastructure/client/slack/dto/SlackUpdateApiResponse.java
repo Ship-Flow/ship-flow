@@ -1,8 +1,8 @@
 package com.shipflow.notificationservice.infrastructure.client.slack.dto;
 
-public record SlackUpdateResult(
+public record SlackUpdateApiResponse(
 	String slackTs,
 	String slackChannelId,
-	String messages
+	String message
 ) {
 }

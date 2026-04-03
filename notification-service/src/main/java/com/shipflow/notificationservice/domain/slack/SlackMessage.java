@@ -6,6 +6,8 @@ import java.util.UUID;
 import com.shipflow.common.domain.BaseEntity;
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
+import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
+import com.shipflow.notificationservice.domain.slack.type.SlackSendStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -92,14 +94,16 @@ public class SlackMessage extends BaseEntity {
 			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
 		}
 
-		if (this.slackTs == null || this.slackChannelId == null) {
-			throw new BusinessException(SlackErrorCode.INVALID_SLACK_ID_FORMAT);
+		if (this.slackTs == null) {
+			throw new BusinessException(SlackErrorCode.SLACK_TS_REQUIRED);
+		}
+
+		if (this.slackChannelId == null) {
+			throw new BusinessException(SlackErrorCode.SLACK_CHANNEL_ID_REQUIRED);
 		}
 	}
 
 	public void updateMessage(String newMessage) {
-		validateUpdatable();
-
 		if (newMessage == null || newMessage.isBlank()) {
 			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_REQUIRED);
 		}

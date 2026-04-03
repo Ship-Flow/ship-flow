@@ -9,12 +9,9 @@ spring:
     password: ${DB_PASSWORD}
 
   jpa:
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         default_schema: notification
-    show-sql: true
 
 slack:
   bot-token: ${SLACK_BOT_TOKEN}
