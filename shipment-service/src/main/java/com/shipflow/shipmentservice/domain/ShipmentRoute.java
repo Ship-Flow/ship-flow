@@ -68,8 +68,9 @@ public class ShipmentRoute extends BaseEntity {
 	@Column(name = "status", nullable = false, length = 20)
 	private ShipmentRouteStatus status;
 
-	@Column(name = "shipment_manager_id", nullable = false)
-	private UUID shipmentManagerId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "shipment_manager_id", nullable = false)
+	private ShipmentManager shipmentManager;
 
 	private ShipmentRoute(
 		Integer sequence,
@@ -78,7 +79,7 @@ public class ShipmentRoute extends BaseEntity {
 		BigDecimal estimatedDistance,
 		Integer estimatedDuration,
 		ShipmentRouteStatus status,
-		UUID shipmentManagerId
+		ShipmentManager shipmentManager
 	) {
 		this.sequence = sequence;
 		this.departureHubId = departureHubId;
@@ -87,7 +88,7 @@ public class ShipmentRoute extends BaseEntity {
 		this.estimatedDuration = estimatedDuration != null ? estimatedDuration : 0;
 		this.actualDistance = BigDecimal.ZERO;
 		this.actualDuration = 0;
-		this.shipmentManagerId = shipmentManagerId;
+		this.shipmentManager = shipmentManager;
 	}
 
 	public static ShipmentRoute create(
@@ -96,7 +97,7 @@ public class ShipmentRoute extends BaseEntity {
 		UUID arrivalHubId,
 		BigDecimal estimatedDistance,
 		Integer estimatedDuration,
-		UUID shipmentManagerId
+		ShipmentManager shipmentManager
 	) {
 		return new ShipmentRoute(
 			sequence,
@@ -105,7 +106,7 @@ public class ShipmentRoute extends BaseEntity {
 			estimatedDistance,
 			estimatedDuration,
 			ShipmentRouteStatus.WAITING_AT_HUB,
-			shipmentManagerId
+			shipmentManager
 		);
 	}
 
@@ -118,8 +119,8 @@ public class ShipmentRoute extends BaseEntity {
 		this.actualDuration = actualDuration;
 	}
 
-	public void updateShipmentManager(UUID shipmentManagerId) {
-		this.shipmentManagerId = shipmentManagerId;
+	public void updateShipmentManager(ShipmentManager shipmentManager) {
+		this.shipmentManager = shipmentManager;
 	}
 
 	void assignShipment(Shipment shipment) {
