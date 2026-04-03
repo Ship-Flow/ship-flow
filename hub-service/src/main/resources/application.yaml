@@ -11,11 +11,11 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
+    database: postgresql
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
-        default_schema: hub
         format_sql: true
 
 server:
