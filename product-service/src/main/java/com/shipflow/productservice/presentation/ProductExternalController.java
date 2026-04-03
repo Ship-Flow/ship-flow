@@ -40,38 +40,28 @@ public class ProductExternalController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<ProductCreateResponse>> addProduct(@PathVariable UUID companyId,
 		@Valid @RequestBody ProductCreateRequest productCreateRequest, HttpServletRequest request) {
-		UserContext.setUserContext(request);
 		ProductCreateResponse response = productService.create(companyId, productCreateRequest);
-		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
 	}
 
 	@DeleteMapping("/{productId}")
-	public ResponseEntity<String> deleteProduct(@PathVariable UUID productId,
-		HttpServletRequest request) {
-		UserContext.setUserContext(request);
+	public ResponseEntity<String> deleteProduct(@PathVariable UUID productId) {
 		productService.delete(productId);
-		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.OK).body("요청이 정상 처리되었습니다.");
 	}
 
 	@PatchMapping("/{productId}")
 	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateProductInfo(@PathVariable UUID productId,
-		@RequestBody ProductUpdateInfoRequest productUpdateInfoRequest,
-		HttpServletRequest request) {
-		UserContext.setUserContext(request);
+		@RequestBody ProductUpdateInfoRequest productUpdateInfoRequest) {
 		ProductUpdateResponse response = productService.updateProductInfo(productId, productUpdateInfoRequest);
-		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@PostMapping("/{productId}/stock")
 	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateStock(@PathVariable UUID productId,
-		@Valid @RequestBody ProductUpdateStockRequest productUpdateStockRequest, HttpServletRequest request) {
-		UserContext.setUserContext(request);
+		@Valid @RequestBody ProductUpdateStockRequest productUpdateStockRequest) {
 		ProductUpdateResponse response = productService.updateStock(productId,
 			productUpdateStockRequest);
-		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 

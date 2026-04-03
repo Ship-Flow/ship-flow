@@ -103,7 +103,7 @@ class ProductServiceTest {
 		//given
 		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
 		Product product=ProductFixture.create();
-		ProductUpdateInfoRequest request=new ProductUpdateInfoRequest(product.getName(), product.getPrice());
+		ProductUpdateInfoRequest request=new ProductUpdateInfoRequest(product.getName(), product.getPrice(),null);
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
@@ -202,9 +202,7 @@ class ProductServiceTest {
 
 
 	private void setHttpHeaders(String userId, String role) {
-		MockHttpServletRequest httpRequest = new MockHttpServletRequest();
-		httpRequest.addHeader("X-User-Id", userId);
-		httpRequest.addHeader("X-User-Role", role);
-		UserContext.setUserContext(httpRequest);
+		UserContext.setUserId(UUID.fromString(userId));
+		UserContext.setUserRole(role);
 	}
 }

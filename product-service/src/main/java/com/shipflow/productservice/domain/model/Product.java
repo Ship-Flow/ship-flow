@@ -33,7 +33,6 @@ public class Product extends BaseEntity {
 	public static Product create(String name, BigDecimal price, Integer stock, ProductStatus status,
 		UUID companyId, String companyName, UUID hubId, UUID createdBy) {
 		Product product = new Product(name, price, stock, status, companyId, companyName, hubId);
-		product.create(createdBy);
 		return product;
 	}
 
