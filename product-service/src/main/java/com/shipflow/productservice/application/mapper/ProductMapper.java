@@ -19,6 +19,7 @@ public interface ProductMapper {
 	ProductInfoResponse toProductInfoResponse(Product product);
 
 	ProductListResponse toProductListResponse(Product product);
-
+	`@Mapping`(source = "id", target = "productId")
+	`@Mapping`(source = "stockInfo.stock", target = "stock")
 	StockInfoResponse toStockInfoResponse(Product product);
 }
