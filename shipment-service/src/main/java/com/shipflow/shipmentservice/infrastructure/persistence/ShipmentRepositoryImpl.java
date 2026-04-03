@@ -24,12 +24,17 @@ public class ShipmentRepositoryImpl implements ShipmentRepository {
 	}
 
 	@Override
+	public Optional<Shipment> findByIdWithManager(UUID shipmentId) {
+		return shipmentJpaRepository.findByIdWithManager(shipmentId);
+	}
+
+	@Override
 	public List<Shipment> findAll(Pageable pageable) {
 		return shipmentJpaRepository.findAll();
 	}
 
 	@Override
 	public Optional<Shipment> findByIdWithRoutes(UUID shipmentId) {
-		return shipmentJpaRepository.findByIdWithRoutes(shipmentId);
+		return shipmentJpaRepository.findByIdWithRoutesAndManager(shipmentId);
 	}
 }

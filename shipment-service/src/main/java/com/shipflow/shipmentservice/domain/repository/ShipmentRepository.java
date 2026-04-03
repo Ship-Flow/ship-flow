@@ -11,6 +11,8 @@ import com.shipflow.shipmentservice.domain.Shipment;
 public interface ShipmentRepository {
 	Optional<Shipment> findById(UUID shipmentId);
 
+	Optional<Shipment> findByIdWithManager(UUID shipmentId);
+
 	List<Shipment> findAll(Pageable pageable);
 
 	Optional<Shipment> findByIdWithRoutes(UUID shipmentId);

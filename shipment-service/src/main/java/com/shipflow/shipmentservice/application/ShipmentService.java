@@ -31,7 +31,7 @@ public class ShipmentService {
 	}
 
 	public ShipmentResult getShipment(UUID shipmentId) {
-		Shipment shipment = shipmentRepository.findById(shipmentId)
+		Shipment shipment = shipmentRepository.findByIdWithManager(shipmentId)
 			.orElseThrow(() -> new IllegalArgumentException("배송 정보가 존재하지 않습니다."));
 
 		return ShipmentResult.fromEntity(shipment);
