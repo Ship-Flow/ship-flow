@@ -1,3 +1,17 @@
 spring:
   application:
-    name: notificationservice
+    name: notification-service
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema=notification
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        default_schema: notification
+
+slack:
+  bot-token: ${SLACK_BOT_TOKEN}
