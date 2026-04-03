@@ -27,9 +27,9 @@ import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
 import com.shipflow.notificationservice.domain.slack.repository.SlackMessageRepository;
 import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
 import com.shipflow.notificationservice.domain.slack.type.SlackSendStatus;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackDeleteApiResponse;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackSendApiResponse;
-import com.shipflow.notificationservice.infrastructure.client.slack.dto.SlackUpdateApiResponse;
+import com.shipflow.notificationservice.domain.slack.vo.SlackDeleteResult;
+import com.shipflow.notificationservice.domain.slack.vo.SlackSendResult;
+import com.shipflow.notificationservice.domain.slack.vo.SlackUpdateResult;
 
 @ExtendWith(MockitoExtension.class)
 class SlackAppServiceTest {
@@ -62,7 +62,7 @@ class SlackAppServiceTest {
 				SlackMessageType.MANUAL
 			);
 
-			SlackSendApiResponse sendResult = new SlackSendApiResponse(
+			SlackSendResult sendResult = new SlackSendResult(
 				"1742891400.123456",
 				"C0AQ2G43EUD"
 			);
@@ -245,7 +245,7 @@ class SlackAppServiceTest {
 				.thenReturn(Optional.of(slackMessage));
 
 			when(slackSender.updateMessage("C0AQ2G43EUD", "1742891400.123456", "수정된 메시지"))
-				.thenReturn(new SlackUpdateApiResponse(
+				.thenReturn(new SlackUpdateResult(
 					"1742891400.123456",
 					"C0AQ2G43EUD",
 					"수정된 메시지"
@@ -336,7 +336,7 @@ class SlackAppServiceTest {
 				.thenReturn(Optional.of(slackMessage));
 
 			when(slackSender.deleteMessage("C0AQ2G43EUD", "1742891400.123456"))
-				.thenReturn(new SlackDeleteApiResponse(
+				.thenReturn(new SlackDeleteResult(
 					"1742891400.123456",
 					"C0AQ2G43EUD"
 				));
@@ -389,12 +389,12 @@ class SlackAppServiceTest {
 			// slackChannelId, slackTs가 null이므로 deleteMessage 호출 전에 markDeleted에서 예외 발생
 			// 단, 서비스에서 slackSender.deleteMessage()를 먼저 호출하므로
 			// null channelId/ts로 deleteMessage가 호출될 수 있음 → 실제 동작 확인 후 조정
-			when(slackSender.deleteMessage(isNull(), isNull()))
-				.thenReturn(new SlackDeleteApiResponse(null, null));
 
 			// when & then
 			assertThatThrownBy(() -> slackAppService.deleteSlackMessage(slackId, userId))
 				.isInstanceOf(BusinessException.class);
+
+			verify(slackSender, never()).deleteMessage(any(), any());
 		}
 	}
 }
