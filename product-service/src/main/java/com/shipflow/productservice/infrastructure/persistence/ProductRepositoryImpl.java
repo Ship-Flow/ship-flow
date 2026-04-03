@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductRepositoryImpl implements ProductRepository {
 	private final ProductJpaRepository jpaRepository;
 
-	`@Override`
+	@Override
 	public Optional<Product> findById(UUID id) {
 		return jpaRepository.findById(id)
 			.map(ProductJpaEntity::toDomain);
