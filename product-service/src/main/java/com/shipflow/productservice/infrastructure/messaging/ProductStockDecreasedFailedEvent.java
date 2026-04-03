@@ -13,12 +13,12 @@ public class ProductStockDecreasedFailedEvent extends SagaEvent {
 
 	private String orderId;
 	private String productId;
-	private String message;
+	private String reason;
 
-	public ProductStockDecreasedFailedEvent(String orderId, String productId, String message) {
+	public ProductStockDecreasedFailedEvent(String orderId, String productId, String reason) {
 		super(EVENT_TYPE);
 		this.orderId = orderId;
 		this.productId = productId;
-		this.message = message;
+		this.reason = reason;
 	}
 }

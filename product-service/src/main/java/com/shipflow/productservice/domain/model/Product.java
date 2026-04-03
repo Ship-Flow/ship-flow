@@ -79,12 +79,16 @@ public class Product extends BaseEntity {
 		if (status.equals(ProductStatus.STOPPED) || status.equals(ProductStatus.DISCONTINUED)
 			|| status.equals(ProductStatus.OUT_OF_STOCK))
 			this.isHide = true;
+		else if (status.equals(ProductStatus.ON_SALE))
+			this.isHide = false;
 	}
 
 	public void updateStock(Integer stock) {
 		this.stockInfo.setStock(stock);
 		if (stock == 0)
 			updateStatus(ProductStatus.OUT_OF_STOCK);
+		else if (stock > 0)
+			updateStatus(ProductStatus.ON_SALE);
 		this.stockInfo.setStock(stock);
 	}
 

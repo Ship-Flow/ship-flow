@@ -7,17 +7,18 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class OrderCanceledEvent extends SagaEvent {
-	private static final String EVENT_TYPE = "order.canceled";
+public class StockRestoredFailedEvent extends SagaEvent {
+
+	private static final String EVENT_TYPE = "stock.restored";
 
 	private String orderId;
 	private String productId;
-	private Integer quantity;
+	private String reason;
 
-	public OrderCanceledEvent(String orderId, String productId, Integer quantity) {
+	public StockRestoredFailedEvent(String orderId, String productId, String reason) {
 		super(EVENT_TYPE);
 		this.orderId = orderId;
 		this.productId = productId;
-		this.quantity = quantity;
+		this.reason = reason;
 	}
 }

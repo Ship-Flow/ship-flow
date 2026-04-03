@@ -2,7 +2,6 @@ package com.shipflow.productservice.infrastructure.messaging.config;
 
 import org.springframework.stereotype.Component;
 
-import com.shipflow.common.exception.BusinessException;
 import com.shipflow.common.messaging.handler.AbstractSagaHandler;
 import com.shipflow.common.messaging.publisher.EventPublisher;
 import com.shipflow.productservice.application.service.ProductService;
@@ -28,7 +27,7 @@ public class OrderCreationStatedHandler extends AbstractSagaHandler<OrderCreatio
 				event.getProductId(),
 				event.getQuantity()
 			));
-		} catch (BusinessException e) {
+		} catch (Exception e) {
 			eventPublisher.publish(new ProductStockDecreasedFailedEvent(
 				event.getOrderId(),
 				event.getProductId(),

@@ -11,11 +11,11 @@ public class StockRestoredEvent extends SagaEvent {
 
 	private static final String EVENT_TYPE = "stock.restored";
 
-	private Object orderId;
-	private Object productId;
-	private Object quantity;
+	private String orderId;
+	private String productId;
+	private Integer quantity;
 
-	public StockRestoredEvent(Object orderId, Object productId, Object quantity) {
+	public StockRestoredEvent(String orderId, String productId, Integer quantity) {
 		super(EVENT_TYPE);
 		this.orderId = orderId;
 		this.productId = productId;

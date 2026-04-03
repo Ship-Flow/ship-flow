@@ -7,6 +7,7 @@ import com.shipflow.common.messaging.publisher.EventPublisher;
 import com.shipflow.productservice.application.service.ProductService;
 import com.shipflow.productservice.infrastructure.messaging.OrderCanceledEvent;
 import com.shipflow.productservice.infrastructure.messaging.StockRestoredEvent;
+import com.shipflow.productservice.infrastructure.messaging.StockRestoredFailedEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +19,13 @@ public class StockRestoreHandler extends AbstractSagaHandler<OrderCanceledEvent>
 
 	@Override
 	public void process(OrderCanceledEvent event) {
-		productService.restoreStock(event.getProductId(), event.getQuantity());
-		eventPublisher.publish(new StockRestoredEvent(event.getOrderId(), event.getProductId(), event.getQuantity()));
+		try {
+			productService.restoreStock(event.getProductId(), event.getQuantity());
+			eventPublisher.publish(new StockRestoredEvent(
+				event.getOrderId(), event.getProductId(), event.getQuantity()));
+		} catch (Exception e) {
+			eventPublisher.publish(new StockRestoredFailedEvent(
+				event.getOrderId(), event.getProductId(), e.getMessage()));
+		}
 	}
 }

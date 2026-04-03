@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, UUID> {
 	Slice<ProductJpaEntity> findAllByCompanyId(UUID companyId, Pageable pageable);
 
-	@Query("select stock from ProductJpaEntity where id = :productId and isHide = false")
+	@Query("select p.stock from ProductJpaEntity p where p.id = :productId and p.isHide = false")
 	Integer findStockById(UUID productId);
 
 	List<ProductJpaEntity> findAllByCompanyId(UUID companyId);
