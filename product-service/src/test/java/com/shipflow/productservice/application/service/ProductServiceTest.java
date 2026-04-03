@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.productservice.application.client.VendorFeignClient;

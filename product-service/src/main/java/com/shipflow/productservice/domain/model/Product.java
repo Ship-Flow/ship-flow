@@ -90,6 +90,10 @@ public class Product extends BaseEntity {
 			updateStatus(ProductStatus.OUT_OF_STOCK);
 	}
 
+	public void restoreStock(Integer quantity) {
+		this.stockInfo.restore(quantity);
+	}
+
 	public void delete(UUID deletedBy) {
 		super.delete(deletedBy);
 		this.isHide = true;
@@ -110,4 +114,5 @@ public class Product extends BaseEntity {
 	public UUID getHubId () {
 		return this.vendorInfo.getHubId();
 	}
+
 }

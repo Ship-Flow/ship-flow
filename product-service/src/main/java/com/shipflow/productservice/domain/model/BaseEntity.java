@@ -1,8 +1,9 @@
 package com.shipflow.productservice.domain.model;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.Objects;
+import java.util.UUID;
+
 import lombok.Getter;
 
 @Getter

@@ -1,7 +1,6 @@
 package com.shipflow.productservice.application.service;
 
 import java.time.Duration;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -119,6 +118,23 @@ public class ProductService {
 		redisTemplate.opsForValue().set(occupancyKey, quantity, Duration.ofSeconds(5));
 
 		return new StockInfoResponse(productId, currentStock.intValue());
+	}
+
+	public void decreaseStock(String productId, Integer quantity) {
+		Product product = findProductById(UUID.fromString(productId));
+
+		if (product.getStock() < quantity) {
+			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
+		}
+
+		product.decreaseStock(quantity);
+		productRepository.save(product);
+	}
+
+	public void restoreStock(String productId, Integer quantity) {
+		Product product = findProductById(UUID.fromString(productId));
+		product.restoreStock(quantity);
+		productRepository.save(product);
 	}
 
 

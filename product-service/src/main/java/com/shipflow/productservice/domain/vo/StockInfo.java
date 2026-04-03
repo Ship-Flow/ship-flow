@@ -33,4 +33,10 @@ public class StockInfo {
 			throw new BusinessException(ProductErrorCode.OUT_OF_STOCK);
 		this.stock -= quantity;
 	}
+
+	public void restore(Integer quantity) {
+		if (quantity == null || quantity < 0)
+			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
+		this.stock += quantity;
+	}
 }

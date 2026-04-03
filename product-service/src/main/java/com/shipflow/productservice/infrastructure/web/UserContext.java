@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Component
 public class UserContext {
 	private static final ThreadLocal<UUID> USER_ID_HOLDER = new ThreadLocal<>();
