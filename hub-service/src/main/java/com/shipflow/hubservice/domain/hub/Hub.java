@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.shipflow.common.domain.BaseEntity;
+import com.shipflow.hubservice.presentation.dto.HubRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,4 +48,13 @@ public class Hub extends BaseEntity {
 
 	@Column(length = 20)
 	private String managerName;
+
+	public void update(HubRequest.Update request) {
+		if (request.getName() != null) this.name = request.getName();
+		if (request.getAddress() != null) this.address = request.getAddress();
+		if (request.getLatitude() != null) this.latitude = request.getLatitude();
+		if (request.getLongitude() != null) this.longitude = request.getLongitude();
+		this.managerId = request.getManagerId();
+		this.managerName = request.getManagerName();
+	}
 }
