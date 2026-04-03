@@ -92,6 +92,7 @@ public class ProductService {
 
 
 	//internal
+	@Transactional
 	public void deleteByCompany(UUID companyId) {
 		List<Product> products = productRepository.findAllByCompanyId(companyId);
 		products.forEach(product -> delete(product.getId()));
@@ -107,7 +108,13 @@ public class ProductService {
 	* */
 
 	// 재고 조회
+	@Transactional
 	public StockInfoResponse getStockInfoAndOccupy(@Param("productId") UUID productId, Integer quantity) {
+
+		if (quantity == null || quantity <= 0) {
+			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
+		}
+
 		String stockKey ="product:stock:"+productId;
 		String occupancyKey ="product:"+ UserContext.getUserId() +":"+productId;
 
@@ -126,6 +133,7 @@ public class ProductService {
 		return new StockInfoResponse(productId, currentStock.intValue());
 	}
 
+	@Transactional
 	public void decreaseStock(String productId, Integer quantity) {
 		Product product = findProductById(UUID.fromString(productId));
 
@@ -137,7 +145,11 @@ public class ProductService {
 		productRepository.save(product);
 	}
 
+	@Transactional
 	public void restoreStock(String productId, Integer quantity) {
+		String stockKey = "product:stock:" + productId;
+		redisTemplate.opsForValue().increment(stockKey, (long)quantity);
+
 		Product product = findProductById(UUID.fromString(productId));
 		product.restoreStock(quantity);
 		productRepository.save(product);

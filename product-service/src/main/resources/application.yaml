@@ -50,5 +50,5 @@ eureka:
 
 logging:
   level:
-    com.shipflow.product.infrastructure.client: DEBUG
+    com.shipflow.product.infrastructure.client: BASIC
     org.hibernate.orm.jdbc.bind: TRACE

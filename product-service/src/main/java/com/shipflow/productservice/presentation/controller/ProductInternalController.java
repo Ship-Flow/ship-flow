@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
@@ -23,7 +23,7 @@ public class ProductInternalController {
 
 	@GetMapping("/{productId}")
 	public ApiResponse<StockInfoResponse> getStockInfo(@PathVariable UUID productId,
-		@RequestPart Integer quantity) {
+		@RequestParam Integer quantity) {
 		StockInfoResponse response = productService.getStockInfoAndOccupy(productId,quantity);
 		return ApiResponse.ok(response);
 	}
