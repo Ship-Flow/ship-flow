@@ -1,14 +1,14 @@
 package com.shipflow.notificationservice.domain.slack;
 
-import com.shipflow.notificationservice.domain.slack.vo.SlackDeleteResult;
-import com.shipflow.notificationservice.domain.slack.vo.SlackSendResult;
-import com.shipflow.notificationservice.domain.slack.vo.SlackUpdateResult;
+import com.shipflow.notificationservice.domain.slack.vo.SlackDeleteInfo;
+import com.shipflow.notificationservice.domain.slack.vo.SlackSendInfo;
+import com.shipflow.notificationservice.domain.slack.vo.SlackUpdateInfo;
 
 public interface SlackSender {
 
-	SlackSendResult sendMessage(String receiverSlackId, String message);
+	SlackSendInfo sendMessage(String receiverSlackId, String message);
 
-	SlackUpdateResult updateMessage(String channelId, String ts, String message);
+	SlackUpdateInfo updateMessage(String channelId, String ts, String message);
 
-	SlackDeleteResult deleteMessage(String channelId, String ts);
+	SlackDeleteInfo deleteMessage(String channelId, String ts);
 }

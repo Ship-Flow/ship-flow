@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
-import com.shipflow.notificationservice.domain.slack.vo.SlackDeleteResult;
-import com.shipflow.notificationservice.domain.slack.vo.SlackSendResult;
-import com.shipflow.notificationservice.domain.slack.vo.SlackUpdateResult;
+import com.shipflow.notificationservice.domain.slack.vo.SlackDeleteInfo;
+import com.shipflow.notificationservice.domain.slack.vo.SlackSendInfo;
+import com.shipflow.notificationservice.domain.slack.vo.SlackUpdateInfo;
 import com.shipflow.notificationservice.infrastructure.client.slack.config.SlackProperties;
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
@@ -32,7 +32,7 @@ public class SlackApiClient implements SlackSender {
 
 	//슬랙 메세지 발송 진입 메서드
 	@Override
-	public SlackSendResult sendMessage(String receiverSlackId, String message) {
+	public SlackSendInfo sendMessage(String receiverSlackId, String message) {
 		try {
 			validateReceiverSlackId(receiverSlackId);
 			validateMessage(message);
@@ -53,7 +53,7 @@ public class SlackApiClient implements SlackSender {
 	}
 
 	//메세지(개별 DM)
-	private SlackSendResult sendDirectMessage(String userSlackId, String message)
+	private SlackSendInfo sendDirectMessage(String userSlackId, String message)
 		throws IOException, SlackApiException {
 
 		ConversationsOpenResponse openResponse = slack.methods(slackProperties.getBotToken())
@@ -75,14 +75,14 @@ public class SlackApiClient implements SlackSender {
 			throw new BusinessException(SlackErrorCode.SLACK_SEND_FAILED);
 		}
 
-		return new SlackSendResult(
+		return new SlackSendInfo(
 			response.getTs(),
 			response.getChannel()
 		);
 	}
 
 	//메세지(채널)
-	private SlackSendResult sendChannelMessage(String channelId, String message)
+	private SlackSendInfo sendChannelMessage(String channelId, String message)
 		throws IOException, SlackApiException {
 
 		ChatPostMessageResponse response = slack.methods(slackProperties.getBotToken())
@@ -95,7 +95,7 @@ public class SlackApiClient implements SlackSender {
 			throw new BusinessException(SlackErrorCode.SLACK_SEND_FAILED);
 		}
 
-		return new SlackSendResult(
+		return new SlackSendInfo(
 			response.getTs(),
 			response.getChannel()
 		);
@@ -103,7 +103,7 @@ public class SlackApiClient implements SlackSender {
 
 	//슬랙 메세지 수정
 	@Override
-	public SlackUpdateResult updateMessage(String channelId, String ts, String message) {
+	public SlackUpdateInfo updateMessage(String channelId, String ts, String message) {
 		try {
 			validateSlackChannelId(channelId);
 			validateSlackTs(ts);
@@ -120,7 +120,7 @@ public class SlackApiClient implements SlackSender {
 				throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_UPDATE_FAILED);
 			}
 
-			return new SlackUpdateResult(
+			return new SlackUpdateInfo(
 				response.getTs(),
 				response.getChannel(),
 				response.getText()
@@ -133,7 +133,7 @@ public class SlackApiClient implements SlackSender {
 
 	//슬랙 메세지 삭제
 	@Override
-	public SlackDeleteResult deleteMessage(String channelId, String ts) {
+	public SlackDeleteInfo deleteMessage(String channelId, String ts) {
 		try {
 			validateSlackChannelId(channelId);
 			validateSlackTs(ts);
@@ -148,7 +148,7 @@ public class SlackApiClient implements SlackSender {
 				throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_DELETE_FAILED);
 			}
 
-			return new SlackDeleteResult(
+			return new SlackDeleteInfo(
 				response.getTs(),
 				response.getChannel()
 			);

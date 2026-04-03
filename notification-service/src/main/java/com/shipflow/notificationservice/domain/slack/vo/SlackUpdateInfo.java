@@ -1,7 +1,8 @@
 package com.shipflow.notificationservice.domain.slack.vo;
 
-public record SlackSendResult(
+public record SlackUpdateInfo(
 	String slackTs,
-	String slackChannelId
+	String slackChannelId,
+	String message
 ) {
 }

@@ -14,7 +14,7 @@ import com.shipflow.notificationservice.domain.slack.SlackMessage;
 import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
 import com.shipflow.notificationservice.domain.slack.repository.SlackMessageRepository;
-import com.shipflow.notificationservice.domain.slack.vo.SlackSendResult;
+import com.shipflow.notificationservice.domain.slack.vo.SlackSendInfo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,7 +42,7 @@ public class SlackAppService {
 		);
 
 		try {
-			SlackSendResult result = slackSender.sendMessage(
+			SlackSendInfo result = slackSender.sendMessage(
 				command.receiverSlackId(),
 				command.message()
 			);
