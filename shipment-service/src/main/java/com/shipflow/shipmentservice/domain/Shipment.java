@@ -3,7 +3,6 @@ package com.shipflow.shipmentservice.domain;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -176,22 +175,4 @@ public class Shipment extends BaseEntity {
 			.findFirst()
 			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_ROUTE_NOT_FOUND));
 	}
-
-	private LocalDateTime getPreviousRouteCompletedTime(ShipmentRoute currentRoute) {
-		ShipmentRoute previousRoute = routes.stream()
-			.filter(r -> r.getSequence() < currentRoute.getSequence())
-			.max(Comparator.comparingInt(ShipmentRoute::getSequence))
-			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.PREVIOUS_ROUTE_NOT_FOUND));
-
-		if (previousRoute.getStatus() != ShipmentRouteStatus.ARRIVED_AT_HUB) {
-			throw new BusinessException(ShipmentErrorCode.PREVIOUS_ROUTE_NOT_COMPLETED);
-		}
-
-		if (previousRoute.getUpdatedAt() == null) {
-			throw new BusinessException(ShipmentErrorCode.INVALID_PREVIOUS_ROUTE_TIME);
-		}
-
-		return previousRoute.getUpdatedAt();
-	}
-
 }
