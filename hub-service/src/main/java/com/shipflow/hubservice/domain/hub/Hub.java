@@ -57,4 +57,8 @@ public class Hub extends BaseEntity {
 		this.managerId = request.getManagerId();
 		this.managerName = request.getManagerName();
 	}
+
+	public void delete(UUID userId) {
+		softDelete(userId);
+	}
 }
