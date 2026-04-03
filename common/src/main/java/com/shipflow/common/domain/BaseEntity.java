@@ -1,7 +1,7 @@
 package com.shipflow.common.domain;
 
-import jakarta.persistence.*;
-import lombok.Getter;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -9,8 +9,12 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
 
 @Getter
 @MappedSuperclass
@@ -20,21 +24,21 @@ public abstract class BaseEntity {
 
 	@Column(nullable = false, updatable = false)
 	@CreatedDate
-	private LocalDateTime createdAt;
+	protected LocalDateTime createdAt;
 
 	@Column(nullable = false)
 	@CreatedBy
-	private UUID createdBy;
+	protected UUID createdBy;
 
 	@LastModifiedDate
-	private LocalDateTime updatedAt;
+	protected LocalDateTime updatedAt;
 
 	@LastModifiedBy
-	private UUID updatedBy;
+	protected UUID updatedBy;
 
-	private LocalDateTime deletedAt;
+	protected LocalDateTime deletedAt;
 
-	private UUID deletedBy;
+	protected UUID deletedBy;
 
 	protected void softDelete(UUID userId) {
 		this.deletedAt = LocalDateTime.now();
