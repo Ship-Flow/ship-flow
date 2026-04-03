@@ -1,4 +1,4 @@
-package com.shipflow.productservice.infrastructure.messaging;
+package com.shipflow.productservice.infrastructure.messaging.event;
 
 import com.shipflow.common.messaging.event.SagaEvent;
 

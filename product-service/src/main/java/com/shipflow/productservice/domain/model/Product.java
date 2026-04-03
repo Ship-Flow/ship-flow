@@ -68,7 +68,7 @@ public class Product extends BaseEntity {
 	}
 
 	private BigDecimal validatePrice(BigDecimal price) {
-		if (Objects.requireNonNull(price, "가격은 필수입니다.").compareTo(BigDecimal.ZERO) < 0) {
+		if (Objects.requireNonNull(price, "가격은 필수입니다.").compareTo(BigDecimal.ZERO) <= 0) {
 			throw new IllegalArgumentException("가격은 0보다 커야 합니다.");
 		}
 		return price;

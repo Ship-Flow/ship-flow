@@ -1,4 +1,4 @@
-package com.shipflow.productservice.infrastructure.messaging;
+package com.shipflow.productservice.infrastructure.messaging.event;
 
 import com.shipflow.common.messaging.event.SagaEvent;
 
@@ -7,18 +7,19 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class OrderCreationStartedEvent extends SagaEvent {
+public class ProductStockDecreasedEvent extends SagaEvent {
 
-	private static final String EVENT_TYPE = "order.creation.started";
+	private static final String EVENT_TYPE = "product.stock.decreased";
 
 	private String orderId;
 	private String productId;
 	private Integer quantity;
 
-	public OrderCreationStartedEvent(String orderId, String productId, Integer quantity) {
+	public ProductStockDecreasedEvent(String orderId, String productId, Integer quantity) {
 		super(EVENT_TYPE);
 		this.orderId = orderId;
 		this.productId = productId;
 		this.quantity = quantity;
+
 	}
 }

@@ -3,8 +3,8 @@ package com.shipflow.productservice.infrastructure.messaging.config;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import com.shipflow.productservice.infrastructure.messaging.OrderCanceledEvent;
-import com.shipflow.productservice.infrastructure.messaging.OrderCreationStartedEvent;
+import com.shipflow.productservice.infrastructure.messaging.event.OrderCanceledEvent;
+import com.shipflow.productservice.infrastructure.messaging.event.OrderCreationStartedEvent;
 
 import lombok.RequiredArgsConstructor;
 

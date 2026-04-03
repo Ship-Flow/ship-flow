@@ -1,4 +1,4 @@
-package com.shipflow.productservice.infrastructure.messaging;
+package com.shipflow.productservice.infrastructure.messaging.event;
 
 import com.shipflow.common.messaging.event.SagaEvent;
 
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StockRestoredFailedEvent extends SagaEvent {
 
-	private static final String EVENT_TYPE = "stock.restored";
+	private static final String EVENT_TYPE = "stock.restored.failed";
 
 	private String orderId;
 	private String productId;

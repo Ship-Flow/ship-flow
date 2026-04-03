@@ -95,7 +95,10 @@ public class ProductService {
 	@Transactional
 	public void deleteByCompany(UUID companyId) {
 		List<Product> products = productRepository.findAllByCompanyId(companyId);
-		products.forEach(product -> delete(product.getId()));
+		products.forEach(product -> {
+			delete(product.getId());
+			redisTemplate.delete("product:stock:" + product.getId());
+		});
 	}
 
 	//event
@@ -111,9 +114,7 @@ public class ProductService {
 	@Transactional
 	public StockInfoResponse getStockInfoAndOccupy(@Param("productId") UUID productId, Integer quantity) {
 
-		if (quantity == null || quantity <= 0) {
-			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
-		}
+		validateQuantitiy(quantity);
 
 		String stockKey ="product:stock:"+productId;
 		String occupancyKey ="product:"+ UserContext.getUserId() +":"+productId;
@@ -135,6 +136,9 @@ public class ProductService {
 
 	@Transactional
 	public void decreaseStock(String productId, Integer quantity) {
+
+		validateQuantitiy(quantity);
+
 		Product product = findProductById(UUID.fromString(productId));
 
 		if (product.getStock() < quantity) {
@@ -147,6 +151,9 @@ public class ProductService {
 
 	@Transactional
 	public void restoreStock(String productId, Integer quantity) {
+
+		validateQuantitiy(quantity);
+
 		String stockKey = "product:stock:" + productId;
 		redisTemplate.opsForValue().increment(stockKey, (long)quantity);
 
@@ -172,6 +179,12 @@ public class ProductService {
 			}
 
 			redisTemplate.opsForValue().setIfAbsent(stockKey, dbStock);
+		}
+	}
+
+	private void validateQuantitiy(Integer quantity) {
+		if (quantity == null || quantity <= 0) {
+			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
 		}
 	}
 

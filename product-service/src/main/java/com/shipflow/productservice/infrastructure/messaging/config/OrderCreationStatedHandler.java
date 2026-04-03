@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import com.shipflow.common.messaging.handler.AbstractSagaHandler;
 import com.shipflow.common.messaging.publisher.EventPublisher;
 import com.shipflow.productservice.application.service.ProductService;
-import com.shipflow.productservice.infrastructure.messaging.OrderCreationStartedEvent;
-import com.shipflow.productservice.infrastructure.messaging.ProductStockDecreasedEvent;
-import com.shipflow.productservice.infrastructure.messaging.ProductStockDecreasedFailedEvent;
+import com.shipflow.productservice.infrastructure.messaging.event.OrderCreationStartedEvent;
+import com.shipflow.productservice.infrastructure.messaging.event.ProductStockDecreasedEvent;
+import com.shipflow.productservice.infrastructure.messaging.event.ProductStockDecreasedFailedEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,11 +22,6 @@ public class OrderCreationStatedHandler extends AbstractSagaHandler<OrderCreatio
 		try {
 			productService.decreaseStock(event.getProductId(), event.getQuantity());
 
-			eventPublisher.publish(new ProductStockDecreasedEvent(
-				event.getOrderId(),
-				event.getProductId(),
-				event.getQuantity()
-			));
 		} catch (Exception e) {
 			eventPublisher.publish(new ProductStockDecreasedFailedEvent(
 				event.getOrderId(),
@@ -34,5 +29,11 @@ public class OrderCreationStatedHandler extends AbstractSagaHandler<OrderCreatio
 				e.getMessage()
 			));
 		}
+
+		eventPublisher.publish(new ProductStockDecreasedEvent(
+			event.getOrderId(),
+			event.getProductId(),
+			event.getQuantity()
+		));
 	}
 }
