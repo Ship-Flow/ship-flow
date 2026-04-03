@@ -1,5 +1,6 @@
 package com.shipflow.productservice.infrastructure.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,5 +35,16 @@ public class ProductRepositoryImpl implements ProductRepository {
 	public Slice<Product> findAllByCompanyId(UUID companyId, Pageable pageable) {
 		Slice<ProductJpaEntity> entities = jpaRepository.findAllByCompanyId(companyId, pageable);
 		return entities.map(ProductJpaEntity::toDomain);
+	}
+
+	@Override
+	public List<Product> findAll() {
+		List<ProductJpaEntity> entities = jpaRepository.findAll();
+		return entities.stream().map(ProductJpaEntity::toDomain).toList();
+	}
+
+	@Override
+	public Integer findStockById(UUID productId) {
+		return jpaRepository.findStockById(productId);
 	}
 }

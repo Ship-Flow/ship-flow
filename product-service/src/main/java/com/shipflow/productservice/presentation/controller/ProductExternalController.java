@@ -1,4 +1,4 @@
-package com.shipflow.productservice.presentation;
+package com.shipflow.productservice.presentation.controller;
 
 import java.util.UUID;
 
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.productservice.application.service.ProductService;
-import com.shipflow.productservice.infrastructure.web.UserContext;
 import com.shipflow.productservice.presentation.dto.request.ProductCreateRequest;
 import com.shipflow.productservice.presentation.dto.request.ProductUpdateInfoRequest;
 import com.shipflow.productservice.presentation.dto.request.ProductUpdateStockRequest;
