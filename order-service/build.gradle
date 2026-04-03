@@ -24,8 +24,11 @@ repositories {
 }
 
 dependencies {
-	// 1. Module Dependency
+	// 0. Module Dependency
 	implementation project(':common')
+
+	// 1. Service Discovery 설정
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	// 2. Persistence & Driver (에러 해결 핵심)
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

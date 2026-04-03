@@ -1,13 +1,15 @@
 spring:
   application:
-    name: order-service
+    name: orderservice
 
+  # 데이터베이스 설정
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:shipflow}?currentSchema=${DB_SCHEMA:orders}
     username: ${DB_USER:shipflow}
     password: ${DB_PASSWORD:1234}
 
+  # JPA 설정
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,6 +23,7 @@ spring:
     show-sql: true
     open-in-view: false
 
+  # RabbitMQ 설정
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: 5672
@@ -37,7 +40,28 @@ spring:
 server:
   port: 8082
 
+# Service Discovery 설정
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discoveryserver:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+# 기존 Feign 설정
 feign:
   client:
     config:
