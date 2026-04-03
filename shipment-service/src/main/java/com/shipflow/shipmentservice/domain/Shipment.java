@@ -115,4 +115,8 @@ public class Shipment extends BaseEntity {
 		route.assignShipment(this);
 	}
 
+	public void updateStatus(ShipmentStatus status) {
+		this.status = status;
+	}
+
 }

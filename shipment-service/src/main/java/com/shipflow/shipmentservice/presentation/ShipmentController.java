@@ -5,14 +5,20 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.shipmentservice.application.ShipmentService;
+import com.shipflow.shipmentservice.application.dto.ShipmentUpdateCommand;
 import com.shipflow.shipmentservice.presentation.dto.GetShipmentResDto;
+import com.shipflow.shipmentservice.presentation.dto.PatchShipmentReqDto;
+import com.shipflow.shipmentservice.presentation.dto.PatchShipmentResDto;
 import com.shipflow.shipmentservice.presentation.dto.ShipmentSearchResDto;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -42,6 +48,18 @@ public class ShipmentController {
 		@PathVariable UUID shipmentId
 	) {
 		return ApiResponse.ok(GetShipmentResDto.fromResult(shipmentService.getShipment(shipmentId)));
+	}
+
+	/**
+	 * TODO: 권한에 따른 조건 추가 필요
+	 */
+	@PatchMapping("/api/shipments/{shipmentId}")
+	public ApiResponse<PatchShipmentResDto> updateShipment(
+		@PathVariable UUID shipmentId,
+		@Valid @RequestBody PatchShipmentReqDto request
+	) {
+		ShipmentUpdateCommand command = PatchShipmentReqDto.toCommand(request);
+		return ApiResponse.ok(PatchShipmentResDto.fromResult(shipmentService.updateShipment(shipmentId, command)));
 	}
 
 }
