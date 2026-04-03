@@ -107,7 +107,7 @@ class ProductServiceTest {
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
-		productService.updateInfo(product.getId(), request);
+		productService.updateProductInfo(product.getId(), request);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());

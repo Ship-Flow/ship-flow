@@ -53,42 +53,42 @@ public class Product extends BaseEntity {
 		return product;
 	}
 
-	public void updateInfo(String name, BigDecimal price, UUID updatedBy) {
+	public void updateInfo(String name, BigDecimal price, ProductStatus status) {
 		if (name != null && !name.isBlank())
 			this.name = name;
-
-		if (price!=null|| price.compareTo(BigDecimal.ZERO) <= 0)
-			throw new IllegalArgumentException("price는 0보다 커야 합니다.");
-		else
-			this.price = price;
-		this.update(updatedBy);
+		this.price = validatePrice(price);
+		updateStatus(status);
 	}
 
-	public void updateVendorInfo(UUID companyId, String companyName, UUID hubId, UUID updatedBy) {
+	private BigDecimal validatePrice(BigDecimal price) {
+		if (Objects.requireNonNull(price, "가격은 필수입니다.").compareTo(BigDecimal.ZERO) < 0) {
+			throw new IllegalArgumentException("가격은 0보다 커야 합니다.");
+		}
+		return price;
+	}
+
+	public void updateVendorInfo(UUID companyId, String companyName, UUID hubId) {
 		this.vendorInfo = new VendorInfo(companyId, companyName, hubId);
-		this.update(updatedBy);
 	}
 
-	public void updateStatus(ProductStatus status, UUID updatedBy) {
+	public void updateStatus(ProductStatus status) {
 		this.status = status;
 		if (status.equals(ProductStatus.STOPPED) || status.equals(ProductStatus.DISCONTINUED)
 			|| status.equals(ProductStatus.OUT_OF_STOCK))
 			this.isHide = true;
-		this.update(updatedBy);
 	}
 
-	public void updateStock(Integer stock, UUID updatedBy) {
+	public void updateStock(Integer stock) {
 		this.stockInfo.setStock(stock);
 		if (stock == 0)
-			updateStatus(ProductStatus.OUT_OF_STOCK, updatedBy);
+			updateStatus(ProductStatus.OUT_OF_STOCK);
 		this.stockInfo.setStock(stock);
-		this.update(updatedBy);
 	}
 
 	public void decreaseStock(Integer quantity) {
 		this.stockInfo.decrease(quantity);
 		if (this.stockInfo.getStock() == 0)
-			this.isHide = true;
+			updateStatus(ProductStatus.OUT_OF_STOCK);
 	}
 
 	public void delete(UUID deletedBy) {

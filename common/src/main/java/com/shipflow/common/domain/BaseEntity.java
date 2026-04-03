@@ -26,13 +26,15 @@ public abstract class BaseEntity {
 	@CreatedDate
 	protected LocalDateTime createdAt;
 
-	@Column(nullable = false)
+	@Column(nullable = false, updatable = false)
 	@CreatedBy
 	protected UUID createdBy;
 
+	@Column(nullable = false)
 	@LastModifiedDate
 	protected LocalDateTime updatedAt;
 
+	@Column(nullable = false)
 	@LastModifiedBy
 	protected UUID updatedBy;
 

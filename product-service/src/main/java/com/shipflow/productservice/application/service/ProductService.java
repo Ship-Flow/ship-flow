@@ -54,11 +54,10 @@ public class ProductService {
 	}
 
 	@Transactional
-	public ProductUpdateResponse updateInfo(UUID productId, ProductUpdateInfoRequest request) {
-		UUID updaterId = UserContext.getUserId();
+	public ProductUpdateResponse updateProductInfo(UUID productId, ProductUpdateInfoRequest request) {
 		Product product = findProductById(productId);
 		product.updateInfo(
-			request.name(), request.price(), updaterId
+			request.name(), request.price(), request.status()
 		);
 		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
@@ -66,9 +65,8 @@ public class ProductService {
 
 	@Transactional
 	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request) {
-		UUID updaterId = UserContext.getUserId();
 		Product product = findProductById(productId);
-		product.updateStock(request.stock(), updaterId);
+		product.updateStock(request.stock());
 		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
 	}

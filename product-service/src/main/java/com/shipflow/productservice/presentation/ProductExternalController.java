@@ -60,14 +60,14 @@ public class ProductExternalController {
 		@RequestBody ProductUpdateInfoRequest productUpdateInfoRequest,
 		HttpServletRequest request) {
 		UserContext.setUserContext(request);
-		ProductUpdateResponse response = productService.updateInfo(productId, productUpdateInfoRequest);
+		ProductUpdateResponse response = productService.updateProductInfo(productId, productUpdateInfoRequest);
 		UserContext.clear();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@PostMapping("/{productId}/stock")
 	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateStock(@PathVariable UUID productId,
-		@RequestBody ProductUpdateStockRequest productUpdateStockRequest, HttpServletRequest request) {
+		@Valid @RequestBody ProductUpdateStockRequest productUpdateStockRequest, HttpServletRequest request) {
 		UserContext.setUserContext(request);
 		ProductUpdateResponse response = productService.updateStock(productId,
 			productUpdateStockRequest);
