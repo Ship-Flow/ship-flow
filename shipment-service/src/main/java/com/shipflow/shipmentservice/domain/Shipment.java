@@ -1,10 +1,15 @@
 package com.shipflow.shipmentservice.domain;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import com.shipflow.common.domain.BaseEntity;
+import com.shipflow.common.exception.BusinessException;
+import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -117,6 +122,76 @@ public class Shipment extends BaseEntity {
 
 	public void updateStatus(ShipmentStatus status) {
 		this.status = status;
+	}
+
+	public ShipmentRoute markRouteMovingToHub(UUID routeId) {
+		ShipmentRoute route = getRoute(routeId);
+		route.markMovingToHub();
+		return route;
+	}
+
+	public ShipmentRoute markRouteArrivedAtHub(UUID routeId, BigDecimal actualDistance) {
+		ShipmentRoute route = getRoute(routeId);
+		LocalDateTime baseTime = getArrivalBaseTime(route);
+
+		route.markArrivedAtHub(actualDistance, baseTime);
+
+		return route;
+	}
+
+	private LocalDateTime getArrivalBaseTime(ShipmentRoute currentRoute) {
+		ShipmentRoute previousRoute = routes.stream()
+			.filter(r -> r.getSequence() < currentRoute.getSequence())
+			.max((a, b) -> Integer.compare(a.getSequence(), b.getSequence()))
+			.orElse(null);
+
+		// 첫 번째 경로인 경우: 현재 경로가 MOVING_TO_HUB 로 변경된 시점 기준
+		if (previousRoute == null) {
+			if (currentRoute.getStatus() != ShipmentRouteStatus.MOVING_TO_HUB) {
+				throw new BusinessException(ShipmentErrorCode.INVALID_SHIPMENT_ROUTE_STATUS);
+			}
+
+			if (currentRoute.getUpdatedAt() == null) {
+				throw new BusinessException(ShipmentErrorCode.INVALID_PREVIOUS_ROUTE_TIME);
+			}
+
+			return currentRoute.getUpdatedAt();
+		}
+
+		// 이전 경로가 있는 경우: 이전 경로는 반드시 ARRIVED_AT_HUB 상태여야 함
+		if (previousRoute.getStatus() != ShipmentRouteStatus.ARRIVED_AT_HUB) {
+			throw new BusinessException(ShipmentErrorCode.PREVIOUS_ROUTE_NOT_COMPLETED);
+		}
+
+		if (previousRoute.getUpdatedAt() == null) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_PREVIOUS_ROUTE_TIME);
+		}
+
+		return previousRoute.getUpdatedAt();
+	}
+
+	private ShipmentRoute getRoute(UUID routeId) {
+		return routes.stream()
+			.filter(r -> r.getId().equals(routeId))
+			.findFirst()
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_ROUTE_NOT_FOUND));
+	}
+
+	private LocalDateTime getPreviousRouteCompletedTime(ShipmentRoute currentRoute) {
+		ShipmentRoute previousRoute = routes.stream()
+			.filter(r -> r.getSequence() < currentRoute.getSequence())
+			.max(Comparator.comparingInt(ShipmentRoute::getSequence))
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.PREVIOUS_ROUTE_NOT_FOUND));
+
+		if (previousRoute.getStatus() != ShipmentRouteStatus.ARRIVED_AT_HUB) {
+			throw new BusinessException(ShipmentErrorCode.PREVIOUS_ROUTE_NOT_COMPLETED);
+		}
+
+		if (previousRoute.getUpdatedAt() == null) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_PREVIOUS_ROUTE_TIME);
+		}
+
+		return previousRoute.getUpdatedAt();
 	}
 
 }

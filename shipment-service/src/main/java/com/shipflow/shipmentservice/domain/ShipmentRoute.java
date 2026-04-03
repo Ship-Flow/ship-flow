@@ -1,9 +1,13 @@
 package com.shipflow.shipmentservice.domain;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.shipflow.common.domain.BaseEntity;
+import com.shipflow.common.exception.BusinessException;
+import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -110,20 +114,56 @@ public class ShipmentRoute extends BaseEntity {
 		);
 	}
 
-	public void updateStatus(ShipmentRouteStatus status) {
-		this.status = status;
-	}
-
-	public void updateActualInfo(BigDecimal actualDistance, Integer actualDuration) {
-		this.actualDistance = actualDistance;
-		this.actualDuration = actualDuration;
-	}
-
-	public void updateShipmentManager(ShipmentManager shipmentManager) {
-		this.shipmentManager = shipmentManager;
-	}
-
 	void assignShipment(Shipment shipment) {
 		this.shipment = shipment;
+	}
+
+	public void markMovingToHub() {
+		validateMovableToHub();
+		this.status = ShipmentRouteStatus.MOVING_TO_HUB;
+	}
+
+	public void markArrivedAtHub(BigDecimal actualDistance, LocalDateTime baseTime) {
+		validateArrivedAtHub(actualDistance, baseTime);
+
+		LocalDateTime now = LocalDateTime.now();
+
+		this.status = ShipmentRouteStatus.ARRIVED_AT_HUB;
+		this.actualDistance = actualDistance;
+		this.actualDuration = calculateActualDuration(baseTime, now);
+	}
+
+	private void validateMovableToHub() {
+		if (this.status == ShipmentRouteStatus.MOVING_TO_HUB) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_SHIPMENT_ROUTE_STATUS);
+		}
+
+		if (this.status == ShipmentRouteStatus.ARRIVED_AT_HUB) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_SHIPMENT_ROUTE_STATUS);
+		}
+	}
+
+	private void validateArrivedAtHub(BigDecimal actualDistance, LocalDateTime baseTime) {
+		if (this.status != ShipmentRouteStatus.MOVING_TO_HUB) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_SHIPMENT_ROUTE_STATUS);
+		}
+
+		if (actualDistance == null || actualDistance.signum() <= 0) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_ACTUAL_DISTANCE);
+		}
+
+		if (baseTime == null) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_PREVIOUS_ROUTE_TIME);
+		}
+	}
+
+	private int calculateActualDuration(LocalDateTime baseTime, LocalDateTime now) {
+		long minutes = Duration.between(baseTime, now).toMinutes();
+
+		if (minutes < 0) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_DURATION);
+		}
+
+		return (int)minutes;
 	}
 }

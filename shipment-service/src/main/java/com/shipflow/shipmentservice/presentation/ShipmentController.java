@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.shipmentservice.application.ShipmentService;
-import com.shipflow.shipmentservice.application.dto.ShipmentUpdateCommand;
+import com.shipflow.shipmentservice.application.dto.ShipmentRouteUpdateResult;
+import com.shipflow.shipmentservice.application.dto.ShipmentUpdateResult;
 import com.shipflow.shipmentservice.presentation.dto.GetShipmentResDto;
 import com.shipflow.shipmentservice.presentation.dto.GetShipmentRouteListResDto;
 import com.shipflow.shipmentservice.presentation.dto.PatchShipmentReqDto;
 import com.shipflow.shipmentservice.presentation.dto.PatchShipmentResDto;
+import com.shipflow.shipmentservice.presentation.dto.PatchShipmentRouteReqDto;
 import com.shipflow.shipmentservice.presentation.dto.ShipmentSearchResDto;
 
 import jakarta.validation.Valid;
@@ -51,6 +53,9 @@ public class ShipmentController {
 		return ApiResponse.ok(GetShipmentResDto.fromResult(shipmentService.getShipment(shipmentId)));
 	}
 
+	/**
+	 * TODO: 권한 처리 필요
+	 */
 	@GetMapping("/api/shipments/{shipmentId}/routes")
 	public ApiResponse<List<GetShipmentRouteListResDto>> getShipmentRoutes(
 		@PathVariable UUID shipmentId
@@ -62,15 +67,33 @@ public class ShipmentController {
 	}
 
 	/**
-	 * TODO: 권한에 따른 조건 추가 필요
+	 * TODO: 권한 처리 필요
 	 */
 	@PatchMapping("/api/shipments/{shipmentId}")
 	public ApiResponse<PatchShipmentResDto> updateShipment(
 		@PathVariable UUID shipmentId,
 		@Valid @RequestBody PatchShipmentReqDto request
 	) {
-		ShipmentUpdateCommand command = PatchShipmentReqDto.toCommand(request);
-		return ApiResponse.ok(PatchShipmentResDto.fromResult(shipmentService.updateShipment(shipmentId, command)));
+		ShipmentUpdateResult result = shipmentService.updateShipment(shipmentId, request.toCommand());
+		return ApiResponse.ok(PatchShipmentResDto.fromResult(result));
+	}
+
+	/**
+	 * TODO: 권한 처리 필요
+	 */
+	@PatchMapping("/api/shipments/{shipmentId}/routes/{routeId}")
+	public ApiResponse<PatchShipmentRouteResDto> updateShipmentRoute(
+		@PathVariable UUID shipmentId,
+		@PathVariable UUID routeId,
+		@Valid @RequestBody PatchShipmentRouteReqDto request
+	) {
+		ShipmentRouteUpdateResult result = shipmentService.updateShipmentRoute(
+			shipmentId,
+			routeId,
+			request.toCommand()
+		);
+
+		return ApiResponse.ok(PatchShipmentRouteResDto.fromResult(result));
 	}
 
 }

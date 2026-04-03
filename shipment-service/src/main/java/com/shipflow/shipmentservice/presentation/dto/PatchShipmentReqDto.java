@@ -12,9 +12,9 @@ public class PatchShipmentReqDto {
 	@NotNull(message = "status는 필수입니다.")
 	private ShipmentStatus status;
 
-	public static ShipmentUpdateCommand toCommand(PatchShipmentReqDto dto) {
+	public ShipmentUpdateCommand toCommand() {
 		return ShipmentUpdateCommand.builder()
-			.status(dto.getStatus())
+			.status(status)
 			.build();
 	}
 }
