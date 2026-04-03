@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.shipflow.common.domain.BaseEntity;
+import com.shipflow.hubservice.presentation.dto.HubRouteRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,4 +47,13 @@ public class HubRoute extends BaseEntity {
 
 	@Column(nullable = false)
 	private Integer duration;
+
+	public void update(HubRouteRequest.Update request) {
+		if (request.getDuration() != null) this.duration = request.getDuration();
+		if (request.getDistance() != null) this.distance = request.getDistance();
+	}
+
+	public void delete(UUID userId) {
+		softDelete(userId);
+	}
 }
