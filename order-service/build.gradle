@@ -55,8 +55,6 @@ dependencies {
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation 'org.testcontainers:rabbitmq'
 
-	// 테스트 환경에서도 JDBC 드라이버가 로드될 수 있도록 추가
-	testRuntimeOnly 'org.postgresql:postgresql'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
