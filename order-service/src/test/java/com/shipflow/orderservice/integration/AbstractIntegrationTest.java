@@ -3,25 +3,30 @@ package com.shipflow.orderservice.integration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.RabbitMQContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Testcontainers
+@ActiveProfiles("test")
 @Import(TestJpaConfig.class)
 public abstract class AbstractIntegrationTest {
 
-    @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withInitScript("test-schema.sql");
+    // 싱글턴 컨테이너 패턴: 테스트 클래스 간 컨테이너 재시작 방지
+    // @Container/@Testcontainers 미사용 → JVM 종료 시까지 컨테이너 유지
+    static final PostgreSQLContainer<?> postgres;
+    static final RabbitMQContainer rabbitmq;
 
-    @Container
-    static final RabbitMQContainer rabbitmq = new RabbitMQContainer("rabbitmq:3.13-management-alpine");
+    static {
+        postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+                .withInitScript("test-schema.sql");
+        rabbitmq = new RabbitMQContainer("rabbitmq:3.13-management-alpine");
+        postgres.start();
+        rabbitmq.start();
+    }
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {

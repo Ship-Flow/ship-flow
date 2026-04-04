@@ -1,12 +1,13 @@
 package com.shipflow.orderservice.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shipflow.orderservice.domain.repository.OrderRepository;
 import com.shipflow.orderservice.fixture.OrderFixture;
 import com.shipflow.orderservice.presentation.dto.OrderResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -20,7 +21,13 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
-    @Autowired OrderRepository orderRepository;
+    @Autowired JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void cleanUp() {
+        jdbcTemplate.execute("DELETE FROM orders.p_order_read_models");
+        jdbcTemplate.execute("DELETE FROM orders.p_orders");
+    }
 
     @Test
     void 주문생성_조회_전체흐름() throws Exception {
@@ -41,7 +48,9 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
         UUID orderId = created.id();
 
         // 3. DB에 저장 확인
-        assertThat(orderRepository.findById(orderId)).isPresent();
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM orders.p_orders WHERE id = ?::uuid", Integer.class, orderId.toString()
+        )).isEqualTo(1);
 
         // 4. 단건 조회
         mockMvc.perform(get("/api/orders/{id}", orderId))

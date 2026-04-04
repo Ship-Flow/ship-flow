@@ -1,6 +1,7 @@
 package com.shipflow.orderservice.application;
 
 import com.shipflow.common.messaging.publisher.EventPublisher;
+import org.springframework.context.ApplicationEventPublisher;
 import com.shipflow.orderservice.application.dto.CancelOrderCommand;
 import com.shipflow.orderservice.application.dto.CreateOrderCommand;
 import com.shipflow.orderservice.application.dto.OrderResult;
@@ -30,9 +31,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OrderCommandServiceTest {
 
-    @Mock OrderRepository orderRepository;                  // 가짜 객체 1
-    @Mock EventPublisher eventPublisher;                    // 가짜 객체 2
-    @InjectMocks OrderCommandService orderCommandService;   // orderCommandService 에 위 가짝 객체 2개를 주입해줌
+    @Mock OrderRepository orderRepository;
+    @Mock EventPublisher eventPublisher;
+    @Mock ApplicationEventPublisher domainEventPublisher;
+    @InjectMocks OrderCommandService orderCommandService;
 
     private final UUID orderId = OrderFixture.ORDER_ID;
     private final UUID userId  = OrderFixture.USER_ID;
