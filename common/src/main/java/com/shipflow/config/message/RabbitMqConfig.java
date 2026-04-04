@@ -1,6 +1,7 @@
 package com.shipflow.config.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
@@ -15,43 +16,43 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
-    // ── Exchange 이름 ──────────────────────────────
-    public static final String SAGA_EXCHANGE = "saga.events";      // Topic Exchange 방식
-    public static final String SAGA_DLX      = "saga.events.dlx";  // Direct Exchange 방식 -> 메시지 처리 실패 시 사용
+	// ── Exchange 이름 ──────────────────────────────
+	public static final String SAGA_EXCHANGE = "saga.events";      // Topic Exchange 방식
+	public static final String SAGA_DLX = "saga.events.dlx";  // Direct Exchange 방식 -> 메시지 처리 실패 시 사용
 
-    // ── 공통 Queue 생성 헬퍼 (각 서비스에서 호출) ────
-    public static Queue durableQueue(String name) {
-        return QueueBuilder.durable(name)
-                .withArgument("x-dead-letter-exchange", SAGA_DLX)
-                .withArgument("x-dead-letter-routing-key", name + ".dlq")
-                .build();
-    }
+	// ── 공통 Queue 생성 헬퍼 (각 서비스에서 호출) ────
+	public static Queue durableQueue(String name) {
+		return QueueBuilder.durable(name)
+			.withArgument("x-dead-letter-exchange", SAGA_DLX)
+			.withArgument("x-dead-letter-routing-key", name + ".dlq")
+			.build();
+	}
 
-    public static Queue dlqQueue(String name) {
-        return QueueBuilder.durable(name).build();
-    }
+	public static Queue dlqQueue(String name) {
+		return QueueBuilder.durable(name).build();
+	}
 
-    // ── Exchange Bean ──────────────────────────────
-    @Bean
-    public TopicExchange sagaExchange() {
-        return new TopicExchange(SAGA_EXCHANGE, true, false);
-    }
+	// ── Exchange Bean ──────────────────────────────
+	@Bean
+	public TopicExchange sagaExchange() {
+		return new TopicExchange(SAGA_EXCHANGE, true, false);
+	}
 
-    @Bean
-    public DirectExchange sagaDlx() {
-        return new DirectExchange(SAGA_DLX, true, false);
-    }
+	@Bean
+	public DirectExchange sagaDlx() {
+		return new DirectExchange(SAGA_DLX, true, false);
+	}
 
-    // ── RabbitTemplate (Jackson 직렬화) ───────────
-    @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory cf, ObjectMapper objectMapper) {
-        RabbitTemplate template = new RabbitTemplate(cf);
-        template.setMessageConverter(new Jackson2JsonMessageConverter(objectMapper));
-        return template;
-    }
+	// ── RabbitTemplate (Jackson 직렬화) ───────────
+	@Bean
+	public RabbitTemplate rabbitTemplate(ConnectionFactory cf, ObjectMapper objectMapper) {
+		RabbitTemplate template = new RabbitTemplate(cf);
+		template.setMessageConverter(new Jackson2JsonMessageConverter(objectMapper));
+		return template;
+	}
 
-    @Bean
-    public MessageConverter messageConverter(ObjectMapper objectMapper) {
-        return new Jackson2JsonMessageConverter(objectMapper);
-    }
+	@Bean
+	public MessageConverter messageConverter(ObjectMapper objectMapper) {
+		return new Jackson2JsonMessageConverter(objectMapper);
+	}
 }
