@@ -45,6 +45,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+	// 5. Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// 5. Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

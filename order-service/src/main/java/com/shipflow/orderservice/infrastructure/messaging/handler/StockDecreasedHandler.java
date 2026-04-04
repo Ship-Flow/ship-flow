@@ -1,6 +1,5 @@
 package com.shipflow.orderservice.infrastructure.messaging.handler;
 
-import com.shipflow.common.messaging.handler.AbstractSagaHandler;
 import com.shipflow.orderservice.application.service.OrderCommandService;
 import com.shipflow.orderservice.infrastructure.messaging.config.OrderRabbitConfig;
 import com.shipflow.orderservice.infrastructure.messaging.event.consume.ProductStockDecreasedEvent;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class StockDecreasedHandler extends AbstractSagaHandler<ProductStockDecreasedEvent> {
+public class StockDecreasedHandler extends IdempotentSagaHandler<ProductStockDecreasedEvent> {
 
     private final OrderCommandService orderCommandService;
 
@@ -20,7 +19,7 @@ public class StockDecreasedHandler extends AbstractSagaHandler<ProductStockDecre
     }
 
     @Override
-    protected void process(ProductStockDecreasedEvent event) {
+    protected void doProcess(ProductStockDecreasedEvent event) {
         orderCommandService.confirmCreation(event.getOrderId(), event.getProductName());
     }
 }

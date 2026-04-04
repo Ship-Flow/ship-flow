@@ -1,6 +1,5 @@
 package com.shipflow.orderservice.infrastructure.messaging.handler;
 
-import com.shipflow.common.messaging.handler.AbstractSagaHandler;
 import com.shipflow.orderservice.application.service.OrderCommandService;
 import com.shipflow.orderservice.infrastructure.messaging.config.OrderRabbitConfig;
 import com.shipflow.orderservice.infrastructure.messaging.event.consume.ShipmentCompletedEvent;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ShipmentCompletedHandler extends AbstractSagaHandler<ShipmentCompletedEvent> {
+public class ShipmentCompletedHandler extends IdempotentSagaHandler<ShipmentCompletedEvent> {
 
     private final OrderCommandService orderCommandService;
 
@@ -20,7 +19,7 @@ public class ShipmentCompletedHandler extends AbstractSagaHandler<ShipmentComple
     }
 
     @Override
-    protected void process(ShipmentCompletedEvent event) {
+    protected void doProcess(ShipmentCompletedEvent event) {
         orderCommandService.completeOrder(event.getOrderId());
     }
 }
