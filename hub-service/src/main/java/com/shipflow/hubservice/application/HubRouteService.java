@@ -19,6 +19,7 @@ import com.shipflow.hubservice.infrastructure.persistence.HubJpaRepository;
 import com.shipflow.hubservice.infrastructure.persistence.HubRouteJpaRepository;
 import com.shipflow.hubservice.presentation.dto.HubRouteRequest;
 import com.shipflow.hubservice.presentation.dto.HubRouteResponse;
+import com.shipflow.hubservice.presentation.dto.HubRouteSegment;
 
 import lombok.RequiredArgsConstructor;
 
@@ -108,6 +109,20 @@ public class HubRouteService {
 			? UUID.fromString(userIdStr)
 			: UUID.fromString("00000000-0000-0000-0000-000000000000");
 		route.delete(userId);
+	}
+
+	@Cacheable(value = "internal-hub-route", key = "#departureHubId + '-' + #arrivalHubId")
+	public List<HubRouteSegment> findPath(UUID departureHubId, UUID arrivalHubId) {
+		return hubRouteRepository
+			.findByDepartureHub_IdAndArrivalHub_IdAndDeletedAtIsNull(departureHubId, arrivalHubId)
+			.map(route -> List.of(new HubRouteSegment(
+				1,
+				route.getDepartureHub().getId(),
+				route.getArrivalHub().getId(),
+				route.getDistance(),
+				route.getDuration()
+			)))
+			.orElse(List.of());
 	}
 
 	private HubRouteResponse.Detail toDetail(HubRoute route) {
