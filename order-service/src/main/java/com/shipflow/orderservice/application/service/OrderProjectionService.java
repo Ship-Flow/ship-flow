@@ -58,6 +58,22 @@ public class OrderProjectionService {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void on(OrderUpdatedEvent e) {
+        readModelRepository.save(find(e.orderId()).toBuilder()
+                .productId(e.productId())
+                .supplierCompanyId(e.supplierCompanyId())
+                .receiverCompanyId(e.receiverCompanyId())
+                .departureHubId(e.departureHubId())
+                .arrivalHubId(e.arrivalHubId())
+                .quantity(e.quantity())
+                .requestDeadline(e.requestDeadline())
+                .requestNote(e.requestNote())
+                .updatedBy(e.updatedBy())
+                .updatedAt(e.updatedAt())
+                .build());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(OrderCompletedEvent e) {
         readModelRepository.save(find(e.orderId()).toBuilder()
                 .orderStatus(OrderStatus.COMPLETED)

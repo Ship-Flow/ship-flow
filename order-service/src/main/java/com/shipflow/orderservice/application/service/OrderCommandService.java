@@ -147,7 +147,21 @@ public class OrderCommandService {
                 cmd.requestNote(),
                 requesterId
         );
-        return OrderResult.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        domainEventPublisher.publishEvent(new OrderUpdatedEvent(
+                saved.getId(),
+                saved.getProductId(),
+                saved.getCompanyInfo().getSupplierCompanyId(),
+                saved.getCompanyInfo().getReceiverCompanyId(),
+                saved.getHubInfo().getDepartureHubId(),
+                saved.getHubInfo().getArrivalHubId(),
+                saved.getQuantity().getValue(),
+                saved.getRequestDeadline(),
+                saved.getRequestNote(),
+                saved.getUpdatedBy(),
+                saved.getUpdatedAt()
+        ));
+        return OrderResult.from(saved);
     }
 
     public void deleteOrder(UUID orderId, UUID deleterId) {
