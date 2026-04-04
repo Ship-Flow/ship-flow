@@ -6,18 +6,17 @@ import java.util.List;
 
 import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 
-public class AiRequestInfo {
+public record AiRequestInfo(
 	//이벤트
-	private String formHub;
-	private String toHub;
-	private List<String> route;
-	private String product;
-	private String requestNote;
-	private LocalDateTime deadline;
-	private String workingHours;
-
-	private AiRequestType requestType;
+	String fromHub,
+	String toHub,
+	List<String> route,
+	String product,
+	String requestNote,
+	LocalDateTime deadline,
+	String workingHours,
+	AiRequestType requestType,
 	//도전기능
-	private LocalDate workDate;
-
+	LocalDate workDate
+) {
 }

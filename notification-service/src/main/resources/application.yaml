@@ -13,5 +13,12 @@ spring:
       hibernate:
         default_schema: notification
 
+  config:
+    import: optional:file:.env
+
 slack:
   bot-token: ${SLACK_BOT_TOKEN}
+
+gemini:
+  api-key: ${GEMINI_API_KEY}
+  url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
