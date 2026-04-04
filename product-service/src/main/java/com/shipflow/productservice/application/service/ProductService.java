@@ -41,7 +41,7 @@ public class ProductService {
 			request.name(), request.price(), request.stock(),
 			request.status(), companyId, response.name(), response.hubId(),
 			createrId);
-		Product savedProduct =productRepository.save(product);
+		Product savedProduct = productRepository.save(product);
 		return mapper.toCreateResponse(savedProduct);
 	}
 
