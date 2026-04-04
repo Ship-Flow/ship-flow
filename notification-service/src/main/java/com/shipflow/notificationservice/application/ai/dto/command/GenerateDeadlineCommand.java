@@ -1,13 +1,15 @@
-package com.shipflow.notificationservice.domain.ai.vo;
+package com.shipflow.notificationservice.application.ai.dto.command;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 
-public record AiRequestInfo(
-	//이벤트
+public record GenerateDeadlineCommand(
+	UUID relatedShipmentId,
+	UUID shipmentManagerId,
 	String fromHub,
 	String toHub,
 	List<String> route,
@@ -16,7 +18,6 @@ public record AiRequestInfo(
 	LocalDateTime deadline,
 	String workingHours,
 	AiRequestType requestType,
-	//도전기능
 	LocalDate workDate
 ) {
 }

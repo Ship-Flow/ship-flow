@@ -15,6 +15,7 @@ public enum AiErrorCode implements ErrorCode {
 	AI_REQUEST_TYPE_REQUIRED("AI_REQUEST_TYPE_REQUIRED", HttpStatus.BAD_REQUEST, "AI 요청 타입은 필수입니다."),
 
 	// 필수 데이터
+	AI_PROMPT_REQUIRED("AI_PROMPT_REQUIRED", HttpStatus.BAD_REQUEST, "AI 프롬프트는 필수입니다."),
 	AI_FROM_HUB_REQUIRED("AI_FROM_HUB_REQUIRED", HttpStatus.BAD_REQUEST, "출발 허브 정보는 필수입니다."),
 	AI_TO_HUB_REQUIRED("AI_TO_HUB_REQUIRED", HttpStatus.BAD_REQUEST, "도착 허브 정보는 필수입니다."),
 	AI_PRODUCT_REQUIRED("AI_PRODUCT_REQUIRED", HttpStatus.BAD_REQUEST, "상품 정보는 필수입니다."),
