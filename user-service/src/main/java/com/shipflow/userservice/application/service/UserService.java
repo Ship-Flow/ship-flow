@@ -92,6 +92,7 @@ public class UserService {
 		user.softDeleted(userId);
 	}
 
+	@Transactional
 	public PatchUserResult updateMe(UUID userId, PatchMyInfoCommand command) {
 		User user = getUser(userId);
 		user.updateMyInfo(command.getName(), command.getSlack());
