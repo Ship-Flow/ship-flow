@@ -13,7 +13,7 @@ public interface CompanyClient {
 	@DeleteMapping("/internal/companies/{hubId}")
 	void deleteCompaniesByHub(
 		@RequestHeader("X-Internal-Request") String internalRequest,
-		@RequestHeader("X-User-Id") String userId,
+		@RequestHeader("X-User-Id") String requestUserId,
 		@PathVariable("hubId") UUID hubId
 	);
 }

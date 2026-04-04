@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "userservice")
 public interface UserClient {
 
-    @PatchMapping("/internal/users/{userId}")
-    void updateUserHubAssignment(
-        @RequestHeader("Authorization") String authorization,
-        @PathVariable("userId") UUID userId,
-        @RequestBody UpdateUserHubAssignmentRequest request
-    );
+	@PatchMapping("/internal/users/{userId}")
+	void updateUserHubAssignment(
+		@RequestHeader("X-Internal-Request") String internalRequest,
+		@RequestHeader("X-User-Id") String requestUserId,
+		@PathVariable("userId") UUID targetUserId,
+		@RequestBody UpdateUserHubAssignmentRequest request
+	);
 
-    record UpdateUserHubAssignmentRequest(
-        UUID hubId,
-        UUID companyId,
-        String updatedAt
-    ) {
-    }
+	record UpdateUserHubAssignmentRequest(
+		UUID hubId,
+		String updatedAt
+	) {
+	}
 }

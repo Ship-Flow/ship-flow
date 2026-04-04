@@ -26,10 +26,11 @@ import lombok.RequiredArgsConstructor;
 public class HubService {
 
 	private final HubJpaRepository hubRepository;
+	private final HubCascadeService hubCascadeService;
 
 	private void requireMaster() {
 		ServletRequestAttributes attrs =
-			(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+			(ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 		String role = (attrs != null) ? attrs.getRequest().getHeader("X-User-Role") : null;
 		if (!"MASTER".equals(role)) {
 			throw new HubException(HubErrorCode.FORBIDDEN);
@@ -80,7 +81,18 @@ public class HubService {
 		Hub hub = hubRepository.findById(hubId)
 			.filter(h -> !h.isDeleted())
 			.orElseThrow(() -> new HubException(HubErrorCode.HUB_NOT_FOUND));
+		UUID oldManagerId = hub.getManagerId();
 		hub.update(request);
+		UUID newManagerId = hub.getManagerId();
+		if (!oldManagerId.equals(newManagerId)) {
+			ServletRequestAttributes attrs =
+				(ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+			String userIdStr = (attrs != null) ? attrs.getRequest().getHeader("X-User-Id") : null;
+			UUID requestUserId = (userIdStr != null && !userIdStr.isBlank())
+				? UUID.fromString(userIdStr)
+				: UUID.fromString("00000000-0000-0000-0000-000000000000");
+			hubCascadeService.cascadeUpdateManagerAssignment(oldManagerId, newManagerId, hubId, requestUserId);
+		}
 		return toDetail(hub);
 	}
 
@@ -95,11 +107,14 @@ public class HubService {
 			.filter(h -> !h.isDeleted())
 			.orElseThrow(() -> new HubException(HubErrorCode.HUB_NOT_FOUND));
 		ServletRequestAttributes attrs =
-			(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+			(ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 		String userIdStr = (attrs != null) ? attrs.getRequest().getHeader("X-User-Id") : null;
 		UUID userId = (userIdStr != null && !userIdStr.isBlank())
 			? UUID.fromString(userIdStr)
 			: UUID.fromString("00000000-0000-0000-0000-000000000000");
+		UUID managerId = hub.getManagerId();
+		hub.delete(userId);
+		hubCascadeService.cascadeDeleteHub(hubId, managerId, userId);
 		hub.delete(userId);
 	}
 

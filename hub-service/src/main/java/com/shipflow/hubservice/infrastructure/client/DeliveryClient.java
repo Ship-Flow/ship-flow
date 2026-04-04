@@ -13,7 +13,7 @@ public interface DeliveryClient {
 	@DeleteMapping("/internal/delivery-managers/{hubId}")
 	void deleteCompanyDeliveryManagers(
 		@RequestHeader("X-Internal-Request") String internalRequest,
-		@RequestHeader("X-User-Id") String userId,
+		@RequestHeader("X-User-Id") String requestUserId,
 		@PathVariable("hubId") UUID hubId
 	);
 }
