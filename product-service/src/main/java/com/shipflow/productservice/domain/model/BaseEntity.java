@@ -3,6 +3,7 @@ package com.shipflow.productservice.domain.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.Objects;
+
 import lombok.Getter;
 
 @Getter
@@ -13,8 +14,6 @@ public class BaseEntity {
 	protected UUID updatedBy;
 	protected LocalDateTime deletedAt;
 	protected UUID deletedBy;
-
-
 
 	public void create(UUID id) {
 		Objects.requireNonNull(id, "createdBy id는 필수입니다.");

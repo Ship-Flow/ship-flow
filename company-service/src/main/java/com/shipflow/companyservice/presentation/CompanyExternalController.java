@@ -40,11 +40,12 @@ public class CompanyExternalController {
 	private final CompanyService companyService;
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<CompanyCreateResponse>> createCompany(@RequestBody @Valid CompanyCreateRequest request,
+	public ResponseEntity<ApiResponse<CompanyCreateResponse>> createCompany(
+		@RequestBody @Valid CompanyCreateRequest request,
 		HttpServletRequest httpRequest) {
 		UserContext.setUserContext(httpRequest);
 		CompanyCreateResponse response = companyService.createCompany(request);
-		UserContext.clear();	//todo: clear는 인터셉트 방식으로 변경예정
+		UserContext.clear();    //todo: clear는 인터셉트 방식으로 변경예정
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
 	}
 

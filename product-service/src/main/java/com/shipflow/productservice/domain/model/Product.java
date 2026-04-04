@@ -37,12 +37,12 @@ public class Product extends BaseEntity {
 		return product;
 	}
 
-	public static Product reconstruct(UUID id,String name, BigDecimal price,
+	public static Product reconstruct(UUID id, String name, BigDecimal price,
 		Integer stock, ProductStatus status, UUID companyId, String companyName,
 		UUID hubId, Boolean isHide, UUID createdBy, LocalDateTime createdAt,
 		LocalDateTime updatedAt, UUID updatedBy, LocalDateTime deletedAt, UUID deletedBy) {
 		Product product = new Product(name, price, stock, status, companyId, companyName, hubId);
-		product.id=id;
+		product.id = id;
 		product.isHide = isHide;
 		product.createdAt = createdAt;
 		product.createdBy = createdBy;
@@ -57,7 +57,7 @@ public class Product extends BaseEntity {
 		if (name != null && !name.isBlank())
 			this.name = name;
 
-		if (price!=null|| price.compareTo(BigDecimal.ZERO) <= 0)
+		if (price != null || price.compareTo(BigDecimal.ZERO) <= 0)
 			throw new IllegalArgumentException("price는 0보다 커야 합니다.");
 		else
 			this.price = price;
@@ -100,15 +100,15 @@ public class Product extends BaseEntity {
 		return this.stockInfo.getStock();
 	}
 
-	public UUID getCompanyId () {
+	public UUID getCompanyId() {
 		return this.vendorInfo.getCompanyId();
 	}
 
-	public String getCompanyName () {
+	public String getCompanyName() {
 		return this.vendorInfo.getCompanyName();
 	}
 
-	public UUID getHubId () {
+	public UUID getHubId() {
 		return this.vendorInfo.getHubId();
 	}
 }
