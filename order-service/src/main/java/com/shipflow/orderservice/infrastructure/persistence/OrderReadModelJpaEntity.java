@@ -2,6 +2,7 @@ package com.shipflow.orderservice.infrastructure.persistence;
 
 import com.shipflow.orderservice.domain.model.OrderReadModel;
 import com.shipflow.orderservice.domain.model.OrderStatus;
+import com.shipflow.orderservice.domain.model.ShipmentStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,7 +27,8 @@ public class OrderReadModelJpaEntity {
     @Column(columnDefinition = "uuid")
     private UUID shipmentId;
 
-    private String shipmentStatus;
+    @Enumerated(EnumType.STRING)
+    private ShipmentStatus shipmentStatus;
 
     @Column(columnDefinition = "uuid")
     private UUID supplierCompanyId;

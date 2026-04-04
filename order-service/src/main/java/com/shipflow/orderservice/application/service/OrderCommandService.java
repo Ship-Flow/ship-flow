@@ -6,6 +6,7 @@ import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.dto.UpdateOrderCommand;
 import com.shipflow.common.messaging.publisher.EventPublisher;
 import com.shipflow.orderservice.domain.event.*;
+import com.shipflow.orderservice.domain.model.ShipmentStatus;
 import com.shipflow.orderservice.infrastructure.messaging.event.publish.*;
 import com.shipflow.orderservice.domain.exception.OrderNotFoundException;
 import com.shipflow.orderservice.domain.model.Order;
@@ -122,7 +123,7 @@ public class OrderCommandService {
     }
 
     public void linkShipment(UUID orderId, UUID shipmentId,
-                             String shipmentStatus,
+                             ShipmentStatus shipmentStatus,
                              UUID departureHubId, String departureHubName,
                              UUID arrivalHubId, String arrivalHubName) {
         Order order = findOrThrow(orderId);

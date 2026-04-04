@@ -13,7 +13,7 @@ public class OrderReadModel {
     private UUID orderId;
     private OrderStatus orderStatus;
     private UUID shipmentId;
-    private String shipmentStatus;
+    private ShipmentStatus shipmentStatus;
     private UUID supplierCompanyId;
     private String supplierCompanyName;
     private UUID receiverCompanyId;

@@ -41,6 +41,7 @@ public class OrderInternalController {
             @PathVariable UUID id,
             @RequestParam String productName
     ) {
+        if (productName == null || productName.isBlank()) { return ResponseEntity.badRequest().build();}
         orderCommandService.confirmCreation(id, productName);
         return ResponseEntity.ok().build();
     }

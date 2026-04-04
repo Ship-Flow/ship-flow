@@ -95,9 +95,11 @@ public class Order { // 도메인 모델
     }
 
     public void linkShipment(UUID shipmentId) {
+        if (shipmentId == null) {throw new IllegalArgumentException("shipmentId는 필수입니다.");}
+
         if (this.status != OrderStatus.CREATED) {
-            throw new InvalidOrderStateException(
-                    "linkShipment는 CREATED 상태에서만 가능합니다. 현재 상태: " + this.status);
+        throw new InvalidOrderStateException(
+                "linkShipment는 CREATED 상태에서만 가능합니다. 현재 상태: " + this.status);
         }
         if (this.shipmentId != null) {
             throw new InvalidOrderStateException("이미 배송과 연결된 주문입니다.");

@@ -2,6 +2,7 @@ package com.shipflow.orderservice.infrastructure.messaging.event.consume;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shipflow.common.messaging.event.SagaEvent;
+import com.shipflow.orderservice.domain.model.ShipmentStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,13 +15,13 @@ public class ShipmentCreatedEvent extends SagaEvent {
 
     private UUID orderId;
     private UUID shipmentId;
-    private String shipmentStatus;
+    private ShipmentStatus shipmentStatus;
     private UUID departureHubId;
     private String departureHubName;
     private UUID arrivalHubId;
     private String arrivalHubName;
 
-    public ShipmentCreatedEvent(UUID orderId, UUID shipmentId, String shipmentStatus,
+    public ShipmentCreatedEvent(UUID orderId, UUID shipmentId, ShipmentStatus shipmentStatus,
                                 UUID departureHubId, String departureHubName,
                                 UUID arrivalHubId, String arrivalHubName) {
         super("shipment.created");

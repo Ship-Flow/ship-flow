@@ -3,6 +3,7 @@ package com.shipflow.orderservice.integration;
 import com.shipflow.config.message.RabbitMqConfig;
 import com.shipflow.orderservice.domain.model.Order;
 import com.shipflow.orderservice.domain.model.OrderStatus;
+import com.shipflow.orderservice.domain.model.ShipmentStatus;
 import com.shipflow.orderservice.domain.repository.OrderReadModelRepository;
 import com.shipflow.orderservice.domain.repository.OrderRepository;
 import com.shipflow.orderservice.fixture.OrderFixture;
@@ -64,7 +65,7 @@ class OrderMessageFlowTest extends AbstractIntegrationTest {
         rabbitTemplate.convertAndSend(
                 RabbitMqConfig.SAGA_EXCHANGE, "shipment.created",
                 new ShipmentCreatedEvent(
-                        orderId, shipmentId, "HUB_WAITING",
+                        orderId, shipmentId, ShipmentStatus.WAITING_AT_HUB,
                         OrderFixture.DEP_HUB_ID, "서울 허브",
                         OrderFixture.ARR_HUB_ID, "부산 허브"
                 )

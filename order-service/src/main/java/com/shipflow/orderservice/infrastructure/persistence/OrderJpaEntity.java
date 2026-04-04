@@ -56,22 +56,6 @@ public class OrderJpaEntity extends BaseEntity {  // 데이터 모델
 
     private String requestNote;
 
-    @Column(updatable = false, columnDefinition = "uuid")
-    private UUID createdBy;
-
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(columnDefinition = "uuid")
-    private UUID updatedBy;
-
-    private LocalDateTime updatedAt;
-
-    @Column(columnDefinition = "uuid")
-    private UUID deletedBy;
-
-    private LocalDateTime deletedAt;
-
     // Order -> OrderJpaEntity (Order 객체를 DB 에 저장할때)
     public static OrderJpaEntity from(Order order) {
         OrderJpaEntity entity = new OrderJpaEntity();
