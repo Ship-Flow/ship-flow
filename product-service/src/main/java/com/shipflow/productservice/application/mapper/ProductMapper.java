@@ -14,7 +14,7 @@ public interface ProductMapper {
 	//Entity->DTO
 	ProductCreateResponse toCreateResponse(Product product);
 
-	@Mapping(target = "updatedAt", source = "updatedAt")
+	@Mapping(target = "updateAt", source = "updatedAt")
 	ProductUpdateResponse toUpdateResponse(Product product);
 
 	ProductInfoResponse toProductInfoResponse(Product product);
