@@ -1,6 +1,7 @@
 package com.shipflow.productservice.application.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.shipflow.productservice.application.dto.response.StockInfoResponse;
 import com.shipflow.productservice.domain.model.Product;
@@ -19,7 +20,8 @@ public interface ProductMapper {
 	ProductInfoResponse toProductInfoResponse(Product product);
 
 	ProductListResponse toProductListResponse(Product product);
-	`@Mapping`(source = "id", target = "productId")
-	`@Mapping`(source = "stockInfo.stock", target = "stock")
+
+	@Mapping(source = "id", target = "productId")
+	@Mapping(source = "stockInfo.stock", target = "stock")
 	StockInfoResponse toStockInfoResponse(Product product);
 }
