@@ -34,14 +34,15 @@ public class GeminiApiClient implements AiGenerator {
 
 	@Override
 	public AiResponseInfo generate(String prompt) {
+		
 		validatePrompt(prompt);
-
 		GeminiResponse response;
 
 		try {
 			response = webClient.post()
 				.uri(geminiProperties.getUrl())
 				.header(API_KEY_HEADER, geminiProperties.getApiKey())
+				.header("Content-Type", "application/json")
 				.bodyValue(new GeminiRequest(prompt))
 				.retrieve()
 				.onStatus(

@@ -47,6 +47,7 @@ dependencies {
 
     // 6. Common Module
     implementation project(':common')
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     // 7. Lombok
     compileOnly 'org.projectlombok:lombok'

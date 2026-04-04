@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.Getter;
 
+@Getter
 public class GeminiRequest {
 
 	private List<Content> contents;
