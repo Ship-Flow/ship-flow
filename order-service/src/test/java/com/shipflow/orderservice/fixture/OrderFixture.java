@@ -2,6 +2,7 @@ package com.shipflow.orderservice.fixture;
 
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.domain.model.Order;
+import com.shipflow.orderservice.domain.model.OrderReadModel;
 import com.shipflow.orderservice.domain.model.OrderStatus;
 import com.shipflow.orderservice.domain.vo.CompanyInfo;
 import com.shipflow.orderservice.domain.vo.HubInfo;
@@ -50,6 +51,24 @@ public class OrderFixture {
         );
     }
 
+    public static OrderReadModel orderReadModel(UUID orderId) {
+        return OrderReadModel.builder()
+                .orderId(orderId)
+                .orderStatus(OrderStatus.CREATING)
+                .ordererId(USER_ID)
+                .productId(PRODUCT_ID)
+                .supplierCompanyId(SUPPLIER_ID)
+                .receiverCompanyId(RECEIVER_ID)
+                .departureHubId(DEP_HUB_ID)
+                .arrivalHubId(ARR_HUB_ID)
+                .quantity(10)
+                .requestDeadline(DEADLINE)
+                .requestNote("테스트 메모")
+                .createdBy(USER_ID)
+                .createdAt(LocalDateTime.of(2026, 4, 1, 9, 0))
+                .build();
+    }
+
     /** CREATED 상태 도메인 객체 */
     public static Order createdOrder(UUID orderId) {
         return Order.reconstruct(
@@ -62,6 +81,24 @@ public class OrderFixture {
                 USER_ID, LocalDateTime.of(2026, 4, 1, 9, 0),
                 null, null, null, null
         );
+    }
+
+    public static OrderReadModel createdOrderReadModel(UUID orderId) {
+        return OrderReadModel.builder()
+                .orderId(orderId)
+                .orderStatus(OrderStatus.CREATED)
+                .ordererId(USER_ID)
+                .productId(PRODUCT_ID)
+                .supplierCompanyId(SUPPLIER_ID)
+                .receiverCompanyId(RECEIVER_ID)
+                .departureHubId(DEP_HUB_ID)
+                .arrivalHubId(ARR_HUB_ID)
+                .quantity(10)
+                .requestDeadline(DEADLINE)
+                .requestNote("테스트 메모")
+                .createdBy(USER_ID)
+                .createdAt(LocalDateTime.of(2026, 4, 1, 9, 0))
+                .build();
     }
 
     public static CreateOrderRequest createRequest() {

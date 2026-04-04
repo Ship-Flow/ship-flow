@@ -14,4 +14,10 @@ public class ProductStockDecreasedEvent extends SagaEvent {
 
     private UUID orderId;
     private String productName;
+
+    public ProductStockDecreasedEvent(UUID orderId, String productName) {
+        super("product.stock.decreased");
+        this.orderId = orderId;
+        this.productName = productName;
+    }
 }

@@ -23,6 +23,12 @@ spring:
     show-sql: true
     open-in-view: false
 
+  # Redis 설정
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   # RabbitMQ 설정
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}

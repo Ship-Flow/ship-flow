@@ -13,4 +13,9 @@ import java.util.UUID;
 public class ProductStockDecreasedFailedEvent extends SagaEvent {
 
     private UUID orderId;
+
+    public ProductStockDecreasedFailedEvent(UUID orderId) {
+        super("product.stock.decreased.failed");
+        this.orderId = orderId;
+    }
 }

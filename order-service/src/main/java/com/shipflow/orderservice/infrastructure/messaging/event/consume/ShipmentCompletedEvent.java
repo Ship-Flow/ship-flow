@@ -13,4 +13,9 @@ import java.util.UUID;
 public class ShipmentCompletedEvent extends SagaEvent {
 
     private UUID orderId;
+
+    public ShipmentCompletedEvent(UUID orderId) {
+        super("shipment.completed");
+        this.orderId = orderId;
+    }
 }

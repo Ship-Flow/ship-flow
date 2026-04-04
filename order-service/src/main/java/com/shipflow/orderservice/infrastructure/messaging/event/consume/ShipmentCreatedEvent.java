@@ -19,4 +19,17 @@ public class ShipmentCreatedEvent extends SagaEvent {
     private String departureHubName;
     private UUID arrivalHubId;
     private String arrivalHubName;
+
+    public ShipmentCreatedEvent(UUID orderId, UUID shipmentId, String shipmentStatus,
+                                UUID departureHubId, String departureHubName,
+                                UUID arrivalHubId, String arrivalHubName) {
+        super("shipment.created");
+        this.orderId = orderId;
+        this.shipmentId = shipmentId;
+        this.shipmentStatus = shipmentStatus;
+        this.departureHubId = departureHubId;
+        this.departureHubName = departureHubName;
+        this.arrivalHubId = arrivalHubId;
+        this.arrivalHubName = arrivalHubName;
+    }
 }

@@ -13,4 +13,9 @@ import java.util.UUID;
 public class ShipmentCreationFailedEvent extends SagaEvent {
 
     private UUID orderId;
+
+    public ShipmentCreationFailedEvent(UUID orderId) {
+        super("shipment.creation.failed");
+        this.orderId = orderId;
+    }
 }
