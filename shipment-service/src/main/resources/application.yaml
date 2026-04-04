@@ -1,6 +1,6 @@
 spring:
   application:
-    name: shipmentservice
+    name: shipment-service
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -16,4 +16,3 @@ spring:
         show_sql: true
         format_sql: true
         default_schema: shipment
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
