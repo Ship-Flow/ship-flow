@@ -131,7 +131,7 @@ public class CompanyService {
 
 	private UUID getUserId() {
 		UUID userId = UserContext.getUserId();
-		if(userId == null)
+		if (userId == null)
 			throw new BusinessException(CommonErrorCode.INTERNAL_SERVER_ERROR);
 		return userId;
 	}
