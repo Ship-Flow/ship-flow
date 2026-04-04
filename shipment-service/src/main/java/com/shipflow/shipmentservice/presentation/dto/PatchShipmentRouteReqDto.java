@@ -20,7 +20,7 @@ public class PatchShipmentRouteReqDto {
 	@AssertTrue(message = "ARRIVED_AT_HUB 상태일 경우 actualDistance는 필수입니다.")
 	public boolean isValidActualDistance() {
 		if (status == ShipmentRouteStatus.ARRIVED_AT_HUB) {
-			return actualDistance != null;
+			return actualDistance != null && actualDistance.signum() > 0;
 		}
 		return true;
 	}
