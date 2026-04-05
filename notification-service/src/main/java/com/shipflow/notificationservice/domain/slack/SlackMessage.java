@@ -17,7 +17,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "p_slack", schema = "notification")
 public class SlackMessage extends BaseEntity {
@@ -124,44 +126,5 @@ public class SlackMessage extends BaseEntity {
 	public void markFail() {
 		this.sendStatus = SlackSendStatus.FAIL;
 	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public String getReceiverSlackId() {
-		return receiverSlackId;
-	}
-
-	public UUID getRelatedShipmentId() {
-		return relatedShipmentId;
-	}
-
-	public UUID getRelatedAiLogId() {
-		return relatedAiLogId;
-	}
-
-	public String getSlackTs() {
-		return slackTs;
-	}
-
-	public String getSlackChannelId() {
-		return slackChannelId;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public SlackMessageType getMessageType() {
-		return messageType;
-	}
-
-	public SlackSendStatus getSendStatus() {
-		return sendStatus;
-	}
-
-	public LocalDateTime getSentAt() {
-		return sentAt;
-	}
+	
 }

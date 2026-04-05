@@ -3,6 +3,7 @@ package com.shipflow.productservice.application.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.shipflow.productservice.application.dto.response.StockInfoResponse;
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.presentation.dto.response.ProductCreateResponse;
 import com.shipflow.productservice.presentation.dto.response.ProductInfoResponse;
@@ -14,10 +15,13 @@ public interface ProductMapper {
 	//Entity->DTO
 	ProductCreateResponse toCreateResponse(Product product);
 
-	@Mapping(target = "updatedAt", source = "updatedAt")
 	ProductUpdateResponse toUpdateResponse(Product product);
 
 	ProductInfoResponse toProductInfoResponse(Product product);
 
 	ProductListResponse toProductListResponse(Product product);
+
+	@Mapping(source = "id", target = "productId")
+	@Mapping(source = "stockInfo.stock", target = "stock")
+	StockInfoResponse toStockInfoResponse(Product product);
 }
