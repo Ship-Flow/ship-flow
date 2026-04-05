@@ -18,6 +18,12 @@ public enum ShipmentErrorCode implements ErrorCode {
 
 	// ShipmentManager
 	HUB_ID_REQUIRED_FOR_COMPANY_MANAGER(HttpStatus.BAD_REQUEST, "업체 배송 담당자는 hubId가 필수입니다."),
+	HUB_ID_MUST_BE_NULL_FOR_HUB_MANAGER(HttpStatus.BAD_REQUEST, "허브 배송 담당자는 hubId를 가질 수 없습니다."),
+	SHIPMENT_MANAGER_TYPE_REQUIRED(HttpStatus.BAD_REQUEST, "배송 담당자 타입은 필수입니다."),
+	SHIPMENT_MANAGER_USER_ID_REQUIRED(HttpStatus.BAD_REQUEST, "배송 담당자 userId는 필수입니다."),
+	SHIPMENT_MANAGER_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "배송 담당자 이름은 필수입니다."),
+	SHIPMENT_MANAGER_SLACK_ID_REQUIRED(HttpStatus.BAD_REQUEST, "배송 담당자 slackId는 필수입니다."),
+	INVALID_SHIPMENT_SEQUENCE(HttpStatus.BAD_REQUEST, "배송 순번은 0 이상이어야 합니다."),
 
 	// Validation
 	INVALID_ACTUAL_DISTANCE(HttpStatus.BAD_REQUEST, "실제 이동 거리는 0보다 커야 합니다."),

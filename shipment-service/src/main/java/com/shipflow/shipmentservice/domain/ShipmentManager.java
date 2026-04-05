@@ -111,4 +111,28 @@ public class ShipmentManager extends BaseEntity {
 			shipmentSequence
 		);
 	}
+
+	private static void validateCommon(
+		UUID userId,
+		String name,
+		String slackId,
+		ShipmentManagerType type,
+		Integer shipmentSequence
+	) {
+		if (userId == null) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_USER_ID_REQUIRED);
+		}
+		if (type == null) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_TYPE_REQUIRED);
+		}
+		if (name == null || name.isBlank()) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_NAME_REQUIRED);
+		}
+		if (slackId == null || slackId.isBlank()) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_SLACK_ID_REQUIRED);
+		}
+		if (shipmentSequence == null || shipmentSequence < 0) {
+			throw new BusinessException(ShipmentErrorCode.INVALID_SHIPMENT_SEQUENCE);
+		}
+	}
 }
