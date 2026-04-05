@@ -4,9 +4,12 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
+import com.shipflow.common.exception.BusinessException;
 import com.shipflow.shipmentservice.application.client.UserClient;
 import com.shipflow.shipmentservice.application.client.dto.UserInfo;
+import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -17,6 +20,12 @@ public class UserClientImpl implements UserClient {
 
 	@Override
 	public UserInfo getUser(UUID userId) {
-		return userFeignClient.getUser(userId);
+		try {
+			return userFeignClient.getUser(userId);
+		} catch (FeignException.NotFound e) {
+			throw new BusinessException(ShipmentErrorCode.USER_NOT_FOUND);
+		} catch (FeignException e) {
+			throw new BusinessException(ShipmentErrorCode.USER_SERVICE_UNAVAILABLE);
+		}
 	}
 }
