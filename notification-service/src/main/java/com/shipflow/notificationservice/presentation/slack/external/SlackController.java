@@ -1,10 +1,10 @@
 package com.shipflow.notificationservice.presentation.slack.external;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.notificationservice.application.slack.SlackAppService;
+import com.shipflow.notificationservice.presentation.common.BasePageRequest;
+import com.shipflow.notificationservice.presentation.common.BasePageResponse;
 import com.shipflow.notificationservice.presentation.slack.dto.request.SendSlackMessageRequest;
 import com.shipflow.notificationservice.presentation.slack.dto.request.UpdateSlackMessageRequest;
 import com.shipflow.notificationservice.presentation.slack.dto.response.SlackMessageResponse;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/slack")
@@ -31,7 +35,7 @@ public class SlackController {
 	}
 
 	@PostMapping
-	public ApiResponse<SlackMessageResponse> sendSlackMessage(@RequestBody SendSlackMessageRequest request) {
+	public ApiResponse<SlackMessageResponse> sendSlackMessage(@Valid @RequestBody SendSlackMessageRequest request) {
 		return ApiResponse.ok(
 			SlackMessageResponse.from(
 				slackAppService.sendSlackMessage(request.toCommand())
@@ -44,16 +48,23 @@ public class SlackController {
 		return ApiResponse.ok(SlackMessageResponse.from(slackAppService.getSlackMessage(slackId)));
 	}
 
-	// TODO: 목록 조회 페이징 및 검색 처리 필요
+	// TODO: 목록 조회 검색 처리 필요
 	@GetMapping
-	public ApiResponse<List<SlackMessageResponse>> getAllSlackMessages() {
-		return ApiResponse.ok(SlackMessageResponse.from(slackAppService.getSlackMessages()));
+	public ApiResponse<BasePageResponse<SlackMessageResponse>> getAllSlackMessages(
+		@ModelAttribute BasePageRequest pageRequest
+	) {
+		return ApiResponse.ok(
+			BasePageResponse.from(
+				slackAppService.getSlackMessages(pageRequest)
+					.map(SlackMessageResponse::from)
+			)
+		);
 	}
 
 	@PatchMapping("/{slackId}")
 	public ApiResponse<SlackMessageResponse> updateSlackMessage(
 		@PathVariable UUID slackId,
-		@RequestBody UpdateSlackMessageRequest request
+		@Valid @RequestBody UpdateSlackMessageRequest request
 	) {
 		return ApiResponse.ok(
 			SlackMessageResponse.from(

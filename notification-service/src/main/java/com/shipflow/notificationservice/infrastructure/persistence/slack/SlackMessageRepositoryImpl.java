@@ -1,9 +1,10 @@
 package com.shipflow.notificationservice.infrastructure.persistence.slack;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.query.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
@@ -28,7 +29,7 @@ public class SlackMessageRepositoryImpl implements SlackMessageRepository {
 	}
 
 	@Override
-	public List<SlackMessage> findAllByDeletedAtIsNull() {
-		return slackMessageJpaRepository.findAllByDeletedAtIsNull();
+	public Page<SlackMessage> findAllByDeletedAtIsNull(Pageable pageable) {
+		return slackMessageJpaRepository.findAllByDeletedAtIsNull(pageable);
 	}
 }

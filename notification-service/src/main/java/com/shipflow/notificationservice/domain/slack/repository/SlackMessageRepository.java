@@ -1,8 +1,10 @@
 package com.shipflow.notificationservice.domain.slack.repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
 
@@ -12,5 +14,5 @@ public interface SlackMessageRepository {
 
 	Optional<SlackMessage> findByIdAndDeletedAtIsNull(UUID slackId);
 
-	List<SlackMessage> findAllByDeletedAtIsNull();
+	Page<SlackMessage> findAllByDeletedAtIsNull(Pageable pageable);
 }

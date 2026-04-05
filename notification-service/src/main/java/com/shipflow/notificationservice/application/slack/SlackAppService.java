@@ -1,8 +1,9 @@
 package com.shipflow.notificationservice.application.slack;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import com.shipflow.notificationservice.domain.slack.SlackSender;
 import com.shipflow.notificationservice.domain.slack.exception.SlackErrorCode;
 import com.shipflow.notificationservice.domain.slack.repository.SlackMessageRepository;
 import com.shipflow.notificationservice.domain.slack.vo.SlackSendInfo;
+import com.shipflow.notificationservice.presentation.common.BasePageRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -63,11 +65,12 @@ public class SlackAppService {
 	}
 
 	// 목록 조회
-	public List<SlackMessageResult> getSlackMessages() {
-		return slackMessageRepository.findAllByDeletedAtIsNull()
-			.stream()
-			.map(SlackMessageResult::from)
-			.toList();
+	public Page<SlackMessageResult> getSlackMessages(BasePageRequest pageRequest) {
+
+		Pageable pageable = pageRequest.toPageable();
+
+		return slackMessageRepository.findAllByDeletedAtIsNull(pageable)
+			.map(SlackMessageResult::from);
 	}
 
 	//슬랙 메세지 수정
