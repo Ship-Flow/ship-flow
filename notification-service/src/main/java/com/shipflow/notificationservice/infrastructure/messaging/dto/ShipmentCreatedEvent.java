@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ShipmentCreatedEvent {
 
+	private UUID shipmentId;
 	private UUID orderId;
 	private UUID ordererId;
 	private UUID supplierCompanyId;
