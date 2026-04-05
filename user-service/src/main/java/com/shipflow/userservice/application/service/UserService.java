@@ -105,7 +105,7 @@ public class UserService {
 	}
 
 	private void validateUserServiceAccess(UserRole requestRole) {
-		if (!requestRole.canUseUserService()) {
+		if (requestRole == null || !requestRole.canUseUserService()) {
 			throw new BusinessException(UserErrorCode.ACCESS_DENIED);
 		}
 	}
