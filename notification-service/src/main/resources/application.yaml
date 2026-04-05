@@ -9,9 +9,24 @@ spring:
     password: ${DB_PASSWORD}
 
   jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         default_schema: notification
 
+  config:
+    import: optional:file:.env
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
 slack:
   bot-token: ${SLACK_BOT_TOKEN}
+
+gemini:
+  api-key: ${GEMINI_API_KEY}
+  url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
