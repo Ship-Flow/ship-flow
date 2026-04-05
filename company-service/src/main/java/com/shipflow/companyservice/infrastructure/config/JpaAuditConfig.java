@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 
-import com.shipflow.companyservice.infrastructure.web.UserContext;
+import com.shipflow.companyservice.infrastructure.context.UserContext;
 
 @Configuration
 public class JpaAuditConfig {

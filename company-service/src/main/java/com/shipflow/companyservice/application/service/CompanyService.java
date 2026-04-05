@@ -17,7 +17,7 @@ import com.shipflow.companyservice.application.mapper.CompanyMapper;
 import com.shipflow.companyservice.domain.exception.CompanyErrorCode;
 import com.shipflow.companyservice.domain.model.Company;
 import com.shipflow.companyservice.domain.repository.CompanyRepository;
-import com.shipflow.companyservice.infrastructure.web.UserContext;
+import com.shipflow.companyservice.infrastructure.context.UserContext;
 import com.shipflow.companyservice.presentation.dto.request.CompanyCreateRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByAdminRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByCompanyRequest;
@@ -55,6 +55,7 @@ public class CompanyService {
 		UUID deleterId = getUserId();
 		Company company = findCompanyById(companyId);
 		company.delete(deleterId);
+		companyRepository.save(company);
 		productFeignClient.deleteProductByCompanyId(companyId);
 	}
 
@@ -63,6 +64,7 @@ public class CompanyService {
 		UUID updaterId = getUserId();
 		Company company = findCompanyByManagerId(updaterId);
 		company.updateByCompany(request.name(), request.address(), updaterId);
+		companyRepository.save(company);
 		return mapper.toUpdateResponse(company);
 	}
 
@@ -94,6 +96,7 @@ public class CompanyService {
 			managerName,
 			updaterId
 		);
+		companyRepository.save(company);
 		return mapper.toUpdateResponse(company);
 	}
 
@@ -124,7 +127,10 @@ public class CompanyService {
 	public void deleteProductsByHub(UUID hubId) {
 		List<Company> companies = companyRepository.findAllByHubId(hubId);
 		List<UUID> companyIds = companies.stream().map(Company::getId).toList();
-		companies.forEach(company -> company.delete(company.getId()));
+		companies.forEach(company -> {
+			company.delete(UserContext.getUserId());
+			companyRepository.save(company);
+		});
 		productFeignClient.deleteProductsByCompanyIds(companyIds);
 	}
 

@@ -60,6 +60,7 @@ public class ProductService {
 		UUID deleterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.delete(deleterId);
+		productRepository.save(product);
 		redisTemplate.delete("product:stock:" + product.getId());
 	}
 
@@ -69,6 +70,7 @@ public class ProductService {
 		product.updateInfo(
 			request.name(), request.price(), request.status()
 		);
+		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
 	}
 
@@ -76,6 +78,7 @@ public class ProductService {
 	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request) {
 		Product product = findProductById(productId);
 		product.updateStock(request.stock());
+		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
 	}
 
@@ -96,6 +99,7 @@ public class ProductService {
 		List<Product> products = productRepository.findAllByCompanyId(companyId);
 		products.forEach(product -> {
 			delete(product.getId());
+			productRepository.save(product);
 			redisTemplate.delete("product:stock:" + product.getId());
 		});
 	}

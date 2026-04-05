@@ -1,4 +1,4 @@
-package com.shipflow.companyservice.infrastructure.web;
+package com.shipflow.companyservice.infrastructure.context;
 
 import java.util.UUID;
 
@@ -19,9 +19,10 @@ public class UserContextInterceptor implements HandlerInterceptor {
 		String userId = request.getHeader("X-User-Id");
 		String userRole = request.getHeader("X-User-Role");
 
-		if (userId != null && !userId.isBlank()) {
+		if (userId == null || userId.isBlank()) {
+			log.warn("인증 헤더가 누락되었습니다. Path: {}", request.getRequestURI());
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing X-User-Id");
-			return false;
+			return false; // 여기서 멈춤
 		}
 
 		try {
@@ -29,10 +30,9 @@ public class UserContextInterceptor implements HandlerInterceptor {
 			UserContext.setUserRole(userRole);
 			return true;
 		} catch (IllegalArgumentException e) {
-			UserContext.clear();
-			log.error("Invalid UUID format in X-User-Id header: {}", userId);
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid UUID format in X-User-Id header");
-			return true;
+			log.error("잘못된 UUID 형식의 헤더입니다. Path: {}", request.getRequestURI());
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid X-User-Id format");
+			return false;
 		}
 	}
 

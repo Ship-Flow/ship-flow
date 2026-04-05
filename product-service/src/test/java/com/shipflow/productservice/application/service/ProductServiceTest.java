@@ -103,7 +103,8 @@ class ProductServiceTest {
 		productService.delete(productId);
 
 		//then
-		assertThat(product.getDeletedAt()).isNotNull();
+		verify(productRepository).save(productCaptor.capture());
+		assertThat(productCaptor.getValue().getDeletedAt()).isNotNull();
 	}
 
 	@Test
@@ -119,8 +120,9 @@ class ProductServiceTest {
 		productService.updateProductInfo(product.getId(), request);
 
 		//then
-		assertThat(product.getName()).isEqualTo(request.name());
-		assertThat(product.getPrice()).isEqualTo(request.price());
+		verify(productRepository).save(productCaptor.capture());
+		assertThat(productCaptor.getValue().getName()).isEqualTo(request.name());
+		assertThat(productCaptor.getValue().getPrice()).isEqualTo(request.price());
 	}
 
 	@Test
@@ -135,7 +137,8 @@ class ProductServiceTest {
 		productService.updateStock(productId, request);
 
 		//then
-		assertThat(product.getStockInfo().getStock()).isEqualTo(1);
+		verify(productRepository).save(productCaptor.capture());
+		assertThat(productCaptor.getValue().getStockInfo().getStock()).isEqualTo(1);
 	}
 
 	@Test
@@ -165,6 +168,7 @@ class ProductServiceTest {
 		productService.updateStock(productId, request);
 
 		//then
+		verify(productRepository).save(productCaptor.capture());
 		assertThat(product.getStatus()).isEqualTo(ProductStatus.OUT_OF_STOCK);
 	}
 
