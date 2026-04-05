@@ -83,7 +83,7 @@ public class AiAppService {
 			throw new BusinessException(AiErrorCode.AI_REQUEST_TYPE_REQUIRED);
 		}
 		if (command.requestType() != AiRequestType.DEADLINE) {
-			throw new BusinessException(AiErrorCode.AI_REQUEST_TYPE_REQUIRED);
+			throw new BusinessException(AiErrorCode.AI_EVENT_INVALID);
 		}
 		if (command.fromHub() == null || command.fromHub().isBlank()) {
 			throw new BusinessException(AiErrorCode.AI_FROM_HUB_REQUIRED);
@@ -135,5 +135,4 @@ public class AiAppService {
 			workingHours
 		);
 	}
-
 }

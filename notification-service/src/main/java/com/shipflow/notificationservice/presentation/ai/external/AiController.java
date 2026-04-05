@@ -2,7 +2,6 @@ package com.shipflow.notificationservice.presentation.ai.external;
 
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +14,7 @@ import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.notificationservice.application.ai.AiAppService;
 import com.shipflow.notificationservice.presentation.ai.dto.request.GenerateDeadlineRequest;
 import com.shipflow.notificationservice.presentation.ai.dto.response.AiLogResponse;
+import com.shipflow.notificationservice.presentation.common.BasePageResponse;
 
 import jakarta.validation.Valid;
 
@@ -49,10 +49,12 @@ public class AiController {
 	}
 
 	@GetMapping
-	public ApiResponse<Page<AiLogResponse>> getAiLogs(Pageable pageable) {
+	public ApiResponse<BasePageResponse<AiLogResponse>> getAiLogs(Pageable pageable) {
 		return ApiResponse.ok(
-			aiAppService.getAiLogs(pageable)
-				.map(AiLogResponse::from)
+			BasePageResponse.from(
+				aiAppService.getAiLogs(pageable)
+					.map(AiLogResponse::from)
+			)
 		);
 	}
 }
