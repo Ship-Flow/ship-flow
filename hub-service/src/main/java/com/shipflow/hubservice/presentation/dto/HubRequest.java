@@ -29,10 +29,8 @@ public final class HubRequest {
 		@NotNull
 		private BigDecimal longitude;
 
-		@NotNull
 		private UUID managerId;
-
-		@NotBlank
+		
 		private String managerName;
 	}
 

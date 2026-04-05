@@ -115,7 +115,6 @@ public class HubService {
 		UUID managerId = hub.getManagerId();
 		hub.delete(userId);
 		hubCascadeService.cascadeDeleteHub(hubId, managerId, userId);
-		hub.delete(userId);
 	}
 
 	private HubResponse.Detail toDetail(Hub hub) {

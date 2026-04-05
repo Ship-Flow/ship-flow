@@ -50,12 +50,19 @@ public class Hub extends BaseEntity {
 	private String managerName;
 
 	public void update(HubRequest.Update request) {
-		if (request.getName() != null) this.name = request.getName();
-		if (request.getAddress() != null) this.address = request.getAddress();
-		if (request.getLatitude() != null) this.latitude = request.getLatitude();
-		if (request.getLongitude() != null) this.longitude = request.getLongitude();
-		this.managerId = request.getManagerId();
-		this.managerName = request.getManagerName();
+		if (request.getName() != null)
+			this.name = request.getName();
+		if (request.getAddress() != null)
+			this.address = request.getAddress();
+		if (request.getLatitude() != null)
+			this.latitude = request.getLatitude();
+		if (request.getLongitude() != null)
+			this.longitude = request.getLongitude();
+		if (request.getManagerId() != null)
+			this.managerId = request.getManagerId();
+		if (request.getManagerName() != null)
+			this.managerName = request.getManagerName();
+
 	}
 
 	public void delete(UUID userId) {
