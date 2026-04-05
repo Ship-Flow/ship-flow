@@ -25,8 +25,8 @@ keycloak:
   admin-password: admin1234
   login-client-id: shipflow-api
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:9001/realms/shipflow
+security:
+  oauth2:
+    resourceserver:
+      jwt:
+        issuer-uri: http://localhost:9001/realms/shipflow
