@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "company-service")
 public interface CompanyFeignClient {
 	@DeleteMapping("/internal/companies/{userId}")
-	void deleteManager(@PathVariable UUID userId);
+	ClientApiResponse<Void> deleteManager(@PathVariable UUID userId);
 }

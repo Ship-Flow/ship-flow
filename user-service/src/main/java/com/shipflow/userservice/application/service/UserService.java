@@ -19,6 +19,7 @@ import com.shipflow.userservice.domain.error.UserErrorCode;
 import com.shipflow.userservice.domain.model.UserRole;
 import com.shipflow.userservice.domain.model.UserStatus;
 import com.shipflow.userservice.domain.repository.UserRepository;
+import com.shipflow.userservice.infrastructure.client.ClientApiResponse;
 import com.shipflow.userservice.infrastructure.client.CompanyFeignClient;
 import com.shipflow.userservice.infrastructure.client.KeycloakUserService;
 import com.shipflow.userservice.infrastructure.client.ShipmentFeignClient;
@@ -85,14 +86,20 @@ public class UserService {
 		UserRole userRole = user.getRole();
 		if(userRole.isCompanyManager()){
 			if(user.getCompanyId() != null) {
-				companyFeignClient.deleteManager(user.getId()); //업체삭제요청
+				ClientApiResponse<Void> response = companyFeignClient.deleteManager(user.getId()); //업체삭제요청
+				if (!response.isSuccess()) {
+					throw new BusinessException(UserErrorCode.DELETE_REQUEST_FAILED);
+				}
 			}
 		}else if (userRole.isHubManager()){
 			if(user.getHubId() != null){
 				throw new BusinessException(UserErrorCode.HUB_MANAGER_DELETE_FORBIDDEN); //담당허브가 있을 시엔 삭제 불가
 			}
 		}else if(userRole.isShipmentManager()){
-			shipmentFeignClient.patchManager(user.getId()); //상태변경요청
+			ClientApiResponse<Void> response = shipmentFeignClient.patchManager(user.getId()); //상태변경요청
+			if (!response.isSuccess()) {
+				throw new BusinessException(UserErrorCode.DELETE_REQUEST_FAILED);
+			}
 		}
 
 		keycloakUserClient.disableUser(user.getId());
