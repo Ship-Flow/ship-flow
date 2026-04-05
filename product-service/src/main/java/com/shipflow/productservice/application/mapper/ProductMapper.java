@@ -3,7 +3,6 @@ package com.shipflow.productservice.application.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.shipflow.productservice.application.dto.response.StockInfoResponse;
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.presentation.dto.response.ProductCreateResponse;
 import com.shipflow.productservice.presentation.dto.response.ProductInfoResponse;
