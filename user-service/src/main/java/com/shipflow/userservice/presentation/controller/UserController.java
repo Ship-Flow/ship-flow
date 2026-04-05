@@ -64,7 +64,8 @@ public class UserController {
 		@RequestParam(defaultValue = "createdAt") String sortBy,
 		@RequestParam(defaultValue = "DESC") String sortDirection,
 		@RequestParam(required = false) UserRole role,
-		@RequestParam(defaultValue = "APPROVED") UserStatus status
+		@RequestParam(defaultValue = "APPROVED") UserStatus status,
+		@RequestParam(required = false) String keyword
 		) {
 
 		if (size != 10 && size != 30 && size != 50) //조회 사이즈 제한
@@ -74,7 +75,7 @@ public class UserController {
 		Sort.Direction direction = Sort.Direction.fromString(sortDirection);
 		Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-		GetUsersListResult result = userService.getUsersList(requestRole, pageable, role, status);
+		GetUsersListResult result = userService.getUsersList(requestRole, pageable, role, status, keyword);
 		GetUsersListResDto response = new GetUsersListResDto(result);
 
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));

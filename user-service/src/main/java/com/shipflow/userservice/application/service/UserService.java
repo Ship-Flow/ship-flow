@@ -16,9 +16,9 @@ import com.shipflow.userservice.application.dto.PatchUserCommand;
 import com.shipflow.userservice.application.dto.PatchUserResult;
 import com.shipflow.userservice.domain.entity.User;
 import com.shipflow.userservice.domain.error.UserErrorCode;
-import com.shipflow.userservice.domain.repository.UserRepository;
 import com.shipflow.userservice.domain.model.UserRole;
 import com.shipflow.userservice.domain.model.UserStatus;
+import com.shipflow.userservice.domain.repository.UserRepository;
 import com.shipflow.userservice.infrastructure.client.KeycloakUserService;
 
 import lombok.RequiredArgsConstructor;
@@ -37,20 +37,10 @@ public class UserService {
 		return new GetUsersResult(user);
 	}
 
-	public GetUsersListResult getUsersList(UserRole requestRole, Pageable pageable, UserRole role, UserStatus status) { //사용자 리스트 조회
+	public GetUsersListResult getUsersList(UserRole requestRole, Pageable pageable, UserRole role, UserStatus status, String keyword) { //사용자 리스트 조회
 		validateUserServiceAccess(requestRole);
-		Page<User> userPage;
 
-		// role, status 검색 조건
-		if (role != null && status != null) {
-			userPage = userRepository.findAllByRoleAndStatus(role, status, pageable);
-		} else if (role != null) {
-			userPage = userRepository.findAllByRole(role, pageable);
-		} else if (status != null) {
-			userPage = userRepository.findAllByStatus(status, pageable);
-		} else {
-			userPage = userRepository.findAll(pageable);
-		}
+		Page<User> userPage = userRepository.searchUsers(role, status, keyword, pageable);
 
 		List<GetUsersResult> content = userPage.getContent().stream()
 			.map(user -> new GetUsersResult(user)).toList();
@@ -111,7 +101,11 @@ public class UserService {
 	}
 
 	private User getUser(UUID userId) {
-		return userRepository.findById(userId)
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+		if (user.isDeleted()) {
+			throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
+		}
+		return user;
 	}
 }
