@@ -1,14 +1,66 @@
 spring:
+  application:
+    name: product-service
+
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema=p_product
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:shipflow}?currentSchema=product
+    username: ${POSTGRES_USER:shipflow}
+    password: ${POSTGRES_PASSWORD:1234}
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: full
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      database: 0
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 10
+          max-wait: -1
+          max-idle: 8
+          min-idle: 0
 
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        default_schema: p_products
+        default_schema: product
     show-sql: true
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
+
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+logging:
+  level:
+    com.shipflow.product.infrastructure.client: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+
+
