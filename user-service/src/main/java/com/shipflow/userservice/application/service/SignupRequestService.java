@@ -1,5 +1,7 @@
 package com.shipflow.userservice.application.service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,7 +52,7 @@ public class SignupRequestService {
 				savedUser.getName(),
 				savedUser.getSlackId(),
 				savedUser.getStatus(),
-				savedUser.getCreatedAt() != null ? savedUser.getCreatedAt().toString() : null
+				savedUser.getCreatedAt() != null ? savedUser.getCreatedAt().toString() : LocalDateTime.now().toString()
 			);
 		} catch (Exception e) {
 			keycloakUserClient.deleteUser(keycloakUserId);

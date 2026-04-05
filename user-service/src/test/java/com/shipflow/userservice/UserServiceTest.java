@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.userservice.application.dto.GetUsersResult;
@@ -49,7 +47,6 @@ public class UserServiceTest {
 		// given
 		UUID userId = UUID.randomUUID();
 		User user = new User(userId, "tester", "테스터", "slack-1");
-		ReflectionTestUtils.setField(user, "createdAt", LocalDateTime.now());
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
@@ -124,7 +121,6 @@ public class UserServiceTest {
 		// given
 		UUID userId = UUID.randomUUID();
 		User user = new User(userId, "tester", "테스터", "slack-1");
-		ReflectionTestUtils.setField(user, "createdAt", LocalDateTime.now());
 		user.approve(UserRole.HUB_MANAGER);
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));

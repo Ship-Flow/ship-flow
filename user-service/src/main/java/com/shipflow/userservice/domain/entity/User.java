@@ -1,5 +1,6 @@
 package com.shipflow.userservice.domain.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.shipflow.common.domain.BaseEntity;
@@ -57,6 +58,8 @@ public class User extends BaseEntity {
 		this.name = name;
 		this.slackId = slackId;
 		this.status = UserStatus.PENDING;
+		this.createdAt = LocalDateTime.now();
+		this.createdBy = id;
 	}
 
 	public void approve(UserRole role){ //승인

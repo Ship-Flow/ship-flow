@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.userservice.application.dto.CreateSignupRequestResult;
@@ -124,9 +122,7 @@ public class SignupRequestServiceTest {
 		Pageable pageable = PageRequest.of(0, 10);
 
 		User user1 = new User(UUID.randomUUID(), "tester1", "테스터1", "slack-1");
-		ReflectionTestUtils.setField(user1, "createdAt", LocalDateTime.now());
 		User user2 = new User(UUID.randomUUID(), "tester2", "테스터2", "slack-2");
-		ReflectionTestUtils.setField(user2, "createdAt", LocalDateTime.now());
 
 		when(userRepository.findAllByStatus(UserStatus.PENDING, pageable))
 			.thenReturn(new PageImpl<>(List.of(user1, user2), pageable, 2));
