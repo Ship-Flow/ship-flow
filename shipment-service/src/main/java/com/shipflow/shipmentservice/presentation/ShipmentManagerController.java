@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,5 +64,14 @@ public class ShipmentManagerController {
 			.map(GetShipmentManagerSearchResDto::fromResult)
 			.toList();
 		return ApiResponse.ok(result);
+	}
+
+	@DeleteMapping("/{managerId}")
+	public ApiResponse<Void> deleteShipmentManager(
+		@PathVariable UUID managerId,
+		@RequestHeader("X-User-Id") UUID userId
+	) {
+		shipmentManagerService.deleteShipmentManager(managerId, userId);
+		return ApiResponse.ok(null);
 	}
 }

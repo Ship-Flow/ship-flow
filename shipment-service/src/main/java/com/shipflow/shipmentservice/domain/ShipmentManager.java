@@ -55,6 +55,10 @@ public class ShipmentManager extends BaseEntity {
 		this.shipmentSequence = sequence;
 	}
 
+	public void delete(UUID deletedBy) {
+		softDelete(deletedBy);
+	}
+
 	private ShipmentManager(
 		UUID userId,
 		String name,

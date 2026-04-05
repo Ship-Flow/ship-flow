@@ -99,4 +99,12 @@ public class ShipmentManagerService {
 			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_NOT_FOUND));
 		return ShipmentManagerResult.fromEntity(shipmentManager);
 	}
+
+	@Transactional
+	public void deleteShipmentManager(UUID managerId, UUID userId) {
+		ShipmentManager shipmentManager = shipmentManagerRepository.findById(managerId)
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_NOT_FOUND));
+
+		shipmentManager.delete(userId);
+	}
 }
