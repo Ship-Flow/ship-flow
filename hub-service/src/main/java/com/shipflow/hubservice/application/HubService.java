@@ -6,11 +6,14 @@ import java.util.UUID;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.shipflow.hubservice.application.event.HubDeletedEvent;
+import com.shipflow.hubservice.application.event.HubManagerChangedEvent;
 import com.shipflow.hubservice.domain.exception.HubErrorCode;
 import com.shipflow.hubservice.domain.exception.HubException;
 import com.shipflow.hubservice.domain.hub.Hub;
@@ -26,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class HubService {
 
 	private final HubJpaRepository hubRepository;
-	private final HubCascadeService hubCascadeService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	private void requireMaster() {
 		ServletRequestAttributes attrs =
@@ -85,13 +88,9 @@ public class HubService {
 		hub.update(request);
 		UUID newManagerId = hub.getManagerId();
 		if (!oldManagerId.equals(newManagerId)) {
-			ServletRequestAttributes attrs =
-				(ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-			String userIdStr = (attrs != null) ? attrs.getRequest().getHeader("X-User-Id") : null;
-			UUID requestUserId = (userIdStr != null && !userIdStr.isBlank())
-				? UUID.fromString(userIdStr)
-				: UUID.fromString("00000000-0000-0000-0000-000000000000");
-			hubCascadeService.cascadeUpdateManagerAssignment(oldManagerId, newManagerId, hubId, requestUserId);
+			UUID requestUserId = extractRequestUserId();
+			eventPublisher.publishEvent(
+				new HubManagerChangedEvent(oldManagerId, newManagerId, hubId, requestUserId));
 		}
 		return toDetail(hub);
 	}
@@ -106,15 +105,19 @@ public class HubService {
 		Hub hub = hubRepository.findById(hubId)
 			.filter(h -> !h.isDeleted())
 			.orElseThrow(() -> new HubException(HubErrorCode.HUB_NOT_FOUND));
+		UUID userId = extractRequestUserId();
+		UUID managerId = hub.getManagerId();
+		hub.delete(userId);
+		eventPublisher.publishEvent(new HubDeletedEvent(hubId, managerId, userId));
+	}
+
+	private UUID extractRequestUserId() {
 		ServletRequestAttributes attrs =
 			(ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 		String userIdStr = (attrs != null) ? attrs.getRequest().getHeader("X-User-Id") : null;
-		UUID userId = (userIdStr != null && !userIdStr.isBlank())
+		return (userIdStr != null && !userIdStr.isBlank())
 			? UUID.fromString(userIdStr)
 			: UUID.fromString("00000000-0000-0000-0000-000000000000");
-		UUID managerId = hub.getManagerId();
-		hub.delete(userId);
-		hubCascadeService.cascadeDeleteHub(hubId, managerId, userId);
 	}
 
 	private HubResponse.Detail toDetail(Hub hub) {
