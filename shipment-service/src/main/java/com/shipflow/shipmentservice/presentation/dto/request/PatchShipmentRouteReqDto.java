@@ -1,8 +1,8 @@
-package com.shipflow.shipmentservice.presentation.dto;
+package com.shipflow.shipmentservice.presentation.dto.request;
 
 import java.math.BigDecimal;
 
-import com.shipflow.shipmentservice.application.dto.ShipmentRouteUpdateCommand;
+import com.shipflow.shipmentservice.application.dto.command.ShipmentRouteUpdateCommand;
 import com.shipflow.shipmentservice.domain.ShipmentRouteStatus;
 
 import jakarta.validation.constraints.AssertTrue;

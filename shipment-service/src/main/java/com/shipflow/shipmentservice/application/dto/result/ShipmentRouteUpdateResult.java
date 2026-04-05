@@ -1,4 +1,4 @@
-package com.shipflow.shipmentservice.application.dto;
+package com.shipflow.shipmentservice.application.dto.result;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

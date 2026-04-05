@@ -1,6 +1,6 @@
-package com.shipflow.shipmentservice.presentation.dto;
+package com.shipflow.shipmentservice.presentation.dto.request;
 
-import com.shipflow.shipmentservice.application.dto.ShipmentUpdateCommand;
+import com.shipflow.shipmentservice.application.dto.command.ShipmentUpdateCommand;
 import com.shipflow.shipmentservice.domain.ShipmentStatus;
 
 import jakarta.validation.constraints.NotNull;

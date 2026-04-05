@@ -1,10 +1,10 @@
-package com.shipflow.shipmentservice.presentation;
+package com.shipflow.shipmentservice.presentation.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.shipflow.shipmentservice.application.dto.ShipmentRouteUpdateResult;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteUpdateResult;
 import com.shipflow.shipmentservice.domain.ShipmentRouteStatus;
 
 import lombok.Builder;
