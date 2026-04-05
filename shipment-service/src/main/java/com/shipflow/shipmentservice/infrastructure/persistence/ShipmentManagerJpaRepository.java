@@ -1,5 +1,6 @@
 package com.shipflow.shipmentservice.infrastructure.persistence;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,6 @@ public interface ShipmentManagerJpaRepository extends JpaRepository<ShipmentMana
 		@Param("type") ShipmentManagerType type,
 		@Param("hubId") UUID hubId
 	);
+
+	Optional<ShipmentManager> findByIdAndDeletedAtIsNull(UUID managerId);
 }

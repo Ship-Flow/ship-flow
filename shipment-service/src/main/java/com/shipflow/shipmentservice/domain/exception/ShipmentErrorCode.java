@@ -17,6 +17,7 @@ public enum ShipmentErrorCode implements ErrorCode {
 	PREVIOUS_ROUTE_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "이전 배송 경로가 아직 도착 처리되지 않았습니다."),
 
 	// ShipmentManager
+	SHIPMENT_MANAGER_NOT_FOUND(HttpStatus.NOT_FOUND, "배송 담당자를 찾을 수 없습니다."),
 	HUB_ID_REQUIRED_FOR_COMPANY_MANAGER(HttpStatus.BAD_REQUEST, "업체 배송 담당자는 hubId가 필수입니다."),
 	HUB_ID_MUST_BE_NULL_FOR_HUB_MANAGER(HttpStatus.BAD_REQUEST, "허브 배송 담당자는 hubId를 가질 수 없습니다."),
 	SHIPMENT_MANAGER_TYPE_REQUIRED(HttpStatus.BAD_REQUEST, "배송 담당자 타입은 필수입니다."),

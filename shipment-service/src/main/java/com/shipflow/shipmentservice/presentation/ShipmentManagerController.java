@@ -1,5 +1,9 @@
 package com.shipflow.shipmentservice.presentation;
 
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,7 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.shipmentservice.application.ShipmentManagerService;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentManagerCreateResult;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentManagerResult;
 import com.shipflow.shipmentservice.presentation.dto.request.PostShipmentManagerReqDto;
+import com.shipflow.shipmentservice.presentation.dto.response.GetShipmentManagerResDto;
 import com.shipflow.shipmentservice.presentation.dto.response.PostShipmentManagerResDto;
 
 import jakarta.validation.Valid;
@@ -27,5 +33,11 @@ public class ShipmentManagerController {
 	) {
 		ShipmentManagerCreateResult result = shipmentManagerService.createShipmentManager(request.toCommand());
 		return ApiResponse.ok(PostShipmentManagerResDto.fromResult(result));
+	}
+
+	@GetMapping("/{id}")
+	public ApiResponse<GetShipmentManagerResDto> getShipmentManager(@PathVariable UUID id) {
+		ShipmentManagerResult result = shipmentManagerService.getShipmentManager(id);
+		return ApiResponse.ok(GetShipmentManagerResDto.fromResult(result));
 	}
 }

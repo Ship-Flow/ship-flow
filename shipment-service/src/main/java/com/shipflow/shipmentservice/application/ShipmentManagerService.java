@@ -10,6 +10,7 @@ import com.shipflow.shipmentservice.application.client.UserClient;
 import com.shipflow.shipmentservice.application.client.dto.UserInfo;
 import com.shipflow.shipmentservice.application.dto.command.ShipmentManagerCreateCommand;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentManagerCreateResult;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentManagerResult;
 import com.shipflow.shipmentservice.domain.ShipmentManager;
 import com.shipflow.shipmentservice.domain.ShipmentManagerType;
 import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
@@ -82,4 +83,9 @@ public class ShipmentManagerService {
 		throw new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_TYPE_REQUIRED);
 	}
 
+	public ShipmentManagerResult getShipmentManager(UUID managerId) {
+		ShipmentManager shipmentManager = shipmentManagerRepository.findById(managerId)
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_NOT_FOUND));
+		return ShipmentManagerResult.fromEntity(shipmentManager);
+	}
 }
