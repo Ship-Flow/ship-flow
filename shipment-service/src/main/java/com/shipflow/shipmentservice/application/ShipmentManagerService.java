@@ -1,7 +1,9 @@
 package com.shipflow.shipmentservice.application;
 
+import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +12,9 @@ import com.shipflow.shipmentservice.application.client.UserClient;
 import com.shipflow.shipmentservice.application.client.dto.UserInfo;
 import com.shipflow.shipmentservice.application.dto.command.ShipmentManagerCreateCommand;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentManagerCreateResult;
+import com.shipflow.shipmentservice.application.dto.query.ShipmentManagerSearchQuery;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentManagerResult;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentManagerSearchResult;
 import com.shipflow.shipmentservice.domain.ShipmentManager;
 import com.shipflow.shipmentservice.domain.ShipmentManagerType;
 import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
@@ -81,6 +85,13 @@ public class ShipmentManagerService {
 		}
 
 		throw new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_TYPE_REQUIRED);
+	}
+
+	public List<ShipmentManagerSearchResult> searchShipmentManager(ShipmentManagerSearchQuery query,
+		Pageable pageable) {
+		return shipmentManagerRepository.findAll(query, pageable).stream()
+			.map(ShipmentManagerSearchResult::fromEntity)
+			.toList();
 	}
 
 	public ShipmentManagerResult getShipmentManager(UUID managerId) {
