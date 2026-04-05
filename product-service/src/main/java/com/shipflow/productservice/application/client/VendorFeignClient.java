@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.shipflow.productservice.application.dto.response.VendorInfoResponse;
 
-@FeignClient(name = "company-service"/*,url="${}"*/)//todo: yaml 파일 설정 추가 후 url설정
+@FeignClient(name = "company-service")
 public interface VendorFeignClient {
 	@GetMapping("/internal/companies/{companyId}")
 	VendorInfoResponse getVendorInfo(@PathVariable("companyId") UUID companyId);
