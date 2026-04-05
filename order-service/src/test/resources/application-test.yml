@@ -1,0 +1,16 @@
+eureka:
+  client:
+    enabled: false
+  instance:
+    prefer-ip-address: false
+
+spring:
+  cloud:
+    discovery:
+      enabled: false
+  rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: false
+        recovery-interval: 2147483647  # 재연결 간격을 최대치로 설정해 teardown 중 재연결 시도 최소화
