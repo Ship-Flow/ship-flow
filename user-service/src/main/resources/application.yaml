@@ -1,3 +1,32 @@
 spring:
   application:
     name: userservice
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:shipflow}?currentSchema={schema}
+    username: ${DB_USER:shipflow}
+    password: ${DB_PASSWORD:your_password}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: users
+    show-sql: true
+
+keycloak:
+  server-url: http://localhost:9001
+  realm: master
+  user-realm: shipflow
+  admin-client-id: admin-cli
+  admin-username: admin
+  admin-password: admin1234
+  login-client-id: shipflow-api
+
+security:
+  oauth2:
+    resourceserver:
+      jwt:
+        issuer-uri: http://localhost:9001/realms/shipflow
