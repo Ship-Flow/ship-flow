@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.notificationservice.application.ai.AiAppService;
+import com.shipflow.notificationservice.application.ai.dto.result.AiLogResult;
 import com.shipflow.notificationservice.presentation.ai.dto.request.GenerateDeadlineRequest;
 import com.shipflow.notificationservice.presentation.ai.dto.response.AiLogResponse;
 import com.shipflow.notificationservice.presentation.common.BasePageResponse;
@@ -28,6 +29,7 @@ public class AiController {
 		this.aiAppService = aiAppService;
 	}
 
+	// TODO: 이벤트 기반 전환 후 admin/debug 용으로 유지
 	@PostMapping
 	public ApiResponse<AiLogResponse> generateAiLog(
 		@Valid @RequestBody GenerateDeadlineRequest request
@@ -37,6 +39,20 @@ public class AiController {
 				aiAppService.generateAiLog(request.toCommand())
 			)
 		);
+	}
+
+	// TODO: 이벤트 기반 처리 완료 후 삭제 예정 (AI → Slack 테스트용)
+	// 임시 컨트롤러
+	@PostMapping("/test-slack")
+	public ApiResponse<AiLogResponse> testSlack(
+		@Valid @RequestBody GenerateDeadlineRequest request
+	) {
+		AiLogResult result = aiAppService.generateAndSendSlack(
+			request.toCommand(),
+			request.receiverSlackId()
+		);
+
+		return ApiResponse.ok(AiLogResponse.from(result));
 	}
 
 	@GetMapping("/{aiId}")

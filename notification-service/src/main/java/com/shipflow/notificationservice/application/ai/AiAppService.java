@@ -10,12 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.application.ai.dto.command.GenerateDeadlineCommand;
 import com.shipflow.notificationservice.application.ai.dto.result.AiLogResult;
+import com.shipflow.notificationservice.application.slack.SlackAppService;
+import com.shipflow.notificationservice.application.slack.dto.command.SendSlackMessageCommand;
 import com.shipflow.notificationservice.domain.ai.AiGenerator;
 import com.shipflow.notificationservice.domain.ai.AiLog;
 import com.shipflow.notificationservice.domain.ai.exception.AiErrorCode;
 import com.shipflow.notificationservice.domain.ai.repository.AiLogRepository;
 import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 import com.shipflow.notificationservice.domain.ai.vo.AiResponseInfo;
+import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +31,9 @@ public class AiAppService {
 
 	private final AiLogRepository aiLogRepository;
 	private final AiGenerator aiGenerator;
+	private final SlackAppService slackAppService;
 
+	//테스트용 외부(AI만 실행)
 	@Transactional
 	public AiLogResult generateAiLog(GenerateDeadlineCommand command) {
 		validateCommand(command);
@@ -60,6 +65,35 @@ public class AiAppService {
 		} catch (Exception e) {
 			aiLog.markFail();
 			throw new BusinessException(AiErrorCode.AI_GENERATE_FAILED);
+		}
+	}
+
+	//슬랙으로 전송
+	//AI 실행 → 결과로 Slack 발송 → sendStatus 업데이트
+	@Transactional
+	public AiLogResult generateAndSendSlack(GenerateDeadlineCommand command, String receiverSlackId) {
+
+		AiLogResult aiResult = generateAiLog(command);
+
+		String slackMessage = createDeadlineSlackMessage(command, aiResult);
+
+		try {
+			slackAppService.sendSlackMessage(
+				new SendSlackMessageCommand(
+					receiverSlackId,
+					command.relatedShipmentId(),
+					aiResult.aiId(),
+					slackMessage,
+					SlackMessageType.DEADLINE_ALERT
+				)
+			);
+
+			markSlackSendSuccess(aiResult.aiId());
+			return aiResult;
+
+		} catch (Exception e) {
+			markSlackSendFail(aiResult.aiId());
+			throw e;
 		}
 	}
 
@@ -99,6 +133,7 @@ public class AiAppService {
 		}
 	}
 
+	// AI 요청용 프롬프트 (AI 입력)
 	private String createDeadlinePrompt(GenerateDeadlineCommand command) {
 		String routeText = (command.route() == null || command.route().isEmpty())
 			? "없음"
@@ -134,5 +169,55 @@ public class AiAppService {
 			command.deadline(),
 			workingHours
 		);
+	}
+
+	//  Slack 메시지용 (사용자에게 보여줄 출력)
+	private String createDeadlineSlackMessage(GenerateDeadlineCommand command, AiLogResult aiResult) {
+
+		String routeText = (command.route() == null || command.route().isEmpty())
+			? "없음"
+			: String.join(" → ", command.route());
+
+		String requestNote = (command.requestNote() == null || command.requestNote().isBlank())
+			? "없음"
+			: command.requestNote();
+
+		return """
+			🚚 배송 요청 알림
+			
+			상품 정보: %s
+			요청 사항: %s
+			
+			발송지: %s
+			경유지: %s
+			도착지: %s
+			
+			⏰ AI 계산 최종 발송 시한: %s
+			
+			※ 해당 시간 이전에 발송을 완료해주세요.
+			""".formatted(
+			command.product(),
+			requestNote,
+			command.fromHub(),
+			routeText,
+			command.toHub(),
+			aiResult.finalDeadlineAt()
+		);
+	}
+
+	// Slack 성공 시 AiLog 상태 업데이트
+	private void markSlackSendSuccess(UUID aiLogId) {
+		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiLogId)
+			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
+
+		aiLog.markSendSuccess();
+	}
+
+	// Slack 실패 시 AiLog 상태 업데이트
+	private void markSlackSendFail(UUID aiLogId) {
+		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiLogId)
+			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
+
+		aiLog.markSendFail();
 	}
 }

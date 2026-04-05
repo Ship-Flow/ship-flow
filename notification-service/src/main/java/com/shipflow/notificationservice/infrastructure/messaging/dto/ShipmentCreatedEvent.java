@@ -3,6 +3,8 @@ package com.shipflow.notificationservice.infrastructure.messaging.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ShipmentCreatedEvent {
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	private UUID shipmentId;
 	private UUID orderId;
 	private UUID ordererId;

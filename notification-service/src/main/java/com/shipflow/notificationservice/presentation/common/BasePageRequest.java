@@ -16,6 +16,14 @@ public record BasePageRequest(
 		}
 	}
 
+	public Pageable toPageable() {
+		return PageRequest.of(
+			page,
+			size,
+			Sort.by(Sort.Direction.DESC, "createdAt")
+		);
+	}
+
 	public Pageable toPageable(Sort sort) {
 		return PageRequest.of(page, size, sort);
 	}

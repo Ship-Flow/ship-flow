@@ -3,7 +3,7 @@ package com.shipflow.notificationservice.infrastructure.persistence.slack;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.hibernate.query.Page;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 

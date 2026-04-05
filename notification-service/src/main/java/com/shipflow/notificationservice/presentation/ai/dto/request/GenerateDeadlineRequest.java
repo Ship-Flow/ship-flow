@@ -40,6 +40,9 @@ public record GenerateDeadlineRequest(
 	@NotNull(message = "requestType은 필수입니다.")
 	AiRequestType requestType,
 
+	@NotBlank(message = "receiverSlackId는 필수입니다.")
+	String receiverSlackId,
+
 	LocalDate workDate
 ) {
 
