@@ -22,12 +22,12 @@ public class ShipmentManagerRepositoryImpl implements ShipmentManagerRepository 
 	}
 
 	@Override
-	public int findNextSequenceByType(ShipmentManagerType type) {
+	public int findMaxSequenceByType(ShipmentManagerType type) {
 		return shipmentManagerJpaRepository.findMaxSequenceByType(type);
 	}
 
 	@Override
-	public int findNextSequenceByTypeAndHubId(ShipmentManagerType type, UUID hubId) {
+	public int findMaxSequenceByTypeAndHubId(ShipmentManagerType type, UUID hubId) {
 		return shipmentManagerJpaRepository.findMaxSequenceByTypeAndHubId(type, hubId);
 	}
 }

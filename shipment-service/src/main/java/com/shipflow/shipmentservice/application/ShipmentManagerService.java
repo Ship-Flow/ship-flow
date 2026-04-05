@@ -29,7 +29,7 @@ public class ShipmentManagerService {
 	public ShipmentManagerCreateResult createShipmentManager(ShipmentManagerCreateCommand command) {
 		UserInfo user = userClient.getUser(command.getUserId());
 
-		int nextSequence = getNextSequence(command.getType(), command.getHubId());
+		int nextSequence = getNextSequence(command);
 
 		ShipmentManager shipmentManager = createShipmentManager(command, user, nextSequence);
 
@@ -38,12 +38,21 @@ public class ShipmentManagerService {
 		return ShipmentManagerCreateResult.fromEntity(shipmentManager);
 	}
 
-	private int getNextSequence(ShipmentManagerType type, UUID hubId) {
+	private int getNextSequence(ShipmentManagerCreateCommand command) {
+		ShipmentManagerType type = command.getType();
+
 		if (type == ShipmentManagerType.COMPANY) {
-			return shipmentManagerRepository.findNextSequenceByTypeAndHubId(type, hubId);
+			if (command.getHubId() == null) {
+				throw new BusinessException(ShipmentErrorCode.HUB_ID_REQUIRED_FOR_COMPANY_MANAGER);
+			}
+
+			return shipmentManagerRepository.findMaxSequenceByTypeAndHubId(
+				type,
+				command.getHubId()
+			) + 1;
 		}
 
-		return shipmentManagerRepository.findNextSequenceByType(type);
+		return shipmentManagerRepository.findMaxSequenceByType(type) + 1;
 	}
 
 	private ShipmentManager createShipmentManager(

@@ -13,16 +13,18 @@ public interface ShipmentManagerJpaRepository extends JpaRepository<ShipmentMana
 
 	@Query("""
 			select coalesce(max(sm.shipmentSequence), 0)
-			from ShipmentManager sm
-			where sm.type = :type
+			  from ShipmentManager sm
+			 where sm.type = :type
+			   and sm.deletedAt is null
 		""")
 	int findMaxSequenceByType(@Param("type") ShipmentManagerType type);
 
 	@Query("""
 			select coalesce(max(sm.shipmentSequence), 0)
-			from ShipmentManager sm
-			where sm.type = :type
-			  and sm.hubId = :hubId
+			  from ShipmentManager sm
+			 where sm.type = :type
+			   and sm.hubId = :hubId
+			   and sm.deletedAt is null
 		""")
 	int findMaxSequenceByTypeAndHubId(
 		@Param("type") ShipmentManagerType type,

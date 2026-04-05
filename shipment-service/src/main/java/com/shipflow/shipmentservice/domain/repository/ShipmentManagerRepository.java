@@ -9,7 +9,7 @@ public interface ShipmentManagerRepository {
 
 	ShipmentManager save(ShipmentManager shipmentManager);
 
-	int findNextSequenceByType(ShipmentManagerType type);
+	int findMaxSequenceByType(ShipmentManagerType type);
 
-	int findNextSequenceByTypeAndHubId(ShipmentManagerType type, UUID hubId);
+	int findMaxSequenceByTypeAndHubId(ShipmentManagerType type, UUID hubId);
 }
