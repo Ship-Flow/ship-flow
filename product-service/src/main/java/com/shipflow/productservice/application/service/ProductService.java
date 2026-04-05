@@ -51,6 +51,7 @@ public class ProductService {
 			request.status(), companyId, response.name(), response.hubId(),
 			createrId);
 		Product savedProduct = productRepository.save(product);
+		redisTemplate.opsForValue().set("product:stock:" + savedProduct.getId(), savedProduct.getStock());
 		return mapper.toCreateResponse(savedProduct);
 	}
 
@@ -59,7 +60,7 @@ public class ProductService {
 		UUID deleterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.delete(deleterId);
-		productRepository.save(product);
+		redisTemplate.delete("product:stock:" + product.getId());
 	}
 
 	@Transactional
@@ -68,7 +69,6 @@ public class ProductService {
 		product.updateInfo(
 			request.name(), request.price(), request.status()
 		);
-		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
 	}
 
@@ -76,7 +76,6 @@ public class ProductService {
 	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request) {
 		Product product = findProductById(productId);
 		product.updateStock(request.stock());
-		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
 	}
 
@@ -100,6 +99,13 @@ public class ProductService {
 			redisTemplate.delete("product:stock:" + product.getId());
 		});
 	}
+
+	@Transactional
+	public void deleteByHub(List<UUID> companyIds) {
+		companyIds.forEach(this::deleteByCompany);
+	}
+
+
 
 	//event
 	/*
@@ -187,5 +193,4 @@ public class ProductService {
 			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
 		}
 	}
-
 }

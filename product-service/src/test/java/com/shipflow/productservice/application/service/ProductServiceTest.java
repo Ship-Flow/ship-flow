@@ -20,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.productservice.application.client.VendorFeignClient;
@@ -43,9 +45,13 @@ class ProductServiceTest {
 	@Mock
 	private ProductRepository productRepository;
 	@Spy
-	ProductMapper mapper= Mappers.getMapper(ProductMapper.class);
+	private ProductMapper mapper = Mappers.getMapper(ProductMapper.class);
 	@Mock
-	VendorFeignClient vendorClient;
+	private VendorFeignClient vendorClient;
+	@Mock
+	private RedisTemplate<String, Integer> redisTemplate;
+	@Mock
+	private ValueOperations<String, Integer> valueOperations;
 	@InjectMocks
 	ProductService productService;
 
@@ -66,6 +72,9 @@ class ProductServiceTest {
 			product.getStock(), product.getStatus());
 		VendorInfoResponse vendorInfo=new VendorInfoResponse(product.getCompanyId(), product.getCompanyName(), product.getHubId());
 		given(vendorClient.getVendorInfo(product.getCompanyId())).willReturn(vendorInfo);
+		given(productRepository.save(any(Product.class))).willAnswer(invocation -> invocation.getArgument(0));
+		given(redisTemplate.opsForValue()).willReturn(valueOperations);
+		doNothing().when(valueOperations).set(anyString(), any());
 
 		//when
 		productService.create(product.getCompanyId(), request);
@@ -75,16 +84,17 @@ class ProductServiceTest {
 		Product savedProduct=productCaptor.getValue();
 		assertThat(savedProduct.getName()).isEqualTo(product.getName());
 		assertThat(savedProduct.getPrice()).isEqualTo(product.getPrice());
-		assertThat(savedProduct.getStockInfo().getStock()).isEqualTo(product.getStock());
+		assertThat(savedProduct.getStock()).isEqualTo(product.getStock());
 		assertThat(savedProduct.getStatus()).isEqualTo(product.getStatus());
-		assertThat(savedProduct.getVendorInfo().getCompanyId()).isEqualTo(product.getCompanyId());
-		assertThat(savedProduct.getVendorInfo().getCompanyName()).isEqualTo(product.getCompanyName());
-		assertThat(savedProduct.getVendorInfo().getHubId()).isEqualTo(product.getHubId());
+		assertThat(savedProduct.getCompanyId()).isEqualTo(product.getCompanyId());
+		assertThat(savedProduct.getCompanyName()).isEqualTo(product.getCompanyName());
+		assertThat(savedProduct.getHubId()).isEqualTo(product.getHubId());
 	}
 
 	@Test
 	void delete() {
 		//given
+		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
 		UUID productId=UUID.randomUUID();
 		Product product=ProductFixture.create();
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
@@ -93,9 +103,7 @@ class ProductServiceTest {
 		productService.delete(productId);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct=productCaptor.getValue();
-		assertThat(savedProduct.getDeletedAt()).isNotNull();
+		assertThat(product.getDeletedAt()).isNotNull();
 	}
 
 	@Test
@@ -103,17 +111,16 @@ class ProductServiceTest {
 		//given
 		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
 		Product product=ProductFixture.create();
-		ProductUpdateInfoRequest request=new ProductUpdateInfoRequest(product.getName(), product.getPrice(),null);
+		ProductUpdateInfoRequest request = new ProductUpdateInfoRequest(product.getName(), product.getPrice(),
+			ProductStatus.ON_SALE);
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
 		productService.updateProductInfo(product.getId(), request);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct=productCaptor.getValue();
-		assertThat(savedProduct.getName()).isEqualTo(request.name());
-		assertThat(savedProduct.getPrice()).isEqualTo(request.price());
+		assertThat(product.getName()).isEqualTo(request.name());
+		assertThat(product.getPrice()).isEqualTo(request.price());
 	}
 
 	@Test
@@ -121,16 +128,14 @@ class ProductServiceTest {
 		//given
 		UUID productId=UUID.randomUUID();
 		Product product=ProductFixture.create();
-		ProductUpdateStockRequest request=new ProductUpdateStockRequest(100);
+		ProductUpdateStockRequest request = new ProductUpdateStockRequest(1);
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
 		productService.updateStock(productId, request);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct=productCaptor.getValue();
-		assertThat(savedProduct.getStockInfo().getStock()).isEqualTo(100);
+		assertThat(product.getStockInfo().getStock()).isEqualTo(1);
 	}
 
 	@Test
@@ -160,9 +165,7 @@ class ProductServiceTest {
 		productService.updateStock(productId, request);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct=productCaptor.getValue();
-		assertThat(savedProduct.getStatus()).isEqualTo(ProductStatus.OUT_OF_STOCK);
+		assertThat(product.getStatus()).isEqualTo(ProductStatus.OUT_OF_STOCK);
 	}
 
 	@Test
@@ -215,9 +218,7 @@ class ProductServiceTest {
 		productService.decreaseStock(product.getId().toString(), 1);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getStockInfo().getStock())
+		assertThat(product.getStockInfo().getStock())
 			.isEqualTo(99);
 	}
 
@@ -225,7 +226,6 @@ class ProductServiceTest {
 	void decreaseStock_올바르지_않은_차감요청() {
 		//given
 		Product product = ProductFixture.create();
-		given(productRepository.findById(any())).willReturn(Optional.of(product));
 
 		//when&then
 		assertThatThrownBy(() -> productService.decreaseStock(product.getId().toString(), -1))
@@ -250,14 +250,13 @@ class ProductServiceTest {
 		//given
 		Product product = ProductFixture.create();
 		given(productRepository.findById(any())).willReturn(Optional.of(product));
+		given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
 		//when
 		productService.restoreStock(product.getId().toString(), 1);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getStockInfo().getStock())
+		assertThat(product.getStockInfo().getStock())
 			.isEqualTo(101);
 	}
 
@@ -274,9 +273,7 @@ class ProductServiceTest {
 		productService.deleteByCompany(product.getId());
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getDeletedBy()).isNotNull();
+		assertThat(product.getDeletedBy()).isNotNull();
 	}
 
 	//util

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableFeignClients
 @EnableJpaAuditing
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.shipflow")
 public class CompanyserviceApplication {
 
 	public static void main(String[] args) {
