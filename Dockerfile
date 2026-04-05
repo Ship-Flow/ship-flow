@@ -5,6 +5,7 @@ ARG MODULE
 WORKDIR /workspace
 COPY gradlew .
 COPY gradle gradle
+RUN chmod +x gradlew
 COPY build.gradle .
 COPY settings.gradle .
 COPY common common
