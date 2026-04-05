@@ -1,5 +1,6 @@
 package com.shipflow.productservice.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,10 @@ public interface ProductRepository {
 	Product save(Product product);
 
 	Slice<Product> findAllByCompanyId(UUID companyId, Pageable pageable);
+
+	List<Product> findAll();
+
+	Integer findStockById(UUID productId);
+
+	List<Product> findAllByCompanyId(UUID companyId);
 }
