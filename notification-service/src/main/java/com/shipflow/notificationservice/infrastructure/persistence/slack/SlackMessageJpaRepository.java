@@ -3,17 +3,12 @@ package com.shipflow.notificationservice.infrastructure.persistence.slack;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
 
 public interface SlackMessageJpaRepository extends JpaRepository<SlackMessage, UUID> {
 
-	// TODO: 단건 조회 시 soft delete 제외
 	Optional<SlackMessage> findByIdAndDeletedAtIsNull(UUID id);
 
-	// TODO: 목록 조회 페이징 및 검색 처리 필요
-	Page<SlackMessage> findAllByDeletedAtIsNull(Pageable pageable);
 }

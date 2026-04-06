@@ -1,5 +1,6 @@
 package com.shipflow.notificationservice.application;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ public class NotificationOrchestratorService {
 		try {
 			slackAppService.sendSlackMessage(
 				new SendSlackMessageCommand(
+					event.getOrdererId(),
+					"MASTER", // TODO: 내부 시스템 자동 발송 권한 처리 방식 확정 후 변경
 					event.getReceiverSlackId(),
 					command.relatedShipmentId(),
 					aiResult.aiId(),
@@ -61,17 +64,31 @@ public class NotificationOrchestratorService {
 
 	private GenerateDeadlineCommand toGenerateDeadlineCommand(ShipmentCreatedEvent event) {
 		return new GenerateDeadlineCommand(
-			event.getShipmentId(),              // relatedShipmentId
-			null,                               // shipmentManagerId
-			extractFromHub(event),              // fromHub
-			extractToHub(event),                // toHub
-			java.util.Collections.emptyList(),  // route
-			extractProductText(event),          // product
-			extractRequestNote(event),          // requestNote
-			event.getRequestDeadline(),         // deadline
-			DEFAULT_WORKING_HOURS,              // workingHours
-			AiRequestType.DEADLINE,             // requestType
-			null                                // workDate
+			event.getOrderId(),
+			event.getOrdererId(),
+			null,                               // relatedShipmentId: 현재 이벤트에 없으면 추후 보강
+			null,                               // shipmentManagerId: 현재 이벤트에 없으면 추후 보강
+			event.getReceiverSlackId(),
+
+			event.getSupplierCompanyId(),
+			event.getReceiverCompanyId(),
+
+			event.getProductId(),
+			extractProductText(event),
+			event.getQuantity(),
+
+			event.getDepartureHubId(),
+			extractFromHub(event),
+			event.getArrivalHubId(),
+			extractToHub(event),
+			Collections.emptyList(),            // route: 허브 내부 API 연동 전까지 기본값
+
+			extractRequestNote(event),
+			event.getRequestDeadline(),
+			DEFAULT_WORKING_HOURS,
+
+			AiRequestType.DEADLINE,
+			null
 		);
 	}
 
@@ -112,6 +129,7 @@ public class NotificationOrchestratorService {
 		return """
 			🚚 배송 요청 알림
 			
+			주문 번호: %s
 			상품 정보: %s
 			요청 사항: %s
 			
@@ -123,6 +141,7 @@ public class NotificationOrchestratorService {
 			
 			※ 해당 시간 이전에 발송을 완료해주세요.
 			""".formatted(
+			command.orderId(),
 			command.product(),
 			requestNote,
 			command.fromHub(),

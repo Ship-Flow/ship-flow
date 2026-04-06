@@ -21,12 +21,14 @@ public record SendSlackMessageRequest(
 	@NotBlank
 	@Size(max = 1000)
 	String message,
-	
+
 	@NotNull
 	SlackMessageType messageType
 ) {
-	public SendSlackMessageCommand toCommand() {
+	public SendSlackMessageCommand toCommand(UUID userId, String userRole) {
 		return new SendSlackMessageCommand(
+			userId,
+			userRole,
 			receiverSlackId,
 			relatedShipmentId,
 			relatedAiLogId,

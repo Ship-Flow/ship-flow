@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.application.ai.dto.command.GenerateDeadlineCommand;
+import com.shipflow.notificationservice.application.ai.dto.command.SearchAiLogCommand;
 import com.shipflow.notificationservice.application.ai.dto.result.AiLogResult;
 import com.shipflow.notificationservice.domain.ai.AiGenerator;
 import com.shipflow.notificationservice.domain.ai.AiLog;
@@ -36,14 +37,15 @@ public class AiAppService {
 
 		String prompt = createDeadlinePrompt(command);
 
-		AiLog aiLog = aiLogRepository.save(
-			new AiLog(
-				command.relatedShipmentId(),
-				command.shipmentManagerId(),
-				prompt,
-				command.requestType()
-			)
+		AiLog aiLog = new AiLog(
+			command.relatedShipmentId(),
+			command.shipmentManagerId(),
+			prompt,
+			command.requestType()
 		);
+		aiLog.markCreatedBy(command.ordererId());
+
+		aiLog = aiLogRepository.save(aiLog);
 
 		try {
 			AiResponseInfo result = aiGenerator.generate(prompt);
@@ -64,15 +66,23 @@ public class AiAppService {
 		}
 	}
 
-	public AiLogResult getAiLog(UUID aiId) {
+	//단건조회
+	public AiLogResult getAiLog(UUID userId, String userRole, UUID aiId) {
+		validateMasterRole(userRole);
 		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiId)
 			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
 
 		return AiLogResult.from(aiLog);
 	}
 
-	public Page<AiLogResult> getAiLogs(Pageable pageable) {
-		return aiLogRepository.findAllByDeletedAtIsNull(pageable)
+	//목록조회
+	public Page<AiLogResult> getAiLogs(
+		SearchAiLogCommand command,
+		Pageable pageable
+	) {
+		validateMasterRole(command.userRole());
+
+		return aiLogRepository.search(command, pageable)
 			.map(AiLogResult::from);
 	}
 
@@ -136,5 +146,11 @@ public class AiAppService {
 			command.deadline(),
 			workingHours
 		);
+	}
+
+	private void validateMasterRole(String userRole) {
+		if (!"MASTER".equals(userRole)) {
+			throw new BusinessException(AiErrorCode.FORBIDDEN_AI_ACCESS);
+		}
 	}
 }

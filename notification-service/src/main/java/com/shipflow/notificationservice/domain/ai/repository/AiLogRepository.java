@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.shipflow.notificationservice.application.ai.dto.command.SearchAiLogCommand;
 import com.shipflow.notificationservice.domain.ai.AiLog;
 
 public interface AiLogRepository {
@@ -14,5 +15,5 @@ public interface AiLogRepository {
 
 	Optional<AiLog> findByIdAndDeletedAtIsNull(UUID id);
 
-	Page<AiLog> findAllByDeletedAtIsNull(Pageable pageable);
+	Page<AiLog> search(SearchAiLogCommand command, Pageable pageable);
 }

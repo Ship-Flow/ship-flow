@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.shipflow.notificationservice.application.slack.dto.command.SearchSlackMessageCommand;
 import com.shipflow.notificationservice.domain.slack.SlackMessage;
 
 public interface SlackMessageRepository {
@@ -14,5 +15,5 @@ public interface SlackMessageRepository {
 
 	Optional<SlackMessage> findByIdAndDeletedAtIsNull(UUID slackId);
 
-	Page<SlackMessage> findAllByDeletedAtIsNull(Pageable pageable);
+	Page<SlackMessage> search(SearchSlackMessageCommand command, Pageable pageable);
 }

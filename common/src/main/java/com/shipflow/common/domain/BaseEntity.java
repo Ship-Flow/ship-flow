@@ -42,6 +42,14 @@ public abstract class BaseEntity {
 
 	protected UUID deletedBy;
 
+	protected void markCreated(UUID userId) {
+		this.createdBy = userId;
+	}
+
+	protected void markUpdated(UUID userId) {
+		this.updatedBy = userId;
+	}
+	
 	protected void softDelete(UUID userId) {
 		this.deletedAt = LocalDateTime.now();
 		this.deletedBy = userId;

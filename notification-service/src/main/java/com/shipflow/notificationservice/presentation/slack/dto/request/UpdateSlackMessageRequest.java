@@ -12,7 +12,11 @@ public record UpdateSlackMessageRequest(
 	@Size(max = 1000)
 	String message
 ) {
-	public UpdateSlackMessageCommand toCommand(UUID slackId) {
-		return new UpdateSlackMessageCommand(slackId, message);
+	public UpdateSlackMessageCommand toCommand(UUID userId, String userRole, UUID slackId) {
+		return new UpdateSlackMessageCommand(
+			userId,
+			userRole,
+			slackId,
+			message);
 	}
 }

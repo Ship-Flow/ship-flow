@@ -5,13 +5,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 public record BasePageRequest(
-	int page,
-	int size
+	Integer page,
+	Integer size
 ) {
 	public BasePageRequest {
-		page = Math.max(page, 0);
+		page = (page == null || page < 0) ? 0 : page;
 
-		if (size != 10 && size != 30 && size != 50) {
+		if (size == null || (size != 10 && size != 30 && size != 50)) {
 			size = 10;
 		}
 	}

@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ShipmentCreatedEvent {
-
-	private UUID shipmentId;
 	private UUID orderId;
 	private UUID ordererId;
 	private UUID supplierCompanyId;

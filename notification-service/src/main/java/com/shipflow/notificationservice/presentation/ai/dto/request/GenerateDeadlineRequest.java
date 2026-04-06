@@ -46,8 +46,9 @@ public record GenerateDeadlineRequest(
 	LocalDate workDate
 ) {
 
-	public GenerateDeadlineCommand toCommand() {
+	public GenerateDeadlineCommand toCommand(UUID userId) {
 		return new GenerateDeadlineCommand(
+			userId,
 			relatedShipmentId,
 			shipmentManagerId,
 			fromHub,
