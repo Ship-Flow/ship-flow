@@ -10,6 +10,7 @@ import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 import jakarta.validation.constraints.NotNull;
 
 public record GenerateDeadlineRequest(
+	@NotNull UUID orderId,
 	@NotNull UUID relatedShipmentId,
 	@NotNull UUID shipmentManagerId,
 	@NotNull String receiverSlackId,
@@ -27,7 +28,7 @@ public record GenerateDeadlineRequest(
 ) {
 	public GenerateDeadlineCommand toCommand(UUID ordererId) {
 		return new GenerateDeadlineCommand(
-			null,
+			orderId,
 			ordererId,
 			relatedShipmentId,
 			shipmentManagerId,

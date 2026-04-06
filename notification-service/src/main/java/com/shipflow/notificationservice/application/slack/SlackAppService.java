@@ -43,7 +43,6 @@ public class SlackAppService {
 			command.message(),
 			command.messageType()
 		);
-		slackMessage.markCreatedBy(command.userId());
 
 		slackMessage = slackMessageRepository.save(slackMessage);
 
@@ -99,7 +98,7 @@ public class SlackAppService {
 			command.message()
 		);
 
-		slackMessage.updateMessage(command.message(), command.userId());
+		slackMessage.updateMessage(command.message());
 
 		return SlackMessageResult.from(slackMessage);
 	}

@@ -30,33 +30,40 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-    // 2. Persistence (DB)
+    // 2. Service Discovery
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // 3. Persistence (DB)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
 
-    // 3. External Services
+    // 4. External Services
     implementation 'com.slack.api:slack-api-client:1.45.3'
 
-    // 4. QueryDSL
+    // 5. QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
     annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
-    // 5. Validation
+    // 6. Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-    // 6. Common Module
+    // 7. Common Module
     implementation project(':common')
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
-    // 7. Lombok
+    // 8. Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // 8. Test
+    // 9. Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // 10. Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
 }
 
 tasks.named('test') {

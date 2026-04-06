@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 @EnableConfigurationProperties(GeminiProperties.class)
 public class GeminiApiConfig {
-	@Bean
-	public WebClient webClient() {
+	@Bean(name = "geminiWebClient")
+	public WebClient geminiWebClient() {
 		return WebClient.builder().build();
 	}
 }

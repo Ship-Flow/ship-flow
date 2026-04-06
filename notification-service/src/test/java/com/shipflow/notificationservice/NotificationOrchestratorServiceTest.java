@@ -50,10 +50,15 @@ class NotificationOrchestratorServiceTest {
 
 		OrderReadModelResponse order = new OrderReadModelResponse(
 			event.getOrderId(),
-			UUID.randomUUID().toString(),
-			"마른 오징어",
-			"경기 북부 센터",
-			"부산광역시 센터"
+			UUID.randomUUID(),        // productId (UUID로 변경)
+			"마른 오징어",             // productName
+			10,                       // quantity
+			"김테스트",                // ordererName
+			LocalDateTime.now(),      // createdAt
+			"경기 북부 센터",          // departureHubName
+			"부산광역시 센터",         // arrivalHubName
+			LocalDateTime.now().plusDays(3), // requestDeadline
+			"빨리 보내주세요"          // requestNote
 		);
 
 		AiLogResult aiResult = mock(AiLogResult.class);
@@ -106,10 +111,15 @@ class NotificationOrchestratorServiceTest {
 
 		OrderReadModelResponse order = new OrderReadModelResponse(
 			event.getOrderId(),
-			UUID.randomUUID().toString(),
-			"마른 오징어",
-			"경기 북부 센터",
-			"부산광역시 센터"
+			UUID.randomUUID(),        // productId (UUID로 변경)
+			"마른 오징어",             // productName
+			10,                       // quantity
+			"김테스트",                // ordererName
+			LocalDateTime.now(),      // createdAt
+			"경기 북부 센터",          // departureHubName
+			"부산광역시 센터",         // arrivalHubName
+			LocalDateTime.now().plusDays(3), // requestDeadline
+			"빨리 보내주세요"          // requestNote
 		);
 
 		AiLogResult aiResult = mock(AiLogResult.class);
@@ -136,10 +146,15 @@ class NotificationOrchestratorServiceTest {
 
 		OrderReadModelResponse order = new OrderReadModelResponse(
 			event.getOrderId(),
-			UUID.randomUUID().toString(),
-			"마른 오징어",
-			"경기 북부 센터",
-			"부산광역시 센터"
+			UUID.randomUUID(),        // productId (UUID로 변경)
+			"마른 오징어",             // productName
+			10,                       // quantity
+			"김테스트",                // ordererName
+			LocalDateTime.now(),      // createdAt
+			"경기 북부 센터",          // departureHubName
+			"부산광역시 센터",         // arrivalHubName
+			LocalDateTime.now().plusDays(3), // requestDeadline
+			"빨리 보내주세요"          // requestNote
 		);
 
 		AiLogResult aiResult = mock(AiLogResult.class);

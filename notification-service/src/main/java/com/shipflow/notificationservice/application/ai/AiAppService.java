@@ -42,7 +42,6 @@ public class AiAppService {
 			prompt,
 			command.requestType()
 		);
-		aiLog.markCreatedBy(command.ordererId());
 
 		aiLog = aiLogRepository.save(aiLog);
 

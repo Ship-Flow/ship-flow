@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
 public class NotificationOrchestratorService {
 
 	private static final String DEFAULT_WORKING_HOURS = "09:00 ~ 18:00";
@@ -38,15 +37,17 @@ public class NotificationOrchestratorService {
 	private final AiLogRepository aiLogRepository;
 	private final OrderInternalClient orderInternalClient;
 
-	@Transactional
 	public void handleShipmentCreated(ShipmentCreatedEvent event) {
+		//1. 주문 정보 조회
 		OrderReadModelResponse order = getOrderReadModel(event.getOrderId());
 		String slackId = resolveSlackId(event);
 
+		// 2. AI 호출 + AiLog 저장 → AiAppService
 		GenerateDeadlineCommand command = toGenerateDeadlineCommand(event, order, slackId);
 		AiLogResult aiResult = aiAppService.generateAiLog(command);
-		String slackMessage = createDeadlineSlackMessage(command, aiResult);
-
+		// 3. 슬랙 메시지 생성
+		String slackMessage = createDeadlineSlackMessage(command, aiResult, order);
+		// 4. 슬랙 발송 + SlackMessage 저장 → SlackAppService 내부
 		try {
 			slackAppService.sendSlackMessage(
 				new SendSlackMessageCommand(
@@ -59,8 +60,10 @@ public class NotificationOrchestratorService {
 					SlackMessageType.DEADLINE_ALERT
 				)
 			);
+			// 5. 슬랙 발송 성공 → AiLog 상태 업데이트 (별도 트랜잭션)
 			markSlackSendSuccess(aiResult.aiId());
 		} catch (Exception e) {
+			// 6. 슬랙 발송 실패 → AiLog 상태 업데이트 (별도 트랜잭션)
 			markSlackSendFail(aiResult.aiId());
 			throw e;
 		}
@@ -82,7 +85,7 @@ public class NotificationOrchestratorService {
 			null,
 
 			event.getProductId(),
-			extractProductText(order, event),
+			extractProductText(order),
 			event.getQuantity(),
 
 			event.getDepartureHubId(),
@@ -115,16 +118,10 @@ public class NotificationOrchestratorService {
 		return (slackId == null || slackId.isBlank()) ? UNKNOWN : slackId;
 	}
 
-	private String extractProductText(OrderReadModelResponse order, ShipmentCreatedEvent event) {
-		String productName = (order == null || order.productName() == null || order.productName().isBlank())
+	private String extractProductText(OrderReadModelResponse order) {
+		return (order == null || order.productName() == null || order.productName().isBlank())
 			? UNKNOWN
 			: order.productName();
-
-		String quantity = event.getQuantity() == null
-			? "수량 미확인"
-			: event.getQuantity() + "개";
-
-		return productName + " / 수량: " + quantity;
 	}
 
 	private List<String> extractRouteTexts(ShipmentCreatedEvent event) {
@@ -148,7 +145,11 @@ public class NotificationOrchestratorService {
 			: event.getRequestNote();
 	}
 
-	private String createDeadlineSlackMessage(GenerateDeadlineCommand command, AiLogResult aiResult) {
+	private String createDeadlineSlackMessage(
+		GenerateDeadlineCommand command,
+		AiLogResult aiResult,
+		OrderReadModelResponse order
+	) {
 		String routeText = (command.route() == null || command.route().isEmpty())
 			? "없음"
 			: String.join("\n", command.route());
@@ -157,13 +158,24 @@ public class NotificationOrchestratorService {
 			? "없음"
 			: command.requestNote();
 
+		String ordererName = (order == null || order.ordererName() == null)
+			? UNKNOWN
+			: order.ordererName();
+
+		String orderTime = (order == null || order.createdAt() == null)
+			? UNKNOWN
+			: order.createdAt().toString();
+
 		return """
 			🚚 배송 요청 알림
 			
 			주문 번호: %s
+			주문자 정보: %s
+			주문 시간: %s
 			배송 번호: %s
-			상품 정보: %s
+			상품 정보: %s / 수량: %d개
 			요청 사항: %s
+			납기 기한: %s
 			
 			발송지: %s
 			경유 경로:
@@ -175,9 +187,13 @@ public class NotificationOrchestratorService {
 			※ 해당 시간 이전에 발송을 완료해주세요.
 			""".formatted(
 			command.orderId(),
+			ordererName,
+			orderTime,
 			command.relatedShipmentId(),
 			command.product(),
+			command.quantity(),          // 수량
 			requestNote,
+			command.deadline(),          // 납기 기한
 			command.fromHub(),
 			routeText,
 			command.toHub(),
@@ -185,13 +201,15 @@ public class NotificationOrchestratorService {
 		);
 	}
 
-	private void markSlackSendSuccess(UUID aiLogId) {
+	@Transactional
+	public void markSlackSendSuccess(UUID aiLogId) {
 		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiLogId)
 			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
 		aiLog.markSendSuccess();
 	}
 
-	private void markSlackSendFail(UUID aiLogId) {
+	@Transactional
+	public void markSlackSendFail(UUID aiLogId) {
 		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiLogId)
 			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
 		aiLog.markSendFail();

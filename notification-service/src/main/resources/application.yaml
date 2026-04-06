@@ -1,12 +1,15 @@
 spring:
+  main:
+    web-application-type: servlet
+
   application:
-    name: notification-service
+    name: notificationservice
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:shipflow}?currentSchema=notification
-    username: ${DB_USER:shipflow}
-    password: ${DB_PASSWORD:1234}
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${POSTGRES_DB:shipflow}?currentSchema=notification
+    username: ${POSTGRES_USER:shipflow}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     hibernate:
@@ -19,7 +22,7 @@ spring:
     import: optional:file:.env
 
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
+    host: ${RABBITMQ_HOST:rabbitmq}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
@@ -32,13 +35,17 @@ gemini:
   url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
 
 server:
-  port: 8087
+  port: 8080
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discoveryserver:8761/eureka/}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

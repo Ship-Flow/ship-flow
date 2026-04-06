@@ -75,10 +75,6 @@ public class AiLog extends BaseEntity {
 		this.sendStatus = SlackSendStatus.PENDING;
 	}
 
-	public void markCreatedBy(UUID userId) {
-		super.markCreated(userId);
-	}
-
 	//AI 성공
 	public void markSuccess(String responseText, LocalDateTime finalDeadlineAt) {
 		this.responseText = responseText;
