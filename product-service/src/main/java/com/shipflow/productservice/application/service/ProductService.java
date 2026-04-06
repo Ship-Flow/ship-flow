@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +24,9 @@ import com.shipflow.productservice.application.mapper.ProductMapper;
 import com.shipflow.productservice.domain.exception.ProductErrorCode;
 import com.shipflow.productservice.domain.model.Product;
 import com.shipflow.productservice.domain.repository.ProductRepository;
+import com.shipflow.productservice.infrastructure.messaging.config.ProductCacheEventListener;
+import com.shipflow.productservice.infrastructure.messaging.event.DeleteStockEvent;
+import com.shipflow.productservice.infrastructure.messaging.event.UpdateStockEvent;
 import com.shipflow.productservice.infrastructure.web.UserContext;
 import com.shipflow.productservice.presentation.dto.request.ProductCreateRequest;
 import com.shipflow.productservice.presentation.dto.request.ProductUpdateInfoRequest;
@@ -43,6 +47,8 @@ public class ProductService {
 	private final VendorFeignClient vendorClient;
 	private final RedisTemplate<String, Integer> redisTemplate;
 	private final UserFeignClient userClient;
+	private final ProductCacheEventListener productCacheEventListener;
+	private final ApplicationEventPublisher eventPublisher;
 
 	//external
 	@Transactional
@@ -57,7 +63,8 @@ public class ProductService {
 			request.status(), companyId, response.name(), response.hubId(), createrId);
 
 		Product savedProduct = productRepository.save(product);
-		redisTemplate.opsForValue().set("product:stock:" + savedProduct.getId(), savedProduct.getStock());
+
+		eventPublisher.publishEvent(new UpdateStockEvent(savedProduct.getId(), savedProduct.getStock()));
 
 		return mapper.toCreateResponse(savedProduct);
 	}
@@ -70,7 +77,8 @@ public class ProductService {
 		Product product = findProductById(productId);
 		product.delete(deleterId);
 		productRepository.save(product);
-		redisTemplate.delete("product:stock:" + productId);
+
+		eventPublisher.publishEvent(new DeleteStockEvent(product.getId(), product.getStock()));
 	}
 
 	@Transactional
@@ -82,6 +90,7 @@ public class ProductService {
 			request.name(), request.price(), request.status()
 		);
 		productRepository.save(product);
+
 		return mapper.toUpdateResponse(product);
 	}
 
@@ -93,8 +102,8 @@ public class ProductService {
 		product.updateStock(request.stock());
 
 		productRepository.save(product);
-		redisTemplate.delete("product:stock:" + productId);
-		redisTemplate.opsForValue().set("product:stock:" + productId, product.getStock());
+
+		eventPublisher.publishEvent(new UpdateStockEvent(product.getId(), product.getStock()));
 
 		return mapper.toUpdateResponse(product);
 	}
@@ -120,7 +129,6 @@ public class ProductService {
 		List<Product> products = productRepository.findAllByCompanyId(companyId);
 		products.forEach(product -> {
 			internalDelete(product.getId(), companyId);
-			redisTemplate.delete("product:stock:" + product.getId());
 		});
 	}
 
@@ -135,7 +143,8 @@ public class ProductService {
 		Product product = findProductById(productId);
 		product.delete(deleterId);
 		productRepository.save(product);
-		redisTemplate.delete("product:stock:" + productId);
+
+		eventPublisher.publishEvent(new DeleteStockEvent(product.getId(), product.getStock()));
 	}
 
 	//event
