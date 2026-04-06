@@ -1,9 +1,9 @@
-package com.shipflow.shipmentservice.presentation.dto;
+package com.shipflow.shipmentservice.presentation.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.shipflow.shipmentservice.application.dto.ShipmentResult;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentResult;
 import com.shipflow.shipmentservice.domain.ShipmentStatus;
 
 import lombok.Builder;

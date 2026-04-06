@@ -1,4 +1,4 @@
-package com.shipflow.shipmentservice.application.dto;
+package com.shipflow.shipmentservice.application.dto.command;
 
 import com.shipflow.shipmentservice.domain.ShipmentStatus;
 
