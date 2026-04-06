@@ -12,14 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.shipmentservice.application.ShipmentService;
-import com.shipflow.shipmentservice.application.dto.ShipmentRouteUpdateResult;
-import com.shipflow.shipmentservice.application.dto.ShipmentUpdateResult;
-import com.shipflow.shipmentservice.presentation.dto.GetShipmentResDto;
-import com.shipflow.shipmentservice.presentation.dto.GetShipmentRouteListResDto;
-import com.shipflow.shipmentservice.presentation.dto.PatchShipmentReqDto;
-import com.shipflow.shipmentservice.presentation.dto.PatchShipmentResDto;
-import com.shipflow.shipmentservice.presentation.dto.PatchShipmentRouteReqDto;
-import com.shipflow.shipmentservice.presentation.dto.ShipmentSearchResDto;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteUpdateResult;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentUpdateResult;
+import com.shipflow.shipmentservice.presentation.dto.response.GetShipmentResDto;
+import com.shipflow.shipmentservice.presentation.dto.response.GetShipmentRouteListResDto;
+import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentReqDto;
+import com.shipflow.shipmentservice.presentation.dto.response.PatchShipmentResDto;
+import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentRouteReqDto;
+import com.shipflow.shipmentservice.presentation.dto.response.PatchShipmentRouteResDto;
+import com.shipflow.shipmentservice.presentation.dto.response.ShipmentSearchResDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
