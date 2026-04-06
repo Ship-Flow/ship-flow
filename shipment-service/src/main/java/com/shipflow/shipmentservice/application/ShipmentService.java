@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.common.exception.BusinessException;
-import com.shipflow.common.messaging.publisher.EventPublisher;
 import com.shipflow.shipmentservice.application.client.CacheClient;
 import com.shipflow.shipmentservice.application.client.HubClient;
 import com.shipflow.shipmentservice.application.client.UserClient;
@@ -27,11 +26,11 @@ import com.shipflow.shipmentservice.domain.Shipment;
 import com.shipflow.shipmentservice.domain.ShipmentManager;
 import com.shipflow.shipmentservice.domain.ShipmentManagerType;
 import com.shipflow.shipmentservice.domain.ShipmentRoute;
+import com.shipflow.shipmentservice.domain.event.ShipmentCreatedEvent;
+import com.shipflow.shipmentservice.domain.event.ShipmentCreationFailedEvent;
 import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
 import com.shipflow.shipmentservice.domain.repository.ShipmentManagerRepository;
 import com.shipflow.shipmentservice.domain.repository.ShipmentRepository;
-import com.shipflow.shipmentservice.infrastructure.messaging.event.publish.ShipmentCreatedEvent;
-import com.shipflow.shipmentservice.infrastructure.messaging.event.publish.ShipmentCreationFailedEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +48,7 @@ public class ShipmentService {
 	private final HubClient hubClient;
 	private final UserClient userClient;
 	private final CacheClient cacheClient;
-	private final EventPublisher eventPublisher;
+	private final ShipmentEventPublisher eventPublisher;
 
 	@Transactional
 	public void createShipment(CreateShipmentCommand command) {
@@ -79,7 +78,7 @@ public class ShipmentService {
 				.map(r -> new ShipmentCreatedEvent.Route(r.getSequence(), r.getDepartureHubId(), r.getArrivalHubId()))
 				.toList();
 
-			eventPublisher.publish(new ShipmentCreatedEvent(
+			eventPublisher.publishCreated(new ShipmentCreatedEvent(
 				saved.getOrderId(),
 				saved.getId(),
 				command.productId(),
@@ -95,7 +94,7 @@ public class ShipmentService {
 
 		} catch (Exception e) {
 			log.error("[Shipment] Creation failed | orderId={} | error={}", command.orderId(), e.getMessage(), e);
-			eventPublisher.publish(new ShipmentCreationFailedEvent(command.orderId()));
+			eventPublisher.publishCreationFailed(new ShipmentCreationFailedEvent(command.orderId()));
 			throw e;
 		}
 	}
