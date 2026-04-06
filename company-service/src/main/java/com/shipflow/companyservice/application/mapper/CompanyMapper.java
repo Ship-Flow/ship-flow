@@ -19,9 +19,9 @@ public interface CompanyMapper {
 
 	CompanyUpdateResponse toUpdateResponse(Company company);
 
-	@Mapping(target = "id", source = "receiverCompanyId")
-	@Mapping(target = "name", source = "receiverCompanyName")
-	@Mapping(target = "hubId", source = "departureCompanyHubId")
+	@Mapping(target = "receiverCompanyId", source = "id")
+	@Mapping(target = "receiverCompanyName", source = "name")
+	@Mapping(target = "departureCompanyHubId", source = "hubId")
 	VendorInfoResponse toVendorInfoResponse(Company company);
 
 	CompanyInfoForCompanyResponse toCompanyInfoForCompany(Company company);
