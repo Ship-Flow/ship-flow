@@ -134,11 +134,7 @@ public class UserService {
 	}
 
 	private User getUser(UUID userId) {
-		User user = userRepository.findById(userId)
+		return userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
-		if (user.isDeleted()) {
-			throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
-		}
-		return user;
 	}
 }

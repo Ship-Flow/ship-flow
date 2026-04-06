@@ -63,10 +63,7 @@ public class User extends BaseEntity {
 	}
 
 	public User(UUID id, String username, String name, String slackId, UUID hubId, UUID companyId) {
-		this.id = id;
-		this.username = username;
-		this.name = name;
-		this.slackId = slackId;
+		this(id, username, name, slackId);
 		this.hubId = hubId;
 		this.companyId = companyId;
 	}

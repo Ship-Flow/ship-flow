@@ -22,18 +22,15 @@ public class UserInternalService {
 	private final UserRepository userRepository;
 
 	public GetInternalUserResult getUser(UUID userId) {
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
-		if (user.isDeleted()){
-			throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
-		}
 
 		return new GetInternalUserResult(user.getId(), user.getName(), user.getSlackId(), user.getHubId(), user.getCompanyId());
 	}
 
 	@Transactional
 	public PatchInternalUserResult updateUser(UUID userId, PatchInternalUserCommand command) {
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
 
 		if (command.isHubIdUpdated()) {
