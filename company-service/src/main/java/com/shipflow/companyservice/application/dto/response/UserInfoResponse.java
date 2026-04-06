@@ -9,6 +9,6 @@ public record UserInfoResponse(
 	@NonNull UUID id,
 	@NotBlank String name,
 	@NonNull UUID companyId,
-	@NonNull UUID HubId
+	@NonNull UUID hubId
 ) {
 }
