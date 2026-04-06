@@ -42,10 +42,14 @@ public class UserHeaderFilter implements GlobalFilter {
                 if (auth instanceof JwtAuthenticationToken jwtAuth) {
                     Jwt jwt = jwtAuth.getToken();
 
-                    String userId = jwt.getClaimAsString("userId");
-                    String role = jwt.getClaimAsString("role");
+                    String userId = jwt.getSubject();
+                    String role = extractRole(jwt);
 
-                    // JWT 검증된 값으로만 재주입
+                    if (userId == null || userId.isBlank() || role == null || role.isBlank()) {
+                        return Mono.error(new BusinessException(GateErrorCode.MISSING_ROLES));
+                    }
+
+                    // JWT 값으로만 재주입
                     ServerHttpRequest mutated = sanitizedExchange.getRequest().mutate()
                         .headers(headers -> {
                             headers.add(USER_ID_HEADER, userId);
