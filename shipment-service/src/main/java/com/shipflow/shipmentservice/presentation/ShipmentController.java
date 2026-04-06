@@ -7,11 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.shipmentservice.application.ShipmentService;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentCompleteResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteUpdateResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentUpdateResult;
 import com.shipflow.shipmentservice.presentation.dto.response.GetShipmentResDto;
@@ -20,6 +22,7 @@ import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentReqDto
 import com.shipflow.shipmentservice.presentation.dto.response.PatchShipmentResDto;
 import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentRouteReqDto;
 import com.shipflow.shipmentservice.presentation.dto.response.PatchShipmentRouteResDto;
+import com.shipflow.shipmentservice.presentation.dto.response.ShipmentCompleteResDto;
 import com.shipflow.shipmentservice.presentation.dto.response.ShipmentSearchResDto;
 
 import jakarta.validation.Valid;
@@ -97,4 +100,11 @@ public class ShipmentController {
 		return ApiResponse.ok(PatchShipmentRouteResDto.fromResult(result));
 	}
 
+	@PostMapping("/api/shipments/{shipmentId}/complete")
+	public ApiResponse<ShipmentCompleteResDto> completeShipment(
+		@PathVariable UUID shipmentId
+	) {
+		ShipmentCompleteResult result = shipmentService.completeShipment(shipmentId);
+		return ApiResponse.ok(ShipmentCompleteResDto.fromResult(result));
+	}
 }

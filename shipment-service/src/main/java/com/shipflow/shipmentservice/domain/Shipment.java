@@ -114,6 +114,28 @@ public class Shipment extends BaseEntity {
 		return shipment;
 	}
 
+	public void markCompleted() {
+		validateCompletable();
+		this.status = ShipmentStatus.COMPLETED;
+	}
+
+	private void validateCompletable() {
+		if (this.status == ShipmentStatus.COMPLETED) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_ALREADY_COMPLETED);
+		}
+
+		if (this.status == ShipmentStatus.CANCELLED) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_ALREADY_CANCELLED);
+		}
+
+		boolean allRoutesCompleted = routes.stream()
+			.allMatch(r -> r.getStatus() == ShipmentRouteStatus.ARRIVED_AT_HUB);
+
+		if (!allRoutesCompleted) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_ROUTES_NOT_ALL_COMPLETED);
+		}
+	}
+
 	public void addRoute(ShipmentRoute route) {
 		this.routes.add(route);
 		route.assignShipment(this);

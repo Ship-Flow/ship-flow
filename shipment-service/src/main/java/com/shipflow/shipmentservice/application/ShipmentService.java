@@ -17,6 +17,7 @@ import com.shipflow.shipmentservice.application.client.dto.UserInfo;
 import com.shipflow.shipmentservice.application.dto.command.CreateShipmentCommand;
 import com.shipflow.shipmentservice.application.dto.command.ShipmentRouteUpdateCommand;
 import com.shipflow.shipmentservice.application.dto.command.ShipmentUpdateCommand;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentCompleteResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteUpdateResult;
@@ -26,6 +27,7 @@ import com.shipflow.shipmentservice.domain.Shipment;
 import com.shipflow.shipmentservice.domain.ShipmentManager;
 import com.shipflow.shipmentservice.domain.ShipmentManagerType;
 import com.shipflow.shipmentservice.domain.ShipmentRoute;
+import com.shipflow.shipmentservice.domain.event.ShipmentCompletedEvent;
 import com.shipflow.shipmentservice.domain.event.ShipmentCreatedEvent;
 import com.shipflow.shipmentservice.domain.event.ShipmentCreationFailedEvent;
 import com.shipflow.shipmentservice.domain.exception.ShipmentErrorCode;
@@ -146,6 +148,21 @@ public class ShipmentService {
 		}
 
 		return ShipmentRouteUpdateResult.fromEntity(route);
+	}
+
+	@Transactional
+	public ShipmentCompleteResult completeShipment(UUID shipmentId) {
+		Shipment shipment = shipmentRepository.findByIdWithRoutes(shipmentId)
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_NOT_FOUND));
+
+		shipment.markCompleted();
+
+		eventPublisher.publishCompleted(new ShipmentCompletedEvent(
+			shipment.getOrderId(),
+			shipment.getId()
+		));
+
+		return ShipmentCompleteResult.fromEntity(shipment);
 	}
 
 	private ShipmentManager findCompanyManager() {
