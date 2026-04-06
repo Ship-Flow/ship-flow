@@ -29,6 +29,8 @@ public enum ShipmentErrorCode implements ErrorCode {
 	// External Service
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 	USER_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "사용자 서비스에 연결할 수 없습니다."),
+	HUB_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "허브 경로를 찾을 수 없습니다."),
+	HUB_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "허브 서비스에 연결할 수 없습니다."),
 
 	// Validation
 	INVALID_ACTUAL_DISTANCE(HttpStatus.BAD_REQUEST, "실제 이동 거리는 0보다 커야 합니다."),
