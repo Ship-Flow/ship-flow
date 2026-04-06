@@ -26,7 +26,6 @@ import com.shipflow.productservice.presentation.dto.response.ProductInfoResponse
 import com.shipflow.productservice.presentation.dto.response.ProductListResponse;
 import com.shipflow.productservice.presentation.dto.response.ProductUpdateResponse;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +37,7 @@ public class ProductExternalController {
 
 	@PostMapping
 	public ResponseEntity<ApiResponse<ProductCreateResponse>> addProduct(@PathVariable UUID companyId,
-		@Valid @RequestBody ProductCreateRequest productCreateRequest, HttpServletRequest request) {
+		@Valid @RequestBody ProductCreateRequest productCreateRequest) {
 		ProductCreateResponse response = productService.create(companyId, productCreateRequest);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
 	}

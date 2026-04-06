@@ -23,7 +23,7 @@ public class ProductInternalController {
 
 	@GetMapping("/{productId}")
 	public ApiResponse<StockInfoResponse> getStockInfo(@PathVariable UUID productId,
-		@RequestParam Integer quantity) {
+		@RequestParam Integer quantity, @PathVariable UUID companyId) {
 		StockInfoResponse response = productService.getStockInfoAndOccupy(productId,quantity);
 		return ApiResponse.ok(response);
 	}
