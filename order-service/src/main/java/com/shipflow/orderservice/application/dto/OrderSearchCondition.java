@@ -13,4 +13,9 @@ public record OrderSearchCondition(
         UUID receiverCompanyId,
         LocalDateTime createdFrom,
         LocalDateTime createdTo
-) {}
+) {
+    public OrderSearchCondition withOrdererId(UUID forcedOrdererId) {
+        return new OrderSearchCondition(status, forcedOrdererId, productId,
+                supplierCompanyId, receiverCompanyId, createdFrom, createdTo);
+    }
+}

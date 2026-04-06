@@ -53,6 +53,7 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
         // 1. 주문 생성
         MvcResult createResult = mockMvc.perform(post("/api/orders")
                         .header("X-User-Id", userId.toString())
+                        .header("X-User-Role", "COMPANY_MANAGER")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(OrderFixture.createRequest())))
                 .andExpect(status().isCreated())
@@ -69,8 +70,10 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
                 "SELECT COUNT(*) FROM orders.p_orders WHERE id = ?::uuid", Integer.class, orderId.toString()
         )).isEqualTo(1);
 
-        // 4. 단건 조회
-        mockMvc.perform(get("/api/orders/{id}", orderId))
+        // 4. 단건 조회 (MASTER - 전체 접근 가능)
+        mockMvc.perform(get("/api/orders/{id}", orderId)
+                        .header("X-User-Id", userId.toString())
+                        .header("X-User-Role", "MASTER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(orderId.toString()))
                 .andExpect(jsonPath("$.quantity").value(10));
@@ -83,6 +86,7 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
         // 1. 주문 생성
         MvcResult createResult = mockMvc.perform(post("/api/orders")
                         .header("X-User-Id", userId.toString())
+                        .header("X-User-Role", "COMPANY_MANAGER")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(OrderFixture.createRequest())))
                 .andExpect(status().isCreated())
@@ -92,14 +96,17 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
                 createResult.getResponse().getContentAsString(), OrderResponse.class);
         UUID orderId = created.id();
 
-        // 2. 취소
+        // 2. 취소 (MASTER 권한)
         mockMvc.perform(post("/api/orders/{id}/cancel", orderId)
+                        .header("X-User-Role", "MASTER")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(OrderFixture.cancelRequest())))
                 .andExpect(status().isOk());
 
-        // 3. 취소 상태 확인
-        mockMvc.perform(get("/api/orders/{id}", orderId))
+        // 3. 취소 상태 확인 (MASTER 권한)
+        mockMvc.perform(get("/api/orders/{id}", orderId)
+                        .header("X-User-Id", userId.toString())
+                        .header("X-User-Role", "MASTER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CANCELED"))
                 .andExpect(jsonPath("$.cancelReason").value("재고 부족"));
@@ -109,7 +116,9 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
     void 없는주문조회_404반환() throws Exception {
         UUID nonExistentId = UUID.randomUUID();
 
-        mockMvc.perform(get("/api/orders/{id}", nonExistentId))
+        mockMvc.perform(get("/api/orders/{id}", nonExistentId)
+                        .header("X-User-Id", UUID.randomUUID().toString())
+                        .header("X-User-Role", "MASTER"))
                 .andExpect(status().isNotFound());
     }
 }

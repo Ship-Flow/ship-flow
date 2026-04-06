@@ -3,8 +3,10 @@ package com.shipflow.orderservice.application.service;
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.dto.OrderSearchCondition;
 import com.shipflow.orderservice.domain.exception.OrderNotFoundException;
+import com.shipflow.orderservice.domain.exception.UnauthorizedException;
 import com.shipflow.orderservice.domain.model.Order;
 import com.shipflow.orderservice.domain.model.OrderReadModel;
+import com.shipflow.orderservice.domain.model.UserRole;
 import com.shipflow.orderservice.domain.repository.OrderReadModelRepository;
 import com.shipflow.orderservice.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,14 @@ public class OrderQueryService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
         return OrderResult.from(order);
+    }
+
+    public OrderResult getOrder(UUID orderId, UUID requesterId, UserRole role) {
+        OrderResult result = getOrder(orderId);
+        if (role.isRestrictedToOwnOrders() && !result.ordererId().equals(requesterId)) {
+            throw new UnauthorizedException();
+        }
+        return result;
     }
 
     /**

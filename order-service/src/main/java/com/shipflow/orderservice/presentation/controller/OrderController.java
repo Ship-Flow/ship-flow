@@ -1,9 +1,11 @@
 package com.shipflow.orderservice.presentation.controller;
 
 import com.shipflow.orderservice.application.dto.OrderResult;
+import com.shipflow.orderservice.application.dto.OrderSearchCondition;
 import com.shipflow.orderservice.application.service.OrderCommandService;
 import com.shipflow.orderservice.application.service.OrderQueryService;
 import com.shipflow.orderservice.domain.model.OrderReadModel;
+import com.shipflow.orderservice.domain.model.UserRole;
 import com.shipflow.orderservice.infrastructure.web.UserContext;
 import com.shipflow.orderservice.presentation.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,19 +41,28 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponse> getOrder(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(OrderResponse.from(orderQueryService.getOrder(orderId)));
+    public ResponseEntity<OrderResponse> getOrder(
+            @PathVariable UUID orderId,
+            HttpServletRequest httpRequest
+    ) {
+        UUID requesterId = userContext.getUserId(httpRequest);
+        UserRole role = userContext.getUserRole(httpRequest);
+        return ResponseEntity.ok(OrderResponse.from(orderQueryService.getOrder(orderId, requesterId, role)));
     }
 
     @GetMapping
     public ResponseEntity<Slice<OrderReadModelResponse>> getOrders(
             @ModelAttribute OrderSearchRequest searchRequest,
             @PageableDefault(size = 10, page = 0, sort = "createdAt",
-                             direction = Sort.Direction.DESC) Pageable pageable
+                             direction = Sort.Direction.DESC) Pageable pageable,
+            HttpServletRequest httpRequest
     ) {
-        Slice<OrderReadModel> result = orderQueryService.searchOrders(
-                searchRequest.toCondition(), pageable
-        );
+        UUID requesterId = userContext.getUserId(httpRequest);
+        UserRole role = userContext.getUserRole(httpRequest);
+        OrderSearchCondition condition = role.isRestrictedToOwnOrders()
+                ? searchRequest.toCondition().withOrdererId(requesterId)
+                : searchRequest.toCondition();
+        Slice<OrderReadModel> result = orderQueryService.searchOrders(condition, pageable);
         return ResponseEntity.ok(result.map(OrderReadModelResponse::from));
     }
 
@@ -62,6 +73,8 @@ public class OrderController {
             HttpServletRequest httpRequest
     ) {
         UUID requesterId = userContext.getUserId(httpRequest);
+        UserRole role = userContext.getUserRole(httpRequest);
+        role.requireManageOrder();
         OrderResult result = orderCommandService.updateOrder(orderId, request.toCommand(), requesterId);
         return ResponseEntity.ok(OrderResponse.from(result));
     }
@@ -69,8 +82,11 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<Void> cancelOrder(
             @PathVariable UUID orderId,
-            @Valid @RequestBody CancelOrderRequest request
+            @Valid @RequestBody CancelOrderRequest request,
+            HttpServletRequest httpRequest
     ) {
+        UserRole role = userContext.getUserRole(httpRequest);
+        role.requireManageOrder();
         orderCommandService.cancelOrder(orderId, request.toCommand());
         return ResponseEntity.ok().build();
     }
@@ -81,6 +97,8 @@ public class OrderController {
             HttpServletRequest httpRequest
     ) {
         UUID requesterId = userContext.getUserId(httpRequest);
+        UserRole role = userContext.getUserRole(httpRequest);
+        role.requireManageOrder();
         orderCommandService.deleteOrder(orderId, requesterId);
         return ResponseEntity.noContent().build();
     }
