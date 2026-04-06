@@ -30,7 +30,6 @@ public class SlackAppService {
 	private final SlackSender slackSender;
 
 	// 메시지 전송
-	// TODO: 자동 발송의 경우 receiverSlackId를 사용자/이벤트 정보 기반으로 조회하도록 분리
 	@Transactional
 	public SlackMessageResult sendSlackMessage(SendSlackMessageCommand command) {
 		//권한 확인
