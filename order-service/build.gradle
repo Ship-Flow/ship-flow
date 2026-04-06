@@ -53,6 +53,10 @@ dependencies {
 	// 5. Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	// Zipkin Tracing
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
 	// 5. Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

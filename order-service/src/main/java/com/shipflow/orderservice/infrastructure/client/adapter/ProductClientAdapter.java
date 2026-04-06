@@ -27,16 +27,13 @@ public class ProductClientAdapter {
     )
     public ProductInfo fetch(String ordererId, UUID productId, int quantity) {
         try {
-            ProductInfo info = productFeignClient.getProductInfo("true", ordererId, productId, quantity).getData();
-            if (info.stock() < quantity) {
-                throw new InsufficientStockException();
-            }
-            return info;
+            return productFeignClient.getProductInfo("true", ordererId, productId, quantity).getData();
         } catch (RetryableException e) {
             throw e;
-        }
-        catch (feign.FeignException.NotFound e) {
+        } catch (feign.FeignException.NotFound e) {
             throw new ProductNotFoundException();
+        } catch (feign.FeignException.Conflict e) {
+            throw new InsufficientStockException();
         } catch (feign.FeignException e) {
             throw new ExternalServiceException(e);
         }
