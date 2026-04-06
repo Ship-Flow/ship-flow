@@ -3,16 +3,20 @@ package com.shipflow.orderservice.presentation.controller;
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.service.OrderCommandService;
 import com.shipflow.orderservice.application.service.OrderQueryService;
+import com.shipflow.orderservice.domain.model.OrderReadModel;
 import com.shipflow.orderservice.infrastructure.web.UserContext;
 import com.shipflow.orderservice.presentation.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -40,11 +44,15 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getOrders() {
-        List<OrderResponse> responses = orderQueryService.getOrders().stream()
-                .map(OrderResponse::from)
-                .toList();
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<Slice<OrderReadModelResponse>> getOrders(
+            @ModelAttribute OrderSearchRequest searchRequest,
+            @PageableDefault(size = 10, page = 0, sort = "createdAt",
+                             direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Slice<OrderReadModel> result = orderQueryService.searchOrders(
+                searchRequest.toCondition(), pageable
+        );
+        return ResponseEntity.ok(result.map(OrderReadModelResponse::from));
     }
 
     @PatchMapping("/{orderId}")

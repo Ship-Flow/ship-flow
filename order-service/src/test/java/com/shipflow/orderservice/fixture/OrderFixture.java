@@ -83,6 +83,24 @@ public class OrderFixture {
         );
     }
 
+    public static OrderReadModel orderReadModelWithStatus(UUID orderId, OrderStatus status) {
+        return OrderReadModel.builder()
+                .orderId(orderId)
+                .orderStatus(status)
+                .ordererId(USER_ID)
+                .productId(PRODUCT_ID)
+                .supplierCompanyId(SUPPLIER_ID)
+                .receiverCompanyId(RECEIVER_ID)
+                .departureHubId(DEP_HUB_ID)
+                .arrivalHubId(ARR_HUB_ID)
+                .quantity(10)
+                .requestDeadline(DEADLINE)
+                .requestNote("테스트 메모")
+                .createdBy(USER_ID)
+                .createdAt(LocalDateTime.of(2026, 4, 1, 9, 0))
+                .build();
+    }
+
     public static OrderReadModel createdOrderReadModel(UUID orderId) {
         return OrderReadModel.builder()
                 .orderId(orderId)

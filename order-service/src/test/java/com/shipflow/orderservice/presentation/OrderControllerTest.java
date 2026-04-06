@@ -1,15 +1,20 @@
 package com.shipflow.orderservice.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shipflow.orderservice.application.dto.OrderSearchCondition;
 import com.shipflow.orderservice.application.service.OrderCommandService;
 import com.shipflow.orderservice.application.service.OrderQueryService;
 import com.shipflow.orderservice.domain.exception.OrderNotFoundException;
+import com.shipflow.orderservice.domain.model.OrderReadModel;
+import com.shipflow.orderservice.domain.model.OrderStatus;
 import com.shipflow.orderservice.fixture.OrderFixture;
 import com.shipflow.orderservice.infrastructure.web.UserContext;
 import com.shipflow.orderservice.presentation.controller.OrderController;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -120,20 +126,47 @@ class OrderControllerTest {
     }
 
     // ─────────────────────────────────────────────
-    // GET /api/orders
+    // GET /api/orders (검색/정렬/페이지네이션)
     // ─────────────────────────────────────────────
 
     @Test
-    void getOrders_성공_200반환() throws Exception {
-        when(orderQueryService.getOrders())
-                .thenReturn(List.of(
-                        OrderFixture.orderResult(orderId),
-                        OrderFixture.orderResult(UUID.randomUUID())
-                ));
+    void getOrders_기본요청_200반환() throws Exception {
+        OrderReadModel model = OrderFixture.orderReadModel(orderId);
+        Slice<OrderReadModel> slice = new SliceImpl<>(
+                List.of(model),
+                PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt")),
+                false
+        );
+        when(orderQueryService.searchOrders(any(), any())).thenReturn(slice);
 
         mockMvc.perform(get("/api/orders"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.content[0].orderId").value(orderId.toString()))
+                .andExpect(jsonPath("$.content[0].orderStatus").value("CREATING"));
+    }
+
+    @Test
+    void getOrders_상태필터CREATED_파라미터전달됨() throws Exception {
+        Slice<OrderReadModel> slice = new SliceImpl<>(List.of(),
+                PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt")), false);
+        ArgumentCaptor<OrderSearchCondition> conditionCaptor =
+                ArgumentCaptor.forClass(OrderSearchCondition.class);
+        when(orderQueryService.searchOrders(conditionCaptor.capture(), any())).thenReturn(slice);
+
+        mockMvc.perform(get("/api/orders").param("status", "CREATED"))
+                .andExpect(status().isOk());
+
+        assertThat(conditionCaptor.getValue().status()).isEqualTo(OrderStatus.CREATED);
+    }
+
+    @Test
+    void getOrders_페이지네이션_파라미터전달됨() throws Exception {
+        Slice<OrderReadModel> slice = new SliceImpl<>(List.of(),
+                PageRequest.of(1, 30, Sort.by(Sort.Direction.DESC, "createdAt")), false);
+        when(orderQueryService.searchOrders(any(), any())).thenReturn(slice);
+
+        mockMvc.perform(get("/api/orders").param("page", "1").param("size", "30"))
+                .andExpect(status().isOk());
     }
 
     // ─────────────────────────────────────────────
