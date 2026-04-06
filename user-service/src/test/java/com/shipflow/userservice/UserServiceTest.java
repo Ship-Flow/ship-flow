@@ -26,7 +26,10 @@ import com.shipflow.userservice.domain.error.UserErrorCode;
 import com.shipflow.userservice.domain.model.UserRole;
 import com.shipflow.userservice.domain.model.UserStatus;
 import com.shipflow.userservice.domain.repository.UserRepository;
+import com.shipflow.userservice.infrastructure.client.ClientApiResponse;
+import com.shipflow.userservice.infrastructure.client.CompanyFeignClient;
 import com.shipflow.userservice.infrastructure.client.KeycloakUserService;
+import com.shipflow.userservice.infrastructure.client.ShipmentFeignClient;
 
 @ExtendWith(MockitoExtension.class)
 @EnableJpaAuditing
@@ -37,6 +40,12 @@ public class UserServiceTest {
 
 	@Mock
 	private KeycloakUserService keycloakUserClient;
+
+	@Mock
+	private CompanyFeignClient companyFeignClient;
+
+	@Mock
+	private ShipmentFeignClient shipmentFeignClient;
 
 	@InjectMocks
 	private UserService userService;
@@ -217,15 +226,98 @@ public class UserServiceTest {
 			});
 	}
 
-	@DisplayName("유저 삭제 성공")
+	@DisplayName("유저 삭제 성공 - CompanyManager이고 companyId가 있으면 업체 서비스 호출 후 삭제한다")
 	@Test
-	void deleteUser_success() {
+	void deleteUser_success_company_manager() {
 		// given
 		UUID userId = UUID.randomUUID();
-		User user = mock(User.class);
+		UUID companyId = UUID.randomUUID();
 
+		User user = mock(User.class);
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 		when(user.getId()).thenReturn(userId);
+		when(user.isDeleted()).thenReturn(false);
+		when(user.getRole()).thenReturn(UserRole.COMPANY_MANAGER);
+		when(user.getCompanyId()).thenReturn(companyId);
+
+		when(companyFeignClient.deleteManager(userId))
+			.thenReturn(new ClientApiResponse<>(true, null));
+
+		// when
+		userService.deleteUser(UserRole.MASTER, userId);
+
+		// then
+		verify(companyFeignClient).deleteManager(userId);
+		verify(keycloakUserClient).disableUser(userId);
+		verify(user).softDeleted(userId);
+	}
+
+	@DisplayName("유저 삭제 실패 - CompanyManager인데 업체 서비스 요청이 실패하면 예외가 발생한다")
+	@Test
+	void deleteUser_fail_company_manager_delete_request_failed() {
+		// given
+		UUID userId = UUID.randomUUID();
+		UUID companyId = UUID.randomUUID();
+
+		User user = mock(User.class);
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(user.getId()).thenReturn(userId);
+		when(user.isDeleted()).thenReturn(false);
+		when(user.getRole()).thenReturn(UserRole.COMPANY_MANAGER);
+		when(user.getCompanyId()).thenReturn(companyId);
+
+		when(companyFeignClient.deleteManager(userId))
+			.thenReturn(new ClientApiResponse<>(false, null));
+
+		// when / then
+		assertThatThrownBy(() -> userService.deleteUser(UserRole.MASTER, userId))
+			.isInstanceOf(BusinessException.class)
+			.satisfies(ex -> {
+				BusinessException be = (BusinessException) ex;
+				assertThat(be.getErrorCode()).isEqualTo(UserErrorCode.DELETE_REQUEST_FAILED);
+			});
+
+		verify(keycloakUserClient, never()).disableUser(any());
+		verify(user, never()).softDeleted(any());
+	}
+
+	@DisplayName("유저 삭제 실패 - HubManager인데 담당 hub가 있으면 삭제할 수 없다")
+	@Test
+	void deleteUser_fail_hub_manager_delete_forbidden() {
+		// given
+		UUID userId = UUID.randomUUID();
+		UUID hubId = UUID.randomUUID();
+
+		User user = mock(User.class);
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(user.isDeleted()).thenReturn(false);
+		when(user.getRole()).thenReturn(UserRole.HUB_MANAGER);
+		when(user.getHubId()).thenReturn(hubId);
+
+		// when / then
+		assertThatThrownBy(() -> userService.deleteUser(UserRole.MASTER, userId))
+			.isInstanceOf(BusinessException.class)
+			.satisfies(ex -> {
+				BusinessException be = (BusinessException) ex;
+				assertThat(be.getErrorCode()).isEqualTo(UserErrorCode.HUB_MANAGER_DELETE_FORBIDDEN);
+			});
+
+		verify(keycloakUserClient, never()).disableUser(any());
+		verify(user, never()).softDeleted(any());
+	}
+
+	@DisplayName("유저 삭제 성공 - HubManager이고 담당 hub가 없으면 삭제할 수 있다")
+	@Test
+	void deleteUser_success_hub_manager_without_hub() {
+		// given
+		UUID userId = UUID.randomUUID();
+
+		User user = mock(User.class);
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(user.getId()).thenReturn(userId);
+		when(user.isDeleted()).thenReturn(false);
+		when(user.getRole()).thenReturn(UserRole.HUB_MANAGER);
+		when(user.getHubId()).thenReturn(null);
 
 		// when
 		userService.deleteUser(UserRole.MASTER, userId);
@@ -233,6 +325,33 @@ public class UserServiceTest {
 		// then
 		verify(keycloakUserClient).disableUser(userId);
 		verify(user).softDeleted(userId);
+	}
+
+	@DisplayName("유저 삭제 실패 - ShipmentManager인데 배송 서비스 상태 변경 요청이 실패하면 예외가 발생한다")
+	@Test
+	void deleteUser_fail_shipment_manager_delete_request_failed() {
+		// given
+		UUID userId = UUID.randomUUID();
+
+		User user = mock(User.class);
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(user.getId()).thenReturn(userId);
+		when(user.isDeleted()).thenReturn(false);
+		when(user.getRole()).thenReturn(UserRole.SHIPMENT_MANAGER);
+
+		when(shipmentFeignClient.patchManager(userId))
+			.thenReturn(new ClientApiResponse<>(false, null));
+
+		// when / then
+		assertThatThrownBy(() -> userService.deleteUser(UserRole.MASTER, userId))
+			.isInstanceOf(BusinessException.class)
+			.satisfies(ex -> {
+				BusinessException be = (BusinessException) ex;
+				assertThat(be.getErrorCode()).isEqualTo(UserErrorCode.DELETE_REQUEST_FAILED);
+			});
+
+		verify(keycloakUserClient, never()).disableUser(any());
+		verify(user, never()).softDeleted(any());
 	}
 
 	@DisplayName("유저 삭제 실패 - MASTER가 아니면 ACCESS_DENIED 예외가 발생한다")

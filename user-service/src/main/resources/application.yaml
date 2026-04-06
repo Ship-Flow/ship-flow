@@ -25,6 +25,14 @@ keycloak:
   admin-password: admin1234
   login-client-id: shipflow-api
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+
 security:
   oauth2:
     resourceserver:

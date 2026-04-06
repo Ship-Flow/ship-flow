@@ -17,8 +17,10 @@ out/
 # macOS
 .DS_Store
 
+
 # env
 .env
 .env.*
 
 generated/
+.planning/
