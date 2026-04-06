@@ -1,6 +1,7 @@
 package com.shipflow.notificationservice.application;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ import com.shipflow.notificationservice.domain.ai.exception.AiErrorCode;
 import com.shipflow.notificationservice.domain.ai.repository.AiLogRepository;
 import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
+import com.shipflow.notificationservice.infrastructure.client.order.OrderInternalClient;
+import com.shipflow.notificationservice.infrastructure.client.order.OrderReadModelResponse;
 import com.shipflow.notificationservice.infrastructure.messaging.dto.ShipmentCreatedEvent;
 
 import lombok.RequiredArgsConstructor;
@@ -28,60 +31,65 @@ public class NotificationOrchestratorService {
 
 	private static final String DEFAULT_WORKING_HOURS = "09:00 ~ 18:00";
 	private static final String UNKNOWN = "확인 필요";
+	private static final UUID SYSTEM_USER_ID = new UUID(0L, 0L);
 
 	private final AiAppService aiAppService;
 	private final SlackAppService slackAppService;
 	private final AiLogRepository aiLogRepository;
+	private final OrderInternalClient orderInternalClient;
 
 	@Transactional
 	public void handleShipmentCreated(ShipmentCreatedEvent event) {
-		GenerateDeadlineCommand command = toGenerateDeadlineCommand(event);
+		OrderReadModelResponse order = getOrderReadModel(event.getOrderId());
+		String slackId = resolveSlackId(event);
 
+		GenerateDeadlineCommand command = toGenerateDeadlineCommand(event, order, slackId);
 		AiLogResult aiResult = aiAppService.generateAiLog(command);
-
 		String slackMessage = createDeadlineSlackMessage(command, aiResult);
 
 		try {
 			slackAppService.sendSlackMessage(
 				new SendSlackMessageCommand(
-					event.getOrdererId(),
-					"MASTER", // TODO: 내부 시스템 자동 발송 권한 처리 방식 확정 후 변경
-					event.getReceiverSlackId(),
-					command.relatedShipmentId(),
+					SYSTEM_USER_ID,
+					"MASTER",
+					slackId,
+					event.getShipmentId(),
 					aiResult.aiId(),
 					slackMessage,
 					SlackMessageType.DEADLINE_ALERT
 				)
 			);
-
 			markSlackSendSuccess(aiResult.aiId());
-
 		} catch (Exception e) {
 			markSlackSendFail(aiResult.aiId());
 			throw e;
 		}
 	}
 
-	private GenerateDeadlineCommand toGenerateDeadlineCommand(ShipmentCreatedEvent event) {
+	private GenerateDeadlineCommand toGenerateDeadlineCommand(
+		ShipmentCreatedEvent event,
+		OrderReadModelResponse order,
+		String slackId
+	) {
 		return new GenerateDeadlineCommand(
 			event.getOrderId(),
-			event.getOrdererId(),
-			null,                               // relatedShipmentId: 현재 이벤트에 없으면 추후 보강
-			null,                               // shipmentManagerId: 현재 이벤트에 없으면 추후 보강
-			event.getReceiverSlackId(),
+			SYSTEM_USER_ID,
+			event.getShipmentId(),
+			null,
+			slackId,
 
-			event.getSupplierCompanyId(),
-			event.getReceiverCompanyId(),
+			null,
+			null,
 
 			event.getProductId(),
-			extractProductText(event),
+			extractProductText(order, event),
 			event.getQuantity(),
 
 			event.getDepartureHubId(),
-			extractFromHub(event),
+			order != null ? order.departureHubName() : UNKNOWN,
 			event.getArrivalHubId(),
-			extractToHub(event),
-			Collections.emptyList(),            // route: 허브 내부 API 연동 전까지 기본값
+			order != null ? order.arrivalHubName() : UNKNOWN,
+			extractRouteTexts(event),
 
 			extractRequestNote(event),
 			event.getRequestDeadline(),
@@ -92,23 +100,46 @@ public class NotificationOrchestratorService {
 		);
 	}
 
-	private String extractFromHub(ShipmentCreatedEvent event) {
-		return event.getDepartureHubId() == null
-			? UNKNOWN
-			: "허브ID: " + event.getDepartureHubId();
+	private OrderReadModelResponse getOrderReadModel(UUID orderId) {
+		if (orderId == null)
+			return null;
+		try {
+			return orderInternalClient.getOrderReadModel(orderId);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
-	private String extractToHub(ShipmentCreatedEvent event) {
-		return event.getArrivalHubId() == null
-			? UNKNOWN
-			: "허브ID: " + event.getArrivalHubId();
+	private String resolveSlackId(ShipmentCreatedEvent event) {
+		String slackId = event.getShipmentManagerSlackId();
+		return (slackId == null || slackId.isBlank()) ? UNKNOWN : slackId;
 	}
 
-	private String extractProductText(ShipmentCreatedEvent event) {
-		String productId = event.getProductId() == null ? UNKNOWN : event.getProductId().toString();
-		String quantity = event.getQuantity() == null ? "수량 미확인" : event.getQuantity() + "개";
+	private String extractProductText(OrderReadModelResponse order, ShipmentCreatedEvent event) {
+		String productName = (order == null || order.productName() == null || order.productName().isBlank())
+			? UNKNOWN
+			: order.productName();
 
-		return "상품ID: " + productId + " / 수량: " + quantity;
+		String quantity = event.getQuantity() == null
+			? "수량 미확인"
+			: event.getQuantity() + "개";
+
+		return productName + " / 수량: " + quantity;
+	}
+
+	private List<String> extractRouteTexts(ShipmentCreatedEvent event) {
+		if (event.getRoutes() == null || event.getRoutes().isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		return event.getRoutes().stream()
+			.map(route -> {
+				if (route.getSequence() == null) {
+					return "경유";
+				}
+				return route.getSequence() + "번 경유";
+			})
+			.toList();
 	}
 
 	private String extractRequestNote(ShipmentCreatedEvent event) {
@@ -120,7 +151,7 @@ public class NotificationOrchestratorService {
 	private String createDeadlineSlackMessage(GenerateDeadlineCommand command, AiLogResult aiResult) {
 		String routeText = (command.route() == null || command.route().isEmpty())
 			? "없음"
-			: String.join(" → ", command.route());
+			: String.join("\n", command.route());
 
 		String requestNote = (command.requestNote() == null || command.requestNote().isBlank())
 			? "없음"
@@ -130,11 +161,13 @@ public class NotificationOrchestratorService {
 			🚚 배송 요청 알림
 			
 			주문 번호: %s
+			배송 번호: %s
 			상품 정보: %s
 			요청 사항: %s
 			
 			발송지: %s
-			경유지: %s
+			경유 경로:
+			%s
 			도착지: %s
 			
 			⏰ AI 계산 최종 발송 시한: %s
@@ -142,6 +175,7 @@ public class NotificationOrchestratorService {
 			※ 해당 시간 이전에 발송을 완료해주세요.
 			""".formatted(
 			command.orderId(),
+			command.relatedShipmentId(),
 			command.product(),
 			requestNote,
 			command.fromHub(),
@@ -154,14 +188,12 @@ public class NotificationOrchestratorService {
 	private void markSlackSendSuccess(UUID aiLogId) {
 		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiLogId)
 			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
-
 		aiLog.markSendSuccess();
 	}
 
 	private void markSlackSendFail(UUID aiLogId) {
 		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiLogId)
 			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
-
 		aiLog.markSendFail();
 	}
 }

@@ -153,6 +153,8 @@ class AiAppServiceTest {
 	@Test
 	void get_success() {
 		UUID id = UUID.randomUUID();
+		UUID userId = UUID.randomUUID();
+		String userRole = "MASTER";
 
 		AiLog aiLog = new AiLog(
 			UUID.randomUUID(),
@@ -166,7 +168,7 @@ class AiAppServiceTest {
 		when(aiLogRepository.findByIdAndDeletedAtIsNull(id))
 			.thenReturn(Optional.of(aiLog));
 
-		AiLogResult result = aiAppService.getAiLog(id);
+		AiLogResult result = aiAppService.getAiLog(userId, userRole, id); // 3개로 수정
 
 		assertThat(result.requestStatus()).isEqualTo(AiRequestStatus.SUCCESS);
 	}

@@ -30,7 +30,6 @@ public class AiAppService {
 	private final AiLogRepository aiLogRepository;
 	private final AiGenerator aiGenerator;
 
-	//테스트용 외부(AI만 실행)
 	@Transactional
 	public AiLogResult generateAiLog(GenerateDeadlineCommand command) {
 		validateCommand(command);
@@ -66,16 +65,15 @@ public class AiAppService {
 		}
 	}
 
-	//단건조회
 	public AiLogResult getAiLog(UUID userId, String userRole, UUID aiId) {
 		validateMasterRole(userRole);
+
 		AiLog aiLog = aiLogRepository.findByIdAndDeletedAtIsNull(aiId)
 			.orElseThrow(() -> new BusinessException(AiErrorCode.AI_LOG_NOT_FOUND));
 
 		return AiLogResult.from(aiLog);
 	}
 
-	//목록조회
 	public Page<AiLogResult> getAiLogs(
 		SearchAiLogCommand command,
 		Pageable pageable
@@ -89,6 +87,12 @@ public class AiAppService {
 	private void validateCommand(GenerateDeadlineCommand command) {
 		if (command == null) {
 			throw new BusinessException(AiErrorCode.AI_EVENT_NOT_FOUND);
+		}
+		if (command.orderId() == null) {
+			throw new BusinessException(AiErrorCode.AI_EVENT_INVALID);
+		}
+		if (command.ordererId() == null) {
+			throw new BusinessException(AiErrorCode.AI_EVENT_INVALID);
 		}
 		if (command.requestType() == null) {
 			throw new BusinessException(AiErrorCode.AI_REQUEST_TYPE_REQUIRED);
@@ -105,12 +109,14 @@ public class AiAppService {
 		if (command.product() == null || command.product().isBlank()) {
 			throw new BusinessException(AiErrorCode.AI_PRODUCT_REQUIRED);
 		}
+		if (command.quantity() == null || command.quantity() <= 0) {
+			throw new BusinessException(AiErrorCode.AI_EVENT_INVALID);
+		}
 		if (command.deadline() == null) {
 			throw new BusinessException(AiErrorCode.AI_DEADLINE_REQUIRED);
 		}
 	}
 
-	// AI 요청용 프롬프트 (AI 입력)
 	private String createDeadlinePrompt(GenerateDeadlineCommand command) {
 		String routeText = (command.route() == null || command.route().isEmpty())
 			? "없음"
@@ -127,10 +133,12 @@ public class AiAppService {
 		return """
 			다음 물류 정보를 바탕으로 최종 발송 시한을 계산해라.
 			
+			주문 번호: %s
 			발송지: %s
 			경유지: %s
 			도착지: %s
 			상품: %s
+			수량: %d
 			요청사항: %s
 			납기: %s
 			근무시간: %s
@@ -138,10 +146,12 @@ public class AiAppService {
 			반드시 ISO-8601 형식의 발송 시한만 포함해서 응답해라.
 			예시: 2026-04-04T09:00:00
 			""".formatted(
+			command.orderId(),
 			command.fromHub(),
 			routeText,
 			command.toHub(),
 			command.product(),
+			command.quantity(),
 			requestNote,
 			command.deadline(),
 			workingHours

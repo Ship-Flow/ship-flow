@@ -39,8 +39,8 @@ public class AiController {
 		this.aiAppService = aiAppService;
 	}
 
-	// TODO: 이벤트 기반 전환 후 admin/debug 용으로 유지
-	@PostMapping
+	// debug 용으로 유지
+	@PostMapping("/debug")
 	public ApiResponse<AiLogResponse> generateAiLog(
 		@RequestHeader("X-User-Id") String userId,
 		@RequestHeader("X-User-Role") String userRole,
