@@ -76,9 +76,8 @@ public class ProductService {
 	@Transactional
 	public ProductUpdateResponse updateProductInfo(UUID productId, ProductUpdateInfoRequest request, UUID companyId) {
 		validateAuth(companyId);
-		validateProductOwnership(productId, companyId);
+		Product product = validateProductOwnership(productId, companyId);
 
-		Product product = findProductById(productId);
 		product.updateInfo(
 			request.name(), request.price(), request.status()
 		);
@@ -89,9 +88,8 @@ public class ProductService {
 	@Transactional
 	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request, UUID companyId) {
 		validateAuth(companyId);
-		validateProductOwnership(productId, companyId);
+		Product product = validateProductOwnership(productId, companyId);
 
-		Product product = findProductById(productId);
 		product.updateStock(request.stock());
 
 		productRepository.save(product);
@@ -121,7 +119,7 @@ public class ProductService {
 	public void deleteByCompany(UUID companyId) {
 		List<Product> products = productRepository.findAllByCompanyId(companyId);
 		products.forEach(product -> {
-			delete(product.getId(), companyId);
+			internalDelete(product.getId(), companyId);
 			redisTemplate.delete("product:stock:" + product.getId());
 		});
 	}
@@ -129,6 +127,15 @@ public class ProductService {
 	@Transactional
 	public void deleteByHub(List<UUID> companyIds) {
 		companyIds.forEach(this::deleteByCompany);
+	}
+
+	@Transactional
+	public void internalDelete(UUID productId, UUID companyId) {
+		UUID deleterId = UserContext.getUserId();
+		Product product = findProductById(productId);
+		product.delete(deleterId);
+		productRepository.save(product);
+		redisTemplate.delete("product:stock:" + productId);
 	}
 
 	//event
@@ -225,6 +232,9 @@ public class ProductService {
 
 	private void validateAuth(UUID companyId) {
 		validateCompanyId(companyId);
+		if (UserContext.getUserId() == null || UserContext.getUserRole() == null)
+			throw new BusinessException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+
 		String role = UserContext.getUserRole();
 
 		if (role.equals("MASTER"))

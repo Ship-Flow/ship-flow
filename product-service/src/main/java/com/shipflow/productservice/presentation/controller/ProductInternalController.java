@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.productservice.application.dto.response.StockInfoResponse;
@@ -15,11 +16,12 @@ import com.shipflow.productservice.application.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
+@RestController
 @RequiredArgsConstructor
 public class ProductInternalController {
 	private final ProductService productService;
 
-	@GetMapping("/internal/companies/{companyId}/products/{productId}")
+	@GetMapping("/internal/products/{productId}")
 	public ApiResponse<StockInfoResponse> getStockInfo(@PathVariable UUID productId,
 		@RequestParam Integer quantity) {
 		StockInfoResponse response = productService.getStockInfoAndOccupy(productId,quantity);
