@@ -72,7 +72,7 @@ services:
       args:
         MODULE: gateway-server
     ports:
-      - "8000"
+      - "8000:8000"
     environment:
       <<: *service-env
     depends_on:

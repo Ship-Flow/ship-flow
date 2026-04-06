@@ -25,7 +25,7 @@ public class UserHeaderFilter implements GlobalFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return exchange.getPrincipal()
-                .cast(Authentication.class)
+            .ofType(Authentication.class)
                 .flatMap(auth -> {
                     if (auth instanceof JwtAuthenticationToken jwtAuth) {
                         Jwt jwt = jwtAuth.getToken();

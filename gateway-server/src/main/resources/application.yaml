@@ -15,15 +15,15 @@ spring:
               predicates:
                 - Path=/api/users/**, /api/auth/**
 
-            - id: company
-              uri: lb://COMPANYSERVICE
-              predicates:
-                - Path=/api/companies/**
-
             - id: product
               uri: lb://PRODUCTSERVICE
               predicates:
                 - Path=/api/companies/*/products/**
+
+            - id: company
+              uri: lb://COMPANYSERVICE
+              predicates:
+                - Path=/api/companies/**
 
             - id: order
               uri: lb://ORDERSERVICE

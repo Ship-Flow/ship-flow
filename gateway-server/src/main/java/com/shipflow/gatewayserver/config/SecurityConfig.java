@@ -15,15 +15,14 @@ public class SecurityConfig {
 
     private static final String[] WHITELIST = {
             "/api/auth/login",
-            "/eureka/**",
-            "/api/auth/signup-requests/**"
+            "/eureka/**"
     };
 
     public static final String USERS = "/api/users/**";
     public static final String SIGNUP = "/api/auth/signup-requests/**";
     public static final String COMPANYS = "/api/companies/**";
     public static final String HUBS = "/api/hubs/**";
-    public static final String HUBSROUTES = "/api/hubs-routes/**";
+    public static final String HUBSROUTES = "/api/hub-routes/**";
     public static final String PRODUCTS = "/api/companies/*/products/**";
     public static final String ORDERS = "/api/orders/**";
     public static final String SHIPMENT = "/api/shipments/**";
@@ -40,6 +39,7 @@ public class SecurityConfig {
                 .authorizeExchange(ex -> ex
                         .pathMatchers(WHITELIST).permitAll()
 
+                        .pathMatchers(POST, SIGNUP).permitAll()
                         .pathMatchers(PATCH, SIGNUP).hasAnyRole("MASTER", "HUB_MANAGER")
                         .pathMatchers(GET, SIGNUP).hasAnyRole("MASTER", "HUB_MANAGER")
 
