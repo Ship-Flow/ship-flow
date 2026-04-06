@@ -23,5 +23,9 @@ public interface ProductMapper {
 
 	@Mapping(source = "id", target = "productId")
 	@Mapping(source = "stockInfo.stock", target = "stock")
+	@Mapping(source = "name", target = "productName")
+	@Mapping(source = "companyId", target = "supplierCompanyId")
+	@Mapping(source = "companyName", target = "supplierCompanyName")
+	@Mapping(source = "hubId", target = "departureHubId")
 	StockInfoResponse toStockInfoResponse(Product product);
 }
