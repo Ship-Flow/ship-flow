@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.common.exception.CommonErrorCode;
+import com.shipflow.productservice.application.client.UserFeignClient;
 import com.shipflow.productservice.application.client.VendorFeignClient;
 import com.shipflow.productservice.application.dto.response.StockInfoResponse;
+import com.shipflow.productservice.application.dto.response.UserInfoResponse;
 import com.shipflow.productservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.productservice.application.mapper.ProductMapper;
 import com.shipflow.productservice.domain.exception.ProductErrorCode;
@@ -40,30 +42,37 @@ public class ProductService {
 	private final ProductMapper mapper;
 	private final VendorFeignClient vendorClient;
 	private final RedisTemplate<String, Integer> redisTemplate;
+	private final UserFeignClient userClient;
 
 	//external
 	@Transactional
 	public ProductCreateResponse create(UUID companyId, ProductCreateRequest request) {
+		validateAuth(companyId);
 		UUID createrId = UserContext.getUserId();
 		VendorInfoResponse response = vendorClient.getVendorInfo(companyId);
 		Product product = Product.create(
 			request.name(), request.price(), request.stock(),
-			request.status(), companyId, response.name(), response.hubId(),
-			createrId);
+			request.status(), companyId, response.name(), response.hubId(), createrId);
 		Product savedProduct = productRepository.save(product);
 		return mapper.toCreateResponse(savedProduct);
 	}
 
 	@Transactional
-	public void delete(UUID productId) {
+	public void delete(UUID productId, UUID companyId) {
+		validateAuth(companyId);
+
 		UUID deleterId = UserContext.getUserId();
 		Product product = findProductById(productId);
 		product.delete(deleterId);
 		productRepository.save(product);
+		redisTemplate.delete("product:stock:" + productId);
 	}
 
 	@Transactional
-	public ProductUpdateResponse updateProductInfo(UUID productId, ProductUpdateInfoRequest request) {
+	public ProductUpdateResponse updateProductInfo(UUID productId, ProductUpdateInfoRequest request, UUID companyId) {
+		validateAuth(companyId);
+		validateProductOwnership(productId, companyId);
+
 		Product product = findProductById(productId);
 		product.updateInfo(
 			request.name(), request.price(), request.status()
@@ -73,19 +82,30 @@ public class ProductService {
 	}
 
 	@Transactional
-	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request) {
+	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request, UUID companyId) {
+		validateAuth(companyId);
+		validateProductOwnership(productId, companyId);
+
 		Product product = findProductById(productId);
 		product.updateStock(request.stock());
+
 		productRepository.save(product);
+		redisTemplate.delete("product:stock:" + productId);
+		redisTemplate.opsForValue().set("product:stock:" + productId, product.getStock());
+
 		return mapper.toUpdateResponse(product);
 	}
 
-	public ProductInfoResponse getProductInfo(UUID productId) {
+	public ProductInfoResponse getProductInfo(UUID productId, UUID companyId) {
+		validateAuth(companyId);
+
 		Product product = findProductById(productId);
 		return mapper.toProductInfoResponse(product);
 	}
 
 	public Slice<ProductListResponse> getProductList(UUID companyId, Pageable pageable) {
+		validateAuth(companyId);
+
 		Slice<Product> products = productRepository.findAllByCompanyId(companyId, pageable);
 		return products.map(mapper::toProductListResponse);
 	}
@@ -96,7 +116,7 @@ public class ProductService {
 	public void deleteByCompany(UUID companyId) {
 		List<Product> products = productRepository.findAllByCompanyId(companyId);
 		products.forEach(product -> {
-			delete(product.getId());
+			delete(product.getId(), companyId);
 			redisTemplate.delete("product:stock:" + product.getId());
 		});
 	}
@@ -116,6 +136,8 @@ public class ProductService {
 
 		validateQuantitiy(quantity);
 
+		Product product = findProductById(productId);
+
 		String stockKey ="product:stock:"+productId;
 		String occupancyKey ="product:"+ UserContext.getUserId() +":"+productId;
 
@@ -126,12 +148,15 @@ public class ProductService {
 
 		if(currentStock<0){
 			Long restoreStock=redisTemplate.opsForValue().increment(stockKey, (long)quantity);
-			return new StockInfoResponse(productId, restoreStock!=null?restoreStock.intValue():currentStock.intValue());
+			return new StockInfoResponse(productId, product.getName(), product.getCompanyId(),
+				product.getCompanyName(), product.getHubId(),
+				restoreStock != null ? restoreStock.intValue() : currentStock.intValue());
 		}
 
 		redisTemplate.opsForValue().set(occupancyKey, quantity, Duration.ofSeconds(5));
 
-		return new StockInfoResponse(productId, currentStock.intValue());
+		return new StockInfoResponse(productId, product.getName(), product.getCompanyId(),
+			product.getCompanyName(), product.getHubId(), currentStock.intValue());
 	}
 
 	@Transactional
@@ -186,6 +211,42 @@ public class ProductService {
 		if (quantity == null || quantity <= 0) {
 			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
 		}
+	}
+
+	private void validateAuth(UUID companyId) {
+		validateCompanyId(companyId);
+		String role = UserContext.getUserRole();
+
+		if (role.equals("MASTER"))
+			return;
+
+		UUID userId = UserContext.getUserId();
+		UserInfoResponse userInfo = userClient.getUserInfoById(userId);
+
+		if (role.equals("HUB_MANAGER")) {
+			if (vendorClient.getVendorInfo(companyId).hubId().equals(userInfo.hubId()))
+				return;
+		} else if (role.equals("COMPANY_MANAGER")) {
+			if (userInfo.companyId().equals(companyId))
+				return;
+		}
+
+		throw new BusinessException(ProductErrorCode.UNAUTHORIZED);
+	}
+
+	private void validateCompanyId(UUID companyId) {
+		if (companyId == null) {
+			throw new BusinessException(ProductErrorCode.COMPANY_ID_REQUIRED);
+		}
+	}
+
+	private Product validateProductOwnership(UUID productId, UUID companyId) {
+		validateCompanyId(companyId);
+		Product product = findProductById(productId);
+		if (!product.getCompanyId().equals(companyId)) {
+			throw new BusinessException(ProductErrorCode.PRODUCT_NOT_OWNED_BY_COMPANY);
+		}
+		return product;
 	}
 
 }

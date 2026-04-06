@@ -43,29 +43,31 @@ public class ProductExternalController {
 	}
 
 	@DeleteMapping("/{productId}")
-	public ResponseEntity<String> deleteProduct(@PathVariable UUID productId) {
-		productService.delete(productId);
+	public ResponseEntity<String> deleteProduct(@PathVariable UUID productId, @PathVariable UUID companyId) {
+		productService.delete(productId, companyId);
 		return ResponseEntity.status(HttpStatus.OK).body("요청이 정상 처리되었습니다.");
 	}
 
 	@PatchMapping("/{productId}")
 	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateProductInfo(@PathVariable UUID productId,
-		@RequestBody ProductUpdateInfoRequest productUpdateInfoRequest) {
-		ProductUpdateResponse response = productService.updateProductInfo(productId, productUpdateInfoRequest);
+		@RequestBody ProductUpdateInfoRequest productUpdateInfoRequest, @PathVariable UUID companyId) {
+		ProductUpdateResponse response = productService.updateProductInfo(productId, productUpdateInfoRequest,
+			companyId);
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@PostMapping("/{productId}/stock")
 	public ResponseEntity<ApiResponse<ProductUpdateResponse>> updateStock(@PathVariable UUID productId,
-		@Valid @RequestBody ProductUpdateStockRequest productUpdateStockRequest) {
+		@Valid @RequestBody ProductUpdateStockRequest productUpdateStockRequest, @PathVariable UUID companyId) {
 		ProductUpdateResponse response = productService.updateStock(productId,
-			productUpdateStockRequest);
+			productUpdateStockRequest, companyId);
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 
 	@GetMapping("/{productId}")
-	public ResponseEntity<ApiResponse<ProductInfoResponse>> getProductInfo(@PathVariable UUID productId) {
-		ProductInfoResponse response = productService.getProductInfo(productId);
+	public ResponseEntity<ApiResponse<ProductInfoResponse>> getProductInfo(@PathVariable UUID productId,
+		@PathVariable UUID companyId) {
+		ProductInfoResponse response = productService.getProductInfo(productId, companyId);
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
 	}
 

@@ -10,7 +10,10 @@ public enum ProductErrorCode implements ErrorCode {
 	INVALID_STOCK_VALUE("INVALID_STOCK_VALUE", HttpStatus.BAD_REQUEST, "잘못된 재고값입니다."),
 	INVALID_ORDER_QUANTITY("INVALID_ORDER_QUANTITY", HttpStatus.BAD_REQUEST, "잘못된 수량입니다."),
 	INACTIVE_PRODUCT("INACTIVE_PRODUCT", HttpStatus.BAD_REQUEST, "현재 비활성화된 상품입니다."),
-	EXCEEDS_STOCK_LEVEL("EXCEEDS_STOCK_LEVEL", HttpStatus.BAD_REQUEST, "요청하신 주문량이 잔여 재고량보다 많습니다.");
+	EXCEEDS_STOCK_LEVEL("EXCEEDS_STOCK_LEVEL", HttpStatus.BAD_REQUEST, "요청하신 주문량이 잔여 재고량보다 많습니다."),
+	PRODUCT_NOT_OWNED_BY_COMPANY("PRODUCT_NOT_OWNED_BY_COMPANY", HttpStatus.BAD_REQUEST, "상품이 해당 회사에 소속되어 있지 않습니다."),
+	COMPANY_ID_REQUIRED("COMPANY_ID_REQUIRED", HttpStatus.BAD_REQUEST, "회사 ID가 필요합니다."),
+	UNAUTHORIZED("UNAUTHORIZED", HttpStatus.FORBIDDEN, "허가되지 않은 접근입니다.");
 
 	private final String code;
 	private final HttpStatus status;

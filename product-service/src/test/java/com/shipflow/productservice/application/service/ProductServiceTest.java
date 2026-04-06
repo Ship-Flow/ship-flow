@@ -91,7 +91,7 @@ class ProductServiceTest {
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
-		productService.delete(productId);
+		productService.delete(productId, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
@@ -108,7 +108,7 @@ class ProductServiceTest {
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
-		productService.updateProductInfo(product.getId(), request);
+		productService.updateProductInfo(product.getId(), request, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
@@ -126,7 +126,7 @@ class ProductServiceTest {
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
-		productService.updateStock(productId, request);
+		productService.updateStock(productId, request, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
@@ -143,7 +143,7 @@ class ProductServiceTest {
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when&then
-		assertThatThrownBy(() -> productService.updateStock(productId, request))
+		assertThatThrownBy(() -> productService.updateStock(productId, request, companyId))
 			.isInstanceOf(BusinessException.class)
 			.hasMessageContaining("잘못된 재고값입니다.");
 
@@ -158,7 +158,7 @@ class ProductServiceTest {
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
-		productService.updateStock(productId, request);
+		productService.updateStock(productId, request, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
@@ -173,7 +173,7 @@ class ProductServiceTest {
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
-		ProductInfoResponse response = productService.getProductInfo(product.getId());
+		ProductInfoResponse response = productService.getProductInfo(product.getId(), companyId);
 
 		//then
 		assertThat(response.id()).isEqualTo(product.getId());
