@@ -16,7 +16,7 @@ public class SecurityConfig {
     private static final String[] WHITELIST = {
             "/api/auth/login",
             "/eureka/**",
-            "/swagger-ui/**",
+            "/api/auth/signup-requests/**"
     };
 
     public static final String USERS = "/api/users/**";
