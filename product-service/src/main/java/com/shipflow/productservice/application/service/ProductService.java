@@ -1,14 +1,21 @@
 package com.shipflow.productservice.application.service;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.common.exception.BusinessException;
+import com.shipflow.common.exception.CommonErrorCode;
 import com.shipflow.productservice.application.client.VendorFeignClient;
+import com.shipflow.productservice.application.dto.response.StockInfoResponse;
 import com.shipflow.productservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.productservice.application.mapper.ProductMapper;
 import com.shipflow.productservice.domain.exception.ProductErrorCode;
@@ -32,7 +39,9 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final ProductMapper mapper;
 	private final VendorFeignClient vendorClient;
+	private final RedisTemplate<String, Integer> redisTemplate;
 
+	//external
 	@Transactional
 	public ProductCreateResponse create(UUID companyId, ProductCreateRequest request) {
 		UUID createrId = UserContext.getUserId();
@@ -41,7 +50,7 @@ public class ProductService {
 			request.name(), request.price(), request.stock(),
 			request.status(), companyId, response.name(), response.hubId(),
 			createrId);
-		Product savedProduct =productRepository.save(product);
+		Product savedProduct = productRepository.save(product);
 		return mapper.toCreateResponse(savedProduct);
 	}
 
@@ -54,11 +63,10 @@ public class ProductService {
 	}
 
 	@Transactional
-	public ProductUpdateResponse updateInfo(UUID productId, ProductUpdateInfoRequest request) {
-		UUID updaterId = UserContext.getUserId();
+	public ProductUpdateResponse updateProductInfo(UUID productId, ProductUpdateInfoRequest request) {
 		Product product = findProductById(productId);
 		product.updateInfo(
-			request.name(), request.price(), updaterId
+			request.name(), request.price(), request.status()
 		);
 		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
@@ -66,9 +74,8 @@ public class ProductService {
 
 	@Transactional
 	public ProductUpdateResponse updateStock(UUID productId, ProductUpdateStockRequest request) {
-		UUID updaterId = UserContext.getUserId();
 		Product product = findProductById(productId);
-		product.updateStock(request.stock(), updaterId);
+		product.updateStock(request.stock());
 		productRepository.save(product);
 		return mapper.toUpdateResponse(product);
 	}
@@ -83,9 +90,102 @@ public class ProductService {
 		return products.map(mapper::toProductListResponse);
 	}
 
+
+	//internal
+	@Transactional
+	public void deleteByCompany(UUID companyId) {
+		List<Product> products = productRepository.findAllByCompanyId(companyId);
+		products.forEach(product -> {
+			delete(product.getId());
+			redisTemplate.delete("product:stock:" + product.getId());
+		});
+	}
+
+	//event
+	/*
+	* 주문 시 product 측 흐름 :
+	* 1. 주문 전 재고 조회 요청 시) querystring으로 요청 재고 값 전달받음
+	* 2. 재고 조회 시) redis에서 조회 후 없으면 db에서 조회 -> redis에 저장 -> 재고 조회 시 redis에서 조회 -> 없으면 db에서 조회 -> redis에 저장 / 없으면 예외 발생
+	* 3. 조회 성공 시) 재고 감소 -> redis에 선점 정보 저장(ttl 5초) / 재고가 주문량보다 적을 경우 차감없이 재고 반환
+	* 4. 선점 후 주문 이벤트 발생 시) redis 선점 정보 삭제 -> db에서 재고 차감
+	* */
+
+	// 재고 조회
+	@Transactional
+	public StockInfoResponse getStockInfoAndOccupy(@Param("productId") UUID productId, Integer quantity) {
+
+		validateQuantitiy(quantity);
+
+		String stockKey ="product:stock:"+productId;
+		String occupancyKey ="product:"+ UserContext.getUserId() +":"+productId;
+
+		ensureStockInRedis(productId, stockKey);
+
+		Long currentStock = Optional.ofNullable(redisTemplate.opsForValue().decrement(stockKey, quantity))
+			.orElseThrow(() -> new BusinessException(CommonErrorCode.INTERNAL_SERVER_ERROR));
+
+		if(currentStock<0){
+			Long restoreStock=redisTemplate.opsForValue().increment(stockKey, (long)quantity);
+			return new StockInfoResponse(productId, restoreStock!=null?restoreStock.intValue():currentStock.intValue());
+		}
+
+		redisTemplate.opsForValue().set(occupancyKey, quantity, Duration.ofSeconds(5));
+
+		return new StockInfoResponse(productId, currentStock.intValue());
+	}
+
+	@Transactional
+	public void decreaseStock(String productId, Integer quantity) {
+
+		validateQuantitiy(quantity);
+
+		Product product = findProductById(UUID.fromString(productId));
+
+		if (product.getStock() < quantity) {
+			throw new BusinessException(ProductErrorCode.EXCEEDS_STOCK_LEVEL);
+		}
+
+		product.decreaseStock(quantity);
+		productRepository.save(product);
+	}
+
+	@Transactional
+	public void restoreStock(String productId, Integer quantity) {
+
+		validateQuantitiy(quantity);
+
+		String stockKey = "product:stock:" + productId;
+		redisTemplate.opsForValue().increment(stockKey, (long)quantity);
+
+		Product product = findProductById(UUID.fromString(productId));
+		product.restoreStock(quantity);
+		productRepository.save(product);
+	}
+
+
 	//util
 	private Product findProductById(UUID productId) {
 		return productRepository.findById(productId)
-			.orElseThrow(() -> new BusinessException(ProductErrorCode.PRODUCT_NOT_FOUND, "해당 제품을 찾을 수 없습니다."));
+			.orElseThrow(() -> new BusinessException(ProductErrorCode.PRODUCT_NOT_FOUND));
 	}
+
+	private void ensureStockInRedis(UUID productId, String stockKey) {
+		if (!redisTemplate.hasKey(stockKey)) {
+
+			Integer dbStock = productRepository.findStockById(productId);
+
+			if (dbStock == null) {
+				throw new BusinessException(ProductErrorCode.PRODUCT_NOT_FOUND);
+			}
+
+			redisTemplate.opsForValue().setIfAbsent(stockKey, dbStock);
+		}
+	}
+
+	private void validateQuantitiy(Integer quantity) {
+		if (quantity == null || quantity <= 0) {
+			throw new BusinessException(ProductErrorCode.INVALID_ORDER_QUANTITY);
+		}
+	}
+
 }

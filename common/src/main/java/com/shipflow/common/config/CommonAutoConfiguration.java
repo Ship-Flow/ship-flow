@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
 @Import({
-        ApiControllerAdvice.class,
-        JacksonConfig.class,
+	ApiControllerAdvice.class,
+	JacksonConfig.class,
 })
 public class CommonAutoConfiguration {
 }

@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
 @ConditionalOnClass(RabbitTemplate.class)
-@ConditionalOnBean(ConnectionFactory.class)
 @Import({RabbitMqConfig.class, RabbitEventPublisher.class})
 public class RabbitMessagingAutoConfiguration {
 }

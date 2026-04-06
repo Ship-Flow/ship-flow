@@ -30,19 +30,26 @@ public class Product extends BaseEntity {
 		this.vendorInfo = new VendorInfo(companyId, companyName, hubId);
 	}
 
+	private Product() {
+	}
+
 	public static Product create(String name, BigDecimal price, Integer stock, ProductStatus status,
 		UUID companyId, String companyName, UUID hubId, UUID createdBy) {
 		Product product = new Product(name, price, stock, status, companyId, companyName, hubId);
-		product.create(createdBy);
 		return product;
 	}
 
-	public static Product reconstruct(UUID id,String name, BigDecimal price,
+	public static Product reconstruct(UUID id, String name, BigDecimal price,
 		Integer stock, ProductStatus status, UUID companyId, String companyName,
 		UUID hubId, Boolean isHide, UUID createdBy, LocalDateTime createdAt,
 		LocalDateTime updatedAt, UUID updatedBy, LocalDateTime deletedAt, UUID deletedBy) {
-		Product product = new Product(name, price, stock, status, companyId, companyName, hubId);
+		Product product = new Product();
 		product.id=id;
+		product.name = name;
+		product.price = price;
+		product.status = status;
+		product.stockInfo = new StockInfo(stock);
+		product.vendorInfo = new VendorInfo(companyId, companyName, hubId);
 		product.isHide = isHide;
 		product.createdAt = createdAt;
 		product.createdBy = createdBy;
@@ -53,42 +60,46 @@ public class Product extends BaseEntity {
 		return product;
 	}
 
-	public void updateInfo(String name, BigDecimal price, UUID updatedBy) {
+	public void updateInfo(String name, BigDecimal price, ProductStatus status) {
 		if (name != null && !name.isBlank())
 			this.name = name;
-
-		if (price!=null|| price.compareTo(BigDecimal.ZERO) <= 0)
-			throw new IllegalArgumentException("price는 0보다 커야 합니다.");
-		else
-			this.price = price;
-		this.update(updatedBy);
+		this.price = validatePrice(price);
+		updateStatus(status);
 	}
 
-	public void updateVendorInfo(UUID companyId, String companyName, UUID hubId, UUID updatedBy) {
-		this.vendorInfo = new VendorInfo(companyId, companyName, hubId);
-		this.update(updatedBy);
+	private BigDecimal validatePrice(BigDecimal price) {
+		if (Objects.requireNonNull(price, "가격은 필수입니다.").compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("가격은 0보다 커야 합니다.");
+		}
+		return price;
 	}
 
-	public void updateStatus(ProductStatus status, UUID updatedBy) {
+	public void updateStatus(ProductStatus status) {
 		this.status = status;
 		if (status.equals(ProductStatus.STOPPED) || status.equals(ProductStatus.DISCONTINUED)
 			|| status.equals(ProductStatus.OUT_OF_STOCK))
 			this.isHide = true;
-		this.update(updatedBy);
+		else if (status.equals(ProductStatus.ON_SALE))
+			this.isHide = false;
 	}
 
-	public void updateStock(Integer stock, UUID updatedBy) {
+	public void updateStock(Integer stock) {
 		this.stockInfo.setStock(stock);
 		if (stock == 0)
-			updateStatus(ProductStatus.OUT_OF_STOCK, updatedBy);
+			updateStatus(ProductStatus.OUT_OF_STOCK);
+		else if (stock > 0)
+			updateStatus(ProductStatus.ON_SALE);
 		this.stockInfo.setStock(stock);
-		this.update(updatedBy);
 	}
 
 	public void decreaseStock(Integer quantity) {
 		this.stockInfo.decrease(quantity);
 		if (this.stockInfo.getStock() == 0)
-			this.isHide = true;
+			updateStatus(ProductStatus.OUT_OF_STOCK);
+	}
+
+	public void restoreStock(Integer quantity) {
+		this.stockInfo.restore(quantity);
 	}
 
 	public void delete(UUID deletedBy) {
@@ -100,15 +111,16 @@ public class Product extends BaseEntity {
 		return this.stockInfo.getStock();
 	}
 
-	public UUID getCompanyId () {
+	public UUID getCompanyId() {
 		return this.vendorInfo.getCompanyId();
 	}
 
-	public String getCompanyName () {
+	public String getCompanyName() {
 		return this.vendorInfo.getCompanyName();
 	}
 
-	public UUID getHubId () {
+	public UUID getHubId() {
 		return this.vendorInfo.getHubId();
 	}
+
 }

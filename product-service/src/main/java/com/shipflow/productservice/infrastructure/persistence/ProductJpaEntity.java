@@ -36,7 +36,7 @@ public class ProductJpaEntity extends BaseEntity {
 	@Column(nullable = false)
 	private Integer stock;
 
-	@Enumerated(value= EnumType.STRING)
+	@Enumerated(value = EnumType.STRING)
 	@Column(nullable = false)
 	private ProductStatus status;
 
@@ -71,7 +71,7 @@ public class ProductJpaEntity extends BaseEntity {
 	}
 
 	public Product toDomain() {
-		return Product.reconstruct(id,name, price, stock,
+		return Product.reconstruct(id, name, price, stock,
 			status, companyId, companyName, hubId, isHide,
 			createdBy, createdAt, updatedAt, updatedBy, deletedAt, deletedBy);
 	}
