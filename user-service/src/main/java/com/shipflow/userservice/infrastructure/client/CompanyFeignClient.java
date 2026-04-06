@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "company-service")
 public interface CompanyFeignClient {
-	@DeleteMapping("/internal/companies/{userId}")
+	@DeleteMapping("/internal/companies/user/{userId}")
 	ClientApiResponse<Void> deleteManager(@PathVariable UUID userId);
 }

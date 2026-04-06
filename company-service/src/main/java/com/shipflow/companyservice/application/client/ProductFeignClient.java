@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "product-service")
 public interface ProductFeignClient {
 	@DeleteMapping("/internal/companies/{companyId}/products/deactivate")
-	Void deleteProductByCompanyId(@PathVariable("companyId") UUID companyId);
+	Void deleteProductsByCompanyId(@PathVariable("companyId") UUID companyId);
 
 	@DeleteMapping("/internal/companies/products/deactivate/bulk")
-	Void deleteProductsByCompanyIds(@RequestBody List<UUID> companyIds);
+	Void deleteProductsByCompanyIdList(@RequestBody List<UUID> companyIds);
 }

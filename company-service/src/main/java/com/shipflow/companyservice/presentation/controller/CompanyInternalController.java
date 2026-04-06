@@ -29,4 +29,9 @@ public class CompanyInternalController {
 	public void deleteByHub(@PathVariable("hubId") UUID hubId) {
 		companyService.deleteProductsByHub(hubId);
 	}
+
+	@DeleteMapping("/user/{userId}")
+	public void deleteByUser(@PathVariable("userId") UUID userId) {
+		companyService.deleteProductByUser(userId);
+	}
 }

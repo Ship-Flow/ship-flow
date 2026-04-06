@@ -61,7 +61,7 @@ public class CompanyService {
 		Company company = findCompanyById(companyId);
 		company.delete(deleterId);
 		companyRepository.save(company);
-		productFeignClient.deleteProductByCompanyId(companyId);
+		productFeignClient.deleteProductsByCompanyId(companyId);
 	}
 
 	@Transactional
@@ -143,7 +143,15 @@ public class CompanyService {
 			company.delete(UserContext.getUserId());
 			companyRepository.save(company);
 		});
-		productFeignClient.deleteProductsByCompanyIds(companyIds);
+		productFeignClient.deleteProductsByCompanyIdList(companyIds);
+	}
+
+	@Transactional
+	public void deleteProductByUser(UUID userId) {
+		Company company = findCompanyByManagerId(userId);
+		company.delete(UserContext.getUserId());
+		companyRepository.save(company);
+		productFeignClient.deleteProductsByCompanyId(company.getId());
 	}
 
 
