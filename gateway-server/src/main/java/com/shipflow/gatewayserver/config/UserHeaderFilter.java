@@ -13,6 +13,9 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 
+import com.shipflow.common.exception.BusinessException;
+import com.shipflow.gatewayserver.exception.GateErrorCode;
+
 @Component
 public class UserHeaderFilter implements GlobalFilter {
 
@@ -50,14 +53,13 @@ public class UserHeaderFilter implements GlobalFilter {
     private String extractRole(Jwt jwt) { //role 추출
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
         if (realmAccess == null) {
-            throw new IllegalArgumentException("realm_access claim is missing");
+            throw new BusinessException(GateErrorCode.MISSING_REALM_ACCESS);
         }
 
         Object rolesObj = realmAccess.get("roles");
         if (!(rolesObj instanceof List<?> roles) || roles.isEmpty()) {
-            throw new IllegalArgumentException("roles claim is missing or empty");
+            throw new BusinessException(GateErrorCode.MISSING_ROLES);
         }
-
         return roles.get(0).toString();
     }
 }
