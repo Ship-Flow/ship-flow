@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:shipflow}?currentSchema={schema}
     username: ${DB_USER:shipflow}
-    password: ${DB_PASSWORD:your_password}
+    password: ${DB_PASSWORD:1234}
 
   jpa:
     hibernate:
@@ -16,14 +16,11 @@ spring:
         default_schema: users
     show-sql: true
 
-keycloak:
-  server-url: http://localhost:9001
-  realm: master
-  user-realm: shipflow
-  admin-client-id: admin-cli
-  admin-username: admin
-  admin-password: admin1234
-  login-client-id: shipflow-api
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9001/realms/shipflow
 
   cloud:
     openfeign:
@@ -33,8 +30,21 @@ keycloak:
             connectTimeout: 5000
             readTimeout: 5000
 
-security:
-  oauth2:
-    resourceserver:
-      jwt:
-        issuer-uri: http://localhost:9001/realms/shipflow
+keycloak:
+  server-url: http://localhost:9001
+  realm: master
+  user-realm: shipflow
+  admin-client-id: admin-cli
+  admin-username: ${KEYCLOAK_ADMIN}
+  admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
+  login-client-id: shipflow-api
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
