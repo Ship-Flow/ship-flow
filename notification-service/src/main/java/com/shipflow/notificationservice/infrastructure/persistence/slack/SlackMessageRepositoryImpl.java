@@ -53,6 +53,7 @@ public class SlackMessageRepositoryImpl implements SlackMessageRepository {
 		List<SlackMessage> content = queryFactory
 			.selectFrom(slackMessage)
 			.where(builder)
+			.orderBy(slackMessage.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();

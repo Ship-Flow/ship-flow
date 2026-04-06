@@ -43,12 +43,15 @@ public class JPAConfig {
 			try {
 				ServletRequestAttributes attrs =
 					(ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-				// RabbitMQ 컨슈머 스레드 등 요청 컨텍스트가 없는 경우 → 시스템 UUID
+
+				// 요청 컨텍스트 없는 경우만 SYSTEM_UUID (RabbitMQ 등)
 				if (attrs == null)
 					return Optional.of(SYSTEM_UUID);
+
 				String userId = attrs.getRequest().getHeader("X-User-Id");
 				if (userId == null || userId.isBlank())
-					return Optional.of(SYSTEM_UUID);
+					throw new IllegalStateException("X-User-Id 헤더가 없습니다.");
+
 				return Optional.of(UUID.fromString(userId));
 			} catch (Exception e) {
 				return Optional.of(SYSTEM_UUID);
