@@ -1,0 +1,62 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      routes:
+        - id: user-auth
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/auth/**
+
+        - id: user
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+
+        - id: company
+          uri: lb://COMPANY-SERVICE
+          predicates:
+            - Path=/api/companies/**
+
+        - id: product
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/company/**
+
+        - id: order
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+
+        - id: shipment
+          uri: lb://SHIPMENT-SERVICE
+          predicates:
+            - Path=/api/shipments/**
+
+        - id: notification
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/api/hubs/**
+            - Path=/api/slack/**
+
+        - id: hub
+          uri: lb://HUB-SERVICE
+          predicates:
+            - Path=/api/hubs/**
+            - Path=/api/hub-routes/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/shipflow
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
