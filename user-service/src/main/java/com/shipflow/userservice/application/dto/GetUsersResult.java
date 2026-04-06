@@ -22,7 +22,7 @@ public class GetUsersResult {
 
 	public GetUsersResult(User user) {
 		this.userId = user.getId();
-		this.userName = user.getName();
+		this.userName = user.getUsername();
 		this.name = user.getName();
 		this.slackId = user.getSlackId();
 		this.role = user.getRole();
