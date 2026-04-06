@@ -5,5 +5,6 @@ import java.util.UUID;
 public record ReceiverCompanyInfo(
         UUID companyId,
         String companyName,
-        UUID hubId
+        UUID hubId,
+        String address
 ) {}

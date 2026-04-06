@@ -56,7 +56,7 @@ class OrderCommandServiceTest {
                 OrderFixture.SUPPLIER_ID, "공급사명",
                 OrderFixture.RECEIVER_ID, "수신사명",
                 OrderFixture.DEP_HUB_ID, OrderFixture.ARR_HUB_ID,
-                10, OrderFixture.DEADLINE, "테스트 메모"
+                10, OrderFixture.DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1"
         );
         when(orderFetchService.fetchAndBuild(any(), any(), anyInt(), any(), any())).thenReturn(cmd);
         when(orderRepository.save(any(Order.class))).thenReturn(order);

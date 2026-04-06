@@ -31,7 +31,7 @@ public class OrderFixture {
                 orderId, USER_ID, PRODUCT_ID, null,
                 SUPPLIER_ID, RECEIVER_ID, DEP_HUB_ID, ARR_HUB_ID,
                 10, OrderStatus.CREATING, null,
-                DEADLINE, "테스트 메모",
+                DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1",
                 USER_ID, LocalDateTime.of(2026, 4, 1, 9, 0),
                 null, null
         );
@@ -45,7 +45,7 @@ public class OrderFixture {
                 new HubInfo(DEP_HUB_ID, ARR_HUB_ID),
                 new Quantity(10),
                 OrderStatus.CREATING, null,
-                DEADLINE, "테스트 메모",
+                DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1",
                 USER_ID, LocalDateTime.of(2026, 4, 1, 9, 0),
                 null, null, null, null
         );
@@ -77,7 +77,7 @@ public class OrderFixture {
                 new HubInfo(DEP_HUB_ID, ARR_HUB_ID),
                 new Quantity(10),
                 OrderStatus.CREATED, null,
-                DEADLINE, "테스트 메모",
+                DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1",
                 USER_ID, LocalDateTime.of(2026, 4, 1, 9, 0),
                 null, null, null, null
         );

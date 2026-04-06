@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS orders.p_orders (
     cancel_reason   VARCHAR,
     request_deadline TIMESTAMP(6),
     request_note    VARCHAR,
+    delivery_address VARCHAR,
     created_by      UUID,
     created_at      TIMESTAMP(6),
     updated_by      UUID,

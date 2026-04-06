@@ -46,6 +46,7 @@ public class OrderCommandService {
                 new Quantity(cmd.quantity()),
                 cmd.requestDeadline(),
                 cmd.requestNote(),
+                cmd.deliveryAddress(),
                 ordererId
         );
         Order saved = orderRepository.save(order);
@@ -87,7 +88,8 @@ public class OrderCommandService {
                         saved.getHubInfo().getDepartureHubId(),
                         saved.getHubInfo().getArrivalHubId(),
                         saved.getRequestDeadline(),
-                        saved.getRequestNote()
+                        saved.getRequestNote(),
+                        saved.getDeliveryAddress()
                 )
         );
     }

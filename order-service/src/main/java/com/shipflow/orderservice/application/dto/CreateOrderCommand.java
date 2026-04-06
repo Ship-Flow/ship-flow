@@ -16,6 +16,7 @@ public record CreateOrderCommand(
         UUID arrivalHubId,
         int quantity,
         LocalDateTime requestDeadline,
-        String requestNote
+        String requestNote,
+        String deliveryAddress
 ) {
 }

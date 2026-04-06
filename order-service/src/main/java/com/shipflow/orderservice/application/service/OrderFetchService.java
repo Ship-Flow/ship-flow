@@ -51,7 +51,8 @@ public class OrderFetchService {
                 company.hubId(),
                 quantity,
                 deadline,
-                note
+                note,
+                company.address()
         );
     }
 }

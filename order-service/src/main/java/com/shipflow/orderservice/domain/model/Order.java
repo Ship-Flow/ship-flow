@@ -23,6 +23,7 @@ public class Order { // 도메인 모델
     private String cancelReason;
     private LocalDateTime requestDeadline;
     private String requestNote;
+    private String deliveryAddress;
     private UUID createdBy;
     private LocalDateTime createdAt;
     private UUID updatedBy;
@@ -41,6 +42,7 @@ public class Order { // 도메인 모델
             Quantity quantity,
             LocalDateTime requestDeadline,
             String requestNote,
+            String deliveryAddress,
             UUID createdBy
     ) {
         Order order = new Order();
@@ -52,6 +54,7 @@ public class Order { // 도메인 모델
         order.quantity = quantity;
         order.requestDeadline = requestDeadline;
         order.requestNote = requestNote;
+        order.deliveryAddress = deliveryAddress;
         order.createdBy = createdBy;
         order.status = OrderStatus.CREATING;
         order.createdAt = LocalDateTime.now();
@@ -111,7 +114,7 @@ public class Order { // 도메인 모델
             UUID id, UUID ordererId, UUID productId, UUID shipmentId,
             CompanyInfo companyInfo, HubInfo hubInfo, Quantity quantity,
             OrderStatus status, String cancelReason,
-            LocalDateTime requestDeadline, String requestNote,
+            LocalDateTime requestDeadline, String requestNote, String deliveryAddress,
             UUID createdBy, LocalDateTime createdAt,
             UUID updatedBy, LocalDateTime updatedAt,
             UUID deletedBy, LocalDateTime deletedAt
@@ -128,6 +131,7 @@ public class Order { // 도메인 모델
         order.cancelReason = cancelReason;
         order.requestDeadline = requestDeadline;
         order.requestNote = requestNote;
+        order.deliveryAddress = deliveryAddress;
         order.createdBy = createdBy;
         order.createdAt = createdAt;
         order.updatedBy = updatedBy;
