@@ -1,0 +1,59 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway-server
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user
+              uri: lb://USERSERVICE
+              predicates:
+                - Path=/api/users/**, /api/auth/**
+
+            - id: product
+              uri: lb://PRODUCTSERVICE
+              predicates:
+                - Path=/api/companies/*/products/**
+
+            - id: company
+              uri: lb://COMPANYSERVICE
+              predicates:
+                - Path=/api/companies/**
+
+            - id: order
+              uri: lb://ORDERSERVICE
+              predicates:
+                - Path=/api/orders/**
+
+            - id: shipment
+              uri: lb://SHIPMENTSERVICE
+              predicates:
+                - Path=/api/shipments/**, /api/shipment-managers/**
+
+            - id: notification
+              uri: lb://NOTIFICATIONSERVICE
+              predicates:
+                - Path=/api/ai/**, /api/slack/**
+
+            - id: hub
+              uri: lb://HUBSERVICE
+              predicates:
+                - Path=/api/hubs/**, /api/hub-routes/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9001/realms/shipflow
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

@@ -15,10 +15,10 @@ import com.shipflow.userservice.domain.model.UserStatus;
 public interface UserRepository extends JpaRepository<User, UUID> {
 	boolean existsBySlackId(String slackId);
 	boolean existsByUsername(String username);
+	Optional<User> findByIdAndDeletedAtIsNull(UUID userId);
+	Optional<User> findByUsername(String username);
 
 	Page<User> findAllByStatus(UserStatus userStatus, Pageable pageable);
-
-	Optional<User> findByUsername(String username);
 
 	@Query("""
     SELECT u FROM User u

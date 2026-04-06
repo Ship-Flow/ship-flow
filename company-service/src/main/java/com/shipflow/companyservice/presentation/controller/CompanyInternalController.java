@@ -1,8 +1,8 @@
-package com.shipflow.companyservice.presentation;
+package com.shipflow.companyservice.presentation.controller;
 
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +21,12 @@ public class CompanyInternalController {
 	private final CompanyService companyService;
 
 	@GetMapping("/{companyId}")
-	public ResponseEntity<VendorInfoResponse> getVendorById(@PathVariable("companyId") UUID companyId) {
-		VendorInfoResponse response = companyService.getVendorInfo(companyId);
-		return ResponseEntity.ok().body(response);
+	public VendorInfoResponse getVendorById(@PathVariable("companyId") UUID companyId) {
+		return companyService.getVendorInfo(companyId);
+	}
+
+	@DeleteMapping("/{hubId}")
+	public void deleteByHub(@PathVariable("hubId") UUID hubId) {
+		companyService.deleteProductsByHub(hubId);
 	}
 }

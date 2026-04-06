@@ -1,6 +1,7 @@
 package com.shipflow.companyservice.application.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.shipflow.companyservice.application.dto.response.VendorInfoResponse;
 import com.shipflow.companyservice.domain.model.Company;
@@ -18,6 +19,9 @@ public interface CompanyMapper {
 
 	CompanyUpdateResponse toUpdateResponse(Company company);
 
+	@Mapping(target = "receiverCompanyId", source = "id")
+	@Mapping(target = "receiverCompanyName", source = "name")
+	@Mapping(target = "departureCompanyHubId", source = "hubId")
 	VendorInfoResponse toVendorInfoResponse(Company company);
 
 	CompanyInfoForCompanyResponse toCompanyInfoForCompany(Company company);
