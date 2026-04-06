@@ -33,8 +33,8 @@ public class OrderController {
             @Valid @RequestBody CreateOrderRequest request,
             HttpServletRequest httpRequest
     ) {
-        UUID requesterId = userContext.getUserId(httpRequest);
-        OrderResult result = orderCommandService.createOrder(request.toCommand(), requesterId);
+        UUID ordererId = userContext.getUserId(httpRequest);
+        OrderResult result = orderCommandService.createOrder(request, ordererId);
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponse.from(result));
     }
 
