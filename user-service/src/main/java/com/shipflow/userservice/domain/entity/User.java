@@ -62,6 +62,12 @@ public class User extends BaseEntity {
 		this.createdBy = id;
 	}
 
+	public User(UUID id, String username, String name, String slackId, UUID hubId, UUID companyId) {
+		this(id, username, name, slackId);
+		this.hubId = hubId;
+		this.companyId = companyId;
+	}
+
 	public void approve(UserRole role){ //승인
 		if (this.status != UserStatus.PENDING) {
 			throw new BusinessException(UserErrorCode.INVALID_USER_STATUS);
