@@ -22,7 +22,7 @@ public class UserContextInterceptor implements HandlerInterceptor {
 		if (userId == null || userId.isBlank()) {
 			log.warn("인증 헤더가 누락되었습니다. Path: {}", request.getRequestURI());
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing X-User-Id");
-			return false; // 여기서 멈춤
+			return false;
 		}
 
 		try {
