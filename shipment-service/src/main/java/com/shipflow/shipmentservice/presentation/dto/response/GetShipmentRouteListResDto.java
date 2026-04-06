@@ -1,9 +1,9 @@
-package com.shipflow.shipmentservice.presentation.dto;
+package com.shipflow.shipmentservice.presentation.dto.response;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import com.shipflow.shipmentservice.application.dto.ShipmentRouteResult;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteResult;
 
 import lombok.Builder;
 import lombok.Getter;
