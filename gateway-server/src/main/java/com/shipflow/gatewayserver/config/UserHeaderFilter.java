@@ -24,31 +24,45 @@ public class UserHeaderFilter implements GlobalFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return exchange.getPrincipal()
-            .ofType(Authentication.class)
-                .flatMap(auth -> {
-                    if (auth instanceof JwtAuthenticationToken jwtAuth) {
-                        Jwt jwt = jwtAuth.getToken();
 
-                        String userId = jwt.getSubject();
-                        String role = extractRole(jwt);
-
-                        ServerHttpRequest mutated = exchange.getRequest().mutate()
-                                .headers(headers -> {
-                                    headers.remove(USER_ID_HEADER); //유입된 위조 가능성 헤더 제거
-                                    headers.remove(USER_ROLE_HEADER);
-                                    headers.add(USER_ID_HEADER, userId);
-                                    headers.add(USER_ROLE_HEADER, role);
-                                })
-                                .build();
-
-                        return chain.filter(exchange.mutate().request(mutated).build());
-                    }
-
-                    return chain.filter(exchange);
+        // 모든 요청에서 먼저 헤더 제거 (핵심!)
+        ServerWebExchange sanitizedExchange = exchange.mutate()
+            .request(exchange.getRequest().mutate()
+                .headers(headers -> {
+                    headers.remove(USER_ID_HEADER);
+                    headers.remove(USER_ROLE_HEADER);
                 })
-                .switchIfEmpty(chain.filter(exchange));
+                .build())
+            .build();
+
+        return sanitizedExchange.getPrincipal()
+            .ofType(Authentication.class)
+            .flatMap(auth -> {
+
+                if (auth instanceof JwtAuthenticationToken jwtAuth) {
+                    Jwt jwt = jwtAuth.getToken();
+
+                    String userId = jwt.getClaimAsString("userId");
+                    String role = jwt.getClaimAsString("role");
+
+                    // JWT 검증된 값으로만 재주입
+                    ServerHttpRequest mutated = sanitizedExchange.getRequest().mutate()
+                        .headers(headers -> {
+                            headers.add(USER_ID_HEADER, userId);
+                            headers.add(USER_ROLE_HEADER, role);
+                        })
+                        .build();
+
+                    return chain.filter(
+                        sanitizedExchange.mutate().request(mutated).build()
+                    );
+                }
+
+                return chain.filter(sanitizedExchange);
+            })
+            .switchIfEmpty(chain.filter(sanitizedExchange));
     }
+
 
     private String extractRole(Jwt jwt) { //role 추출
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
