@@ -79,6 +79,7 @@ public class OrderCommandService {
         rabbitPublisher.publish(
                 new OrderCreatedEvent(
                         saved.getId(),
+                        saved.getOrdererId(),
                         saved.getCompanyInfo().getSupplierCompanyId(),
                         saved.getCompanyInfo().getReceiverCompanyId(),
                         saved.getProductId(),

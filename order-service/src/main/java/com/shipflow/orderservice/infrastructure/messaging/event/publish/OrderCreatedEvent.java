@@ -14,6 +14,7 @@ public class OrderCreatedEvent extends SagaEvent {
     private static final String EVENT_TYPE = "order.created";
 
     private UUID orderId;
+    private UUID ordererId;
     private UUID supplierCompanyId;
     private UUID receiverCompanyId;
     private UUID productId;
@@ -23,12 +24,13 @@ public class OrderCreatedEvent extends SagaEvent {
     private LocalDateTime requestDeadline;
     private String requestNote;
 
-    public OrderCreatedEvent(UUID orderId, UUID supplierCompanyId, UUID receiverCompanyId,
+    public OrderCreatedEvent(UUID orderId, UUID ordererId, UUID supplierCompanyId, UUID receiverCompanyId,
                              UUID productId, int quantity,
                              UUID departureHubId, UUID arrivalHubId,
                              LocalDateTime requestDeadline, String requestNote) {
         super(EVENT_TYPE);
         this.orderId = orderId;
+        this.ordererId = ordererId;
         this.supplierCompanyId = supplierCompanyId;
         this.receiverCompanyId = receiverCompanyId;
         this.productId = productId;
