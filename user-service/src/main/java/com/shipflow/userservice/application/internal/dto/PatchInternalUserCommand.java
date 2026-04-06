@@ -10,4 +10,6 @@ import lombok.Getter;
 public class PatchInternalUserCommand {
 	private UUID hubId;
 	private UUID companyId;
+	private boolean hubIdUpdated;
+	private boolean companyIdUpdated;
 }

@@ -24,7 +24,7 @@ public class UserInternalService {
 	public GetInternalUserResult getUser(UUID userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
-		if (!user.isDeleted()){
+		if (user.isDeleted()){
 			throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
 		}
 
@@ -36,10 +36,10 @@ public class UserInternalService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
 
-		if(command.getHubId() != null) {
+		if (command.isHubIdUpdated()) {
 			user.changeHubId(command.getHubId());
 		}
-		if(command.getCompanyId() != null) {
+		if (command.isCompanyIdUpdated()) {
 			user.changeCompanyId(command.getCompanyId());
 		}
 

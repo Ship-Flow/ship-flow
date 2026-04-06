@@ -38,10 +38,16 @@ public class UserInternalController {
 
 	@PatchMapping("/{userId}")
 	public ResponseEntity<ApiResponse<PatchInternalUserResDto>> updateUser(
-		@PathVariable UUID userId, @RequestBody
-		PatchInternalUserReqDto request
+		@PathVariable UUID userId,
+		@RequestBody PatchInternalUserReqDto request
 	) {
-		PatchInternalUserCommand command = new PatchInternalUserCommand(request.getHubId(), request.getCompanyId());
+		PatchInternalUserCommand command = new PatchInternalUserCommand(
+			request.getHubId(),
+			request.getCompanyId(),
+			request.isHubIdUpdated(),
+			request.isCompanyIdUpdated()
+		);
+
 		PatchInternalUserResult result = userInternalService.updateUser(userId, command);
 		PatchInternalUserResDto response = new PatchInternalUserResDto(result);
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));

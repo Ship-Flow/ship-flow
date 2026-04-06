@@ -73,10 +73,12 @@ public class UserInternalServiceTest {
 		// given
 		UUID userId = UUID.randomUUID();
 		UUID hubId = UUID.randomUUID();
+		boolean hubIdUpdated = true;
+		boolean companyIdUpdated = false;
 		User user = new User(userId, "tester", "테스터", "slack-1");
 
 		PatchInternalUserCommand command =
-			new PatchInternalUserCommand(hubId, null, LocalDateTime.now().toString());
+			new PatchInternalUserCommand(hubId, null, hubIdUpdated, companyIdUpdated);
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
@@ -95,10 +97,12 @@ public class UserInternalServiceTest {
 		// given
 		UUID userId = UUID.randomUUID();
 		UUID companyId = UUID.randomUUID();
+		boolean hubIdUpdated = false;
+		boolean companyIdUpdated = true;
 		User user = new User(userId, "tester", "테스터", "slack-1");
 
 		PatchInternalUserCommand command =
-			new PatchInternalUserCommand(null, companyId, LocalDateTime.now().toString());
+			new PatchInternalUserCommand(null, companyId, hubIdUpdated, companyIdUpdated);
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
@@ -118,10 +122,12 @@ public class UserInternalServiceTest {
 		UUID userId = UUID.randomUUID();
 		UUID hubId = UUID.randomUUID();
 		UUID companyId = UUID.randomUUID();
+		boolean hubIdUpdated = true;
+		boolean companyIdUpdated = true;
 		User user = new User(userId, "tester", "테스터", "slack-1");
 
 		PatchInternalUserCommand command =
-			new PatchInternalUserCommand(hubId, companyId, LocalDateTime.now().toString());
+			new PatchInternalUserCommand(hubId, companyId, hubIdUpdated, companyIdUpdated);
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
@@ -134,13 +140,41 @@ public class UserInternalServiceTest {
 		assertThat(result.getCompanyId()).isEqualTo(companyId);
 	}
 
+	@DisplayName("내부 유저 수정 성공 - hubId를 null로 변경할 수 있다")
+	@Test
+	void updateUser_success_clear_hubId() {
+		// given
+		UUID userId = UUID.randomUUID();
+		UUID originalHubId = UUID.randomUUID();
+		boolean hubIdUpdated = true;
+		boolean companyIdUpdated = false;
+
+		User user = new User(userId, "tester", "테스터", "slack-1");
+		user.changeHubId(originalHubId);
+
+		PatchInternalUserCommand command =
+			new PatchInternalUserCommand(null, null, hubIdUpdated, companyIdUpdated);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+		// when
+		PatchInternalUserResult result = userInternalService.updateUser(userId, command);
+
+		// then
+		assertThat(result.getUserId()).isEqualTo(userId);
+		assertThat(result.getHubId()).isNull();
+	}
+
 	@DisplayName("내부 유저 수정 실패 - 유저가 없으면 USER_NOT_FOUND 예외가 발생한다")
 	@Test
 	void updateUser_fail_user_not_found() {
 		// given
 		UUID userId = UUID.randomUUID();
+		boolean hubIdUpdated = false;
+		boolean companyIdUpdated = false;
+
 		PatchInternalUserCommand command =
-			new PatchInternalUserCommand(UUID.randomUUID(), null, LocalDateTime.now().toString());
+			new PatchInternalUserCommand(UUID.randomUUID(), null, hubIdUpdated, companyIdUpdated);
 
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
