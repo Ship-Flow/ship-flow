@@ -48,12 +48,17 @@ public class ProductService {
 	@Transactional
 	public ProductCreateResponse create(UUID companyId, ProductCreateRequest request) {
 		validateAuth(companyId);
+
 		UUID createrId = UserContext.getUserId();
 		VendorInfoResponse response = vendorClient.getVendorInfo(companyId);
+
 		Product product = Product.create(
 			request.name(), request.price(), request.stock(),
 			request.status(), companyId, response.name(), response.hubId(), createrId);
+
 		Product savedProduct = productRepository.save(product);
+		redisTemplate.opsForValue().set("product:stock:" + savedProduct.getId(), savedProduct.getStock());
+
 		return mapper.toCreateResponse(savedProduct);
 	}
 
@@ -119,6 +124,11 @@ public class ProductService {
 			delete(product.getId(), companyId);
 			redisTemplate.delete("product:stock:" + product.getId());
 		});
+	}
+
+	@Transactional
+	public void deleteByHub(List<UUID> companyIds) {
+		companyIds.forEach(this::deleteByCompany);
 	}
 
 	//event
