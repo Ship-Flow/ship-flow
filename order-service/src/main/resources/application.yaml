@@ -1,6 +1,6 @@
 spring:
   application:
-    name: orderservice
+    name: order-service
 
   # 데이터베이스 설정
   datasource:
@@ -50,7 +50,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://discoveryserver:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
     registry-fetch-interval-seconds: 5
   instance:
     prefer-ip-address: true

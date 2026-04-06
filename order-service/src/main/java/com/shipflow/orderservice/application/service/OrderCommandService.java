@@ -85,7 +85,8 @@ public class OrderCommandService {
                         saved.getQuantity().getValue(),
                         saved.getHubInfo().getDepartureHubId(),
                         saved.getHubInfo().getArrivalHubId(),
-                        saved.getRequestDeadline()
+                        saved.getRequestDeadline(),
+                        saved.getRequestNote()
                 )
         );
     }
