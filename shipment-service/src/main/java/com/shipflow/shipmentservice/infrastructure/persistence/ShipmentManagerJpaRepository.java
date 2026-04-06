@@ -1,5 +1,6 @@
 package com.shipflow.shipmentservice.infrastructure.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,4 +34,21 @@ public interface ShipmentManagerJpaRepository extends JpaRepository<ShipmentMana
 	);
 
 	Optional<ShipmentManager> findByIdAndDeletedAtIsNull(UUID managerId);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.type = :type
+		and m.deletedAt is null
+		order by m.shipmentSequence asc
+		limit 1
+		""")
+	Optional<ShipmentManager> findFirstAvailableByType(@Param("type") ShipmentManagerType type);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.type = :type
+		and m.deletedAt is null
+		order by m.shipmentSequence asc
+		""")
+	List<ShipmentManager> findAllByType(@Param("type") ShipmentManagerType type);
 }

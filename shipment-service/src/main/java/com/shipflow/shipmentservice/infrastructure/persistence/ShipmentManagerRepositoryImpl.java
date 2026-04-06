@@ -45,4 +45,14 @@ public class ShipmentManagerRepositoryImpl implements ShipmentManagerRepository 
 	public int findMaxSequenceByTypeAndHubId(ShipmentManagerType type, UUID hubId) {
 		return shipmentManagerJpaRepository.findMaxSequenceByTypeAndHubId(type, hubId);
 	}
+
+	@Override
+	public Optional<ShipmentManager> findFirstAvailableByType(ShipmentManagerType type) {
+		return shipmentManagerJpaRepository.findFirstAvailableByType(type);
+	}
+
+	@Override
+	public List<ShipmentManager> findAllByType(ShipmentManagerType type) {
+		return shipmentManagerJpaRepository.findAllByType(type);
+	}
 }

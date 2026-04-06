@@ -21,4 +21,8 @@ public interface ShipmentManagerRepository {
 	int findMaxSequenceByTypeAndHubId(ShipmentManagerType type, UUID hubId);
 
 	Optional<ShipmentManager> findById(UUID managerId);
+
+	Optional<ShipmentManager> findFirstAvailableByType(ShipmentManagerType type);
+
+	List<ShipmentManager> findAllByType(ShipmentManagerType type);
 }
