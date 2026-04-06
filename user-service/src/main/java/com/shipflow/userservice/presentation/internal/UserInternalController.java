@@ -41,7 +41,7 @@ public class UserInternalController {
 		@PathVariable UUID userId, @RequestBody
 		PatchInternalUserReqDto request
 	) {
-		PatchInternalUserCommand command = new PatchInternalUserCommand(request.getHubId(), request.getCompanyId(), request.getUpdatedAt());
+		PatchInternalUserCommand command = new PatchInternalUserCommand(request.getHubId(), request.getCompanyId());
 		PatchInternalUserResult result = userInternalService.updateUser(userId, command);
 		PatchInternalUserResDto response = new PatchInternalUserResDto(result);
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok(response));
