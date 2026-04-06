@@ -26,7 +26,7 @@ spring:
         - id: product
           uri: lb://PRODUCT-SERVICE
           predicates:
-            - Path=/api/company/**
+            - Path=/api/companies*/products/**
 
         - id: order
           uri: lb://ORDER-SERVICE
@@ -41,7 +41,7 @@ spring:
         - id: notification
           uri: lb://NOTIFICATION-SERVICE
           predicates:
-            - Path=/api/hubs/**
+            - Path=/api/ai/**
             - Path=/api/slack/**
 
         - id: hub
