@@ -27,7 +27,10 @@ public class UserClientAdapter {
     public UserInfo fetch(UUID userId) {
         try {
             return userFeignClient.getUserInfo("true", userId);
-        } catch (feign.FeignException.NotFound e) {
+        }catch (RetryableException e) {
+            throw e;
+        }
+        catch (feign.FeignException.NotFound e) {
             throw new UserNotFoundException();
         } catch (feign.FeignException e) {
             throw new ExternalServiceException(e);

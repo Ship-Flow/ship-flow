@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,18 @@ public class OrderFetchService {
         CompletableFuture<UserInfo> userFuture = CompletableFuture.supplyAsync(
                 () -> userAdapter.fetch(ordererId));
 
-        CompletableFuture.allOf(productFuture, userFuture).join();
+        try {
+            CompletableFuture.allOf(productFuture, userFuture).join();
+        } catch (CompletionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException re) {
+                throw re;
+            }
+            if (cause instanceof Error err) {
+                throw err;
+            }
+            throw e;
+        }
 
         ProductInfo product = productFuture.join();
         UserInfo user = userFuture.join();

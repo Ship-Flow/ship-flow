@@ -27,6 +27,8 @@ public class CompanyClientAdapter {
     public ReceiverCompanyInfo fetch(UUID companyId) {
         try {
             return companyFeignClient.getCompanyInfo("true", companyId);
+        } catch (RetryableException e) {
+            throw e;
         } catch (feign.FeignException.NotFound e) {
             throw new CompanyNotFoundException();
         } catch (feign.FeignException e) {

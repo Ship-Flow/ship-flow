@@ -32,7 +32,10 @@ public class ProductClientAdapter {
                 throw new InsufficientStockException();
             }
             return info;
-        } catch (feign.FeignException.NotFound e) {
+        } catch (RetryableException e) {
+            throw e;
+        }
+        catch (feign.FeignException.NotFound e) {
             throw new ProductNotFoundException();
         } catch (feign.FeignException e) {
             throw new ExternalServiceException(e);
