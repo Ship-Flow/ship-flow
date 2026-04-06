@@ -19,8 +19,12 @@ import com.shipflow.userservice.domain.error.UserErrorCode;
 import com.shipflow.userservice.domain.model.UserRole;
 import com.shipflow.userservice.domain.model.UserStatus;
 import com.shipflow.userservice.domain.repository.UserRepository;
+import com.shipflow.userservice.infrastructure.client.ClientApiResponse;
+import com.shipflow.userservice.infrastructure.client.CompanyFeignClient;
 import com.shipflow.userservice.infrastructure.client.KeycloakUserService;
+import com.shipflow.userservice.infrastructure.client.ShipmentFeignClient;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +33,8 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final KeycloakUserService keycloakUserClient;
+	private final CompanyFeignClient companyFeignClient;
+	private final ShipmentFeignClient shipmentFeignClient;
 
 	public GetUsersResult getUsers(UserRole requestRole, UUID userId) { //userId 단건조회
 		validateUserServiceAccess(requestRole);
@@ -78,6 +84,33 @@ public class UserService {
 		validateUserServiceAccess(requestRole);
 		User user = getUser(userId);
 
+		UserRole userRole = user.getRole();
+		if(userRole.isCompanyManager()){
+			if(user.getCompanyId() != null) {
+				try {
+					ClientApiResponse<Void> response = companyFeignClient.deleteManager(user.getId());
+					if (response == null || !response.isSuccess()) {
+						throw new BusinessException(UserErrorCode.DELETE_REQUEST_FAILED);
+					}
+				} catch (FeignException e) {
+					throw new BusinessException(UserErrorCode.DELETE_REQUEST_FAILED);
+				}
+			}
+		} else if (userRole.isHubManager()) {
+			if(user.getHubId() != null){
+				throw new BusinessException(UserErrorCode.HUB_MANAGER_DELETE_FORBIDDEN);
+			}
+		} else if(userRole.isShipmentManager()) {
+			try {
+				ClientApiResponse<Void> response = shipmentFeignClient.patchManager(user.getId());
+				if (response == null || !response.isSuccess()) {
+					throw new BusinessException(UserErrorCode.DELETE_REQUEST_FAILED);
+				}
+			} catch (FeignException e) {
+				throw new BusinessException(UserErrorCode.DELETE_REQUEST_FAILED);
+			}
+		}
+
 		keycloakUserClient.disableUser(user.getId());
 		user.softDeleted(userId);
 	}
@@ -101,11 +134,7 @@ public class UserService {
 	}
 
 	private User getUser(UUID userId) {
-		User user = userRepository.findById(userId)
+		return userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
-		if (user.isDeleted()) {
-			throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
-		}
-		return user;
 	}
 }

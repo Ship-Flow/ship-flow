@@ -21,8 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.mock.web.MockHttpServletRequest;
 
+import com.shipflow.companyservice.application.client.ProductFeignClient;
 import com.shipflow.companyservice.application.client.UserFeignClient;
 import com.shipflow.companyservice.application.dto.response.UserInfoResponse;
 import com.shipflow.companyservice.application.mapper.CompanyMapper;
@@ -30,7 +30,7 @@ import com.shipflow.companyservice.domain.model.Company;
 import com.shipflow.companyservice.domain.model.CompanyType;
 import com.shipflow.companyservice.domain.repository.CompanyRepository;
 import com.shipflow.companyservice.fixture.CompanyFixture;
-import com.shipflow.companyservice.infrastructure.web.UserContext;
+import com.shipflow.companyservice.infrastructure.context.UserContext;
 import com.shipflow.companyservice.presentation.dto.request.CompanyCreateRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByAdminRequest;
 import com.shipflow.companyservice.presentation.dto.request.CompanyUpdateByCompanyRequest;
@@ -47,6 +47,8 @@ class CompanyServiceTest {
 	private CompanyMapper mapper = Mappers.getMapper(CompanyMapper.class);
 	@Mock
 	private UserFeignClient userFeignClient;
+	@Mock
+	private ProductFeignClient productFeignClient;
 	@InjectMocks
 	private CompanyService companyService;
 
@@ -67,7 +69,7 @@ class CompanyServiceTest {
 		CompanyCreateRequest request = new CompanyCreateRequest(company.getName(), company.getType(),
 			company.getHubId(), company.getAddress(), createrId);
 		UserInfoResponse userInfo = new UserInfoResponse(request.managerId(), "testManagerName");
-		given(userFeignClient.getUserNameById(request.managerId())).willReturn(userInfo);
+		given(userFeignClient.getUserInfoById(request.managerId())).willReturn(userInfo);
 
 		//when
 		companyService.createCompany(request);
@@ -85,6 +87,7 @@ class CompanyServiceTest {
 	@Test
 	void deleteCompany_success() {
 		//given
+		setHttpHeaders(UUID.randomUUID().toString(), "Master");
 		UUID companyId = UUID.randomUUID();
 		Company company = CompanyFixture.create();
 		given(companyRepository.findById(companyId)).willReturn(Optional.of(company));
@@ -120,11 +123,12 @@ class CompanyServiceTest {
 	@Test
 	void updateByAdmin_success() {
 		//given
+		setHttpHeaders(UUID.randomUUID().toString(), "Master");
 		Company company = CompanyFixture.create();
 		CompanyUpdateByAdminRequest request = new CompanyUpdateByAdminRequest(
 			"testName", CompanyType.Receiver, UUID.randomUUID(), "testAddress", UUID.randomUUID());
 		UserInfoResponse userInfo = new UserInfoResponse(request.managerId(), "testManagerName");
-		given(userFeignClient.getUserNameById(request.managerId())).willReturn(userInfo);
+		given(userFeignClient.getUserInfoById(request.managerId())).willReturn(userInfo);
 		given(companyRepository.findById(any())).willReturn(Optional.of(company));
 
 		//when
@@ -184,7 +188,6 @@ class CompanyServiceTest {
 		Pageable pageable = Pageable.ofSize(10);
 		Slice<Company> slice = new SliceImpl<>(companies, pageable, false);
 		given(companyRepository.findAll(pageable)).willReturn(slice);
-		given(companyRepository.findById(company.getId())).willReturn(Optional.of(company));
 
 		//when
 		Slice<CompanyListResponse> response = companyService.getCompanies(pageable);
@@ -195,9 +198,7 @@ class CompanyServiceTest {
 	}
 
 	private void setHttpHeaders(String userId, String role) {
-		MockHttpServletRequest httpRequest = new MockHttpServletRequest();
-		httpRequest.addHeader("X-User-Id", userId);
-		httpRequest.addHeader("X-User-Role", role);
-		UserContext.setUserContext(httpRequest);
+		UserContext.setUserId(UUID.fromString(userId));
+		UserContext.setUserRole(role);
 	}
 }
