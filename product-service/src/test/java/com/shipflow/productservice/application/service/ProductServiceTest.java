@@ -45,7 +45,7 @@ class ProductServiceTest {
 	@Mock
 	private ProductRepository productRepository;
 	@Spy
-	private ProductMapper mapper = Mappers.getMapper(ProductMapper.class);
+	ProductMapper mapper = Mappers.getMapper(ProductMapper.class);
 	@Mock
 	private VendorFeignClient vendorClient;
 	@Mock
@@ -66,11 +66,12 @@ class ProductServiceTest {
 	@Test
 	void create() {
 		//given
-		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
-		Product product=ProductFixture.create();
-		ProductCreateRequest request=new ProductCreateRequest(product.getName(), product.getPrice(),
+		setHttpHeaders(UUID.randomUUID().toString());
+		Product product = ProductFixture.create();
+		ProductCreateRequest request = new ProductCreateRequest(product.getName(), product.getPrice(),
 			product.getStock(), product.getStatus());
-		VendorInfoResponse vendorInfo=new VendorInfoResponse(product.getCompanyId(), product.getCompanyName(), product.getHubId());
+		VendorInfoResponse vendorInfo = new VendorInfoResponse(product.getCompanyId(), product.getCompanyName(),
+			product.getHubId());
 		given(vendorClient.getVendorInfo(product.getCompanyId())).willReturn(vendorInfo);
 		given(productRepository.save(any(Product.class))).willAnswer(invocation -> invocation.getArgument(0));
 		given(redisTemplate.opsForValue()).willReturn(valueOperations);
@@ -81,7 +82,7 @@ class ProductServiceTest {
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct=productCaptor.getValue();
+		Product savedProduct = productCaptor.getValue();
 		assertThat(savedProduct.getName()).isEqualTo(product.getName());
 		assertThat(savedProduct.getPrice()).isEqualTo(product.getPrice());
 		assertThat(savedProduct.getStock()).isEqualTo(product.getStock());
@@ -89,97 +90,114 @@ class ProductServiceTest {
 		assertThat(savedProduct.getCompanyId()).isEqualTo(product.getCompanyId());
 		assertThat(savedProduct.getCompanyName()).isEqualTo(product.getCompanyName());
 		assertThat(savedProduct.getHubId()).isEqualTo(product.getHubId());
+		;
 	}
 
 	@Test
 	void delete() {
 		//given
-		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
-		UUID productId=UUID.randomUUID();
-		Product product=ProductFixture.create();
+		setHttpHeaders(UUID.randomUUID().toString());
+		UUID productId = UUID.randomUUID();
+		Product product = ProductFixture.create();
+		UUID companyId = product.getCompanyId();
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
-		productService.delete(productId);
+		productService.delete(productId, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		assertThat(productCaptor.getValue().getDeletedAt()).isNotNull();
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getDeletedAt()).isNotNull();
 	}
 
 	@Test
 	void updateInfo() {
 		//given
-		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
+		setHttpHeaders(UUID.randomUUID().toString());
 		Product product=ProductFixture.create();
+		UUID companyId = product.getCompanyId();
 		ProductUpdateInfoRequest request = new ProductUpdateInfoRequest(product.getName(), product.getPrice(),
 			ProductStatus.ON_SALE);
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
-		productService.updateProductInfo(product.getId(), request);
+		productService.updateProductInfo(product.getId(), request, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		assertThat(productCaptor.getValue().getName()).isEqualTo(request.name());
-		assertThat(productCaptor.getValue().getPrice()).isEqualTo(request.price());
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getName()).isEqualTo(request.name());
+		assertThat(savedProduct.getPrice()).isEqualTo(request.price());
 	}
 
 	@Test
 	void updateStock_성공() {
 		//given
-		UUID productId=UUID.randomUUID();
-		Product product=ProductFixture.create();
-		ProductUpdateStockRequest request = new ProductUpdateStockRequest(1);
+		setHttpHeaders(UUID.randomUUID().toString());
+		UUID productId = UUID.randomUUID();
+		Product product = ProductFixture.create();
+		UUID companyId = product.getCompanyId();
+		ProductUpdateStockRequest request = new ProductUpdateStockRequest(100);
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
+		given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
 		//when
-		productService.updateStock(productId, request);
+		productService.updateStock(productId, request, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		assertThat(productCaptor.getValue().getStockInfo().getStock()).isEqualTo(1);
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getStockInfo().getStock()).isEqualTo(100);
 	}
 
 	@Test
 	void updateStock_실패_잘못된_재고값_입력() {
 		//given
-		UUID productId=UUID.randomUUID();
-		Product product=ProductFixture.create();
-		ProductUpdateStockRequest request=new ProductUpdateStockRequest(-1);
+		setHttpHeaders(UUID.randomUUID().toString());
+		UUID productId = UUID.randomUUID();
+		Product product = ProductFixture.create();
+		UUID companyId = product.getCompanyId();
+		ProductUpdateStockRequest request = new ProductUpdateStockRequest(-1);
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when&then
-		assertThatThrownBy(() -> productService.updateStock(productId, request))
+		assertThatThrownBy(() -> productService.updateStock(productId, request, companyId))
 			.isInstanceOf(BusinessException.class)
 			.hasMessageContaining("잘못된 재고값입니다.");
 
 	}
 
 	@Test
-	void updateStock_재고를_0으로_설정(){
+	void updateStock_재고를_0으로_설정() {
 		//given
-		UUID productId=UUID.randomUUID();
-		Product product=ProductFixture.create();
-		ProductUpdateStockRequest request=new ProductUpdateStockRequest(0);
+		setHttpHeaders(UUID.randomUUID().toString());
+		UUID productId = UUID.randomUUID();
+		Product product = ProductFixture.create();
+		UUID companyId = product.getCompanyId();
+		ProductUpdateStockRequest request = new ProductUpdateStockRequest(0);
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
+		given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
 		//when
-		productService.updateStock(productId, request);
+		productService.updateStock(productId, request, companyId);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		assertThat(product.getStatus()).isEqualTo(ProductStatus.OUT_OF_STOCK);
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getStatus()).isEqualTo(ProductStatus.OUT_OF_STOCK);
 	}
 
 	@Test
 	void getProductInfo_success() {
 		//given
-		Product product=ProductFixture.create();
+		setHttpHeaders(UUID.randomUUID().toString());
+		Product product = ProductFixture.create();
+		UUID companyId = product.getCompanyId();
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
-		ProductInfoResponse response= productService.getProductInfo(product.getId());
+		ProductInfoResponse response = productService.getProductInfo(product.getId(), companyId);
 
 		//then
 		assertThat(response.id()).isEqualTo(product.getId());
@@ -191,15 +209,16 @@ class ProductServiceTest {
 	@Test
 	void getProductList() {
 		//given
-		UUID companyId=UUID.randomUUID();
-		Product product=ProductFixture.create();
-		List<Product> products=List.of(product);
-		Pageable pageable=Pageable.ofSize(10);
-		Slice<Product>slice=new SliceImpl<>(products, pageable, false);
-		given(productRepository.findAllByCompanyId(companyId,pageable)).willReturn(slice);
+		setHttpHeaders(UUID.randomUUID().toString());
+		UUID companyId = UUID.randomUUID();
+		Product product = ProductFixture.create();
+		List<Product> products = List.of(product);
+		Pageable pageable = Pageable.ofSize(10);
+		Slice<Product> slice = new SliceImpl<>(products, pageable, false);
+		given(productRepository.findAllByCompanyId(companyId, pageable)).willReturn(slice);
 
 		//when
-		Slice<ProductListResponse> response=productService.getProductList(companyId, pageable);
+		Slice<ProductListResponse> response = productService.getProductList(companyId, pageable);
 
 		//then
 		assertThat(response.getContent().size()).isEqualTo(products.size());
@@ -222,7 +241,9 @@ class ProductServiceTest {
 		productService.decreaseStock(product.getId().toString(), 1);
 
 		//then
-		assertThat(product.getStockInfo().getStock())
+		verify(productRepository).save(productCaptor.capture());
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getStockInfo().getStock())
 			.isEqualTo(99);
 	}
 
@@ -260,29 +281,33 @@ class ProductServiceTest {
 		productService.restoreStock(product.getId().toString(), 1);
 
 		//then
-		assertThat(product.getStockInfo().getStock())
+		verify(productRepository).save(productCaptor.capture());
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getStockInfo().getStock())
 			.isEqualTo(101);
 	}
 
 	@Test
 	void deleteByCompany() {
 		//given
-		setHttpHeaders(UUID.randomUUID().toString(), "Master");
+		setHttpHeaders(UUID.randomUUID().toString());
 		Product product = ProductFixture.create();
 		List<Product> products = List.of(product);
-		given(productRepository.findById(any())).willReturn(Optional.of(product));
-		given(productRepository.findAllByCompanyId(any())).willReturn(products);
+		given(productRepository.findById(any(UUID.class))).willReturn(Optional.of(product));
+		given(productRepository.findAllByCompanyId(any(UUID.class))).willReturn(products);
 
 		//when
-		productService.deleteByCompany(product.getId());
+		productService.deleteByCompany(product.getCompanyId());
 
 		//then
-		assertThat(product.getDeletedBy()).isNotNull();
+		verify(productRepository).save(productCaptor.capture());
+		Product savedProduct = productCaptor.getValue();
+		assertThat(savedProduct.getDeletedBy()).isNotNull();
 	}
 
 	//util
-	private void setHttpHeaders(String userId, String role) {
+	private void setHttpHeaders(String userId) {
 		UserContext.setUserId(UUID.fromString(userId));
-		UserContext.setUserRole(role);
+		UserContext.setUserRole("MASTER");
 	}
 }

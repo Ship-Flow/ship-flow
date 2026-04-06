@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductInternalController {
 	private final ProductService productService;
 
-	@GetMapping("/internal/companies/{companyId}/products/{productId}")
+	@GetMapping("/internal/products/{productId}")
 	public ApiResponse<StockInfoResponse> getStockInfo(@PathVariable UUID productId,
 		@RequestParam Integer quantity) {
 		StockInfoResponse response = productService.getStockInfoAndOccupy(productId,quantity);

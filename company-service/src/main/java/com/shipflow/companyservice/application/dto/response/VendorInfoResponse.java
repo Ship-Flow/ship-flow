@@ -8,6 +8,7 @@ import lombok.NonNull;
 public record VendorInfoResponse(
 	@NonNull UUID receiverCompanyId,
 	@NotBlank String receiverCompanyName,
-	@NonNull UUID departureCompanyHubId
+	@NonNull UUID departureCompanyHubId,
+	@NotBlank String address
 ) {
 }
