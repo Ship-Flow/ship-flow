@@ -27,4 +27,12 @@ public interface ShipmentJpaRepository extends JpaRepository<Shipment, UUID> {
 			and s.deletedAt is null 
 		""")
 	Optional<Shipment> findByIdWithRoutesAndManager(@Param("shipmentId") UUID shipmentId);
+
+	@Query("""
+			select distinct s from Shipment s
+			left join fetch s.routes r
+			where s.orderId = :orderId
+			and s.deletedAt is null 
+		""")
+	Optional<Shipment> findByOrderIdWithRoutes(@Param("orderId") UUID orderId);
 }

@@ -17,6 +17,7 @@ import com.shipflow.shipmentservice.application.client.dto.UserInfo;
 import com.shipflow.shipmentservice.application.dto.command.CreateShipmentCommand;
 import com.shipflow.shipmentservice.application.dto.command.ShipmentRouteUpdateCommand;
 import com.shipflow.shipmentservice.application.dto.command.ShipmentUpdateCommand;
+import com.shipflow.shipmentservice.application.dto.result.ShipmentCanceledResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentCompleteResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteResult;
@@ -163,6 +164,16 @@ public class ShipmentService {
 		));
 
 		return ShipmentCompleteResult.fromEntity(shipment);
+	}
+
+	@Transactional
+	public ShipmentCanceledResult cancelShipment(UUID orderId) {
+		Shipment shipment = shipmentRepository.findByOrderIdWithRoutes(orderId)
+			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_NOT_FOUND));
+
+		shipment.markCanceled();
+
+		return ShipmentCanceledResult.fromEntity(shipment);
 	}
 
 	private ShipmentManager findCompanyManager() {

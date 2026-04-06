@@ -42,4 +42,9 @@ public class ShipmentRepositoryImpl implements ShipmentRepository {
 	public Optional<Shipment> findByIdWithRoutes(UUID shipmentId) {
 		return shipmentJpaRepository.findByIdWithRoutesAndManager(shipmentId);
 	}
+
+	@Override
+	public Optional<Shipment> findByOrderIdWithRoutes(UUID orderId) {
+		return shipmentJpaRepository.findByOrderIdWithRoutes(orderId);
+	}
 }

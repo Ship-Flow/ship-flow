@@ -11,6 +11,7 @@ public enum ShipmentErrorCode implements ErrorCode {
 	INVALID_SHIPMENT_STATUS(HttpStatus.BAD_REQUEST, "잘못된 배송 상태입니다."),
 	SHIPMENT_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 배송입니다."),
 	SHIPMENT_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 배송입니다."),
+	SHIPMENT_NOT_CANCELABLE_STATUS(HttpStatus.BAD_REQUEST, "현재 배송이 시작되어 취소가 불가능합니다."),
 	SHIPMENT_ROUTES_NOT_ALL_COMPLETED(HttpStatus.BAD_REQUEST, "완료되지 않은 배송 경로가 존재합니다."),
 
 	// ShipmentRoute

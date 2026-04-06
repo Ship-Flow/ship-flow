@@ -3,6 +3,7 @@ package com.shipflow.shipmentservice.domain;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -119,6 +120,12 @@ public class Shipment extends BaseEntity {
 		this.status = ShipmentStatus.COMPLETED;
 	}
 
+	public void markCanceled() {
+		validateCancelable();
+		this.status = ShipmentStatus.CANCELLED;
+		markAllRoutesCanceled();
+	}
+
 	private void validateCompletable() {
 		if (this.status == ShipmentStatus.COMPLETED) {
 			throw new BusinessException(ShipmentErrorCode.SHIPMENT_ALREADY_COMPLETED);
@@ -133,6 +140,16 @@ public class Shipment extends BaseEntity {
 
 		if (!allRoutesCompleted) {
 			throw new BusinessException(ShipmentErrorCode.SHIPMENT_ROUTES_NOT_ALL_COMPLETED);
+		}
+	}
+
+	private void validateCancelable() {
+		if (this.status == ShipmentStatus.CANCELLED) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_ALREADY_CANCELLED);
+		}
+
+		if (this.status != ShipmentStatus.WAITING_AT_HUB) {
+			throw new BusinessException(ShipmentErrorCode.SHIPMENT_NOT_CANCELABLE_STATUS);
 		}
 	}
 
@@ -160,10 +177,14 @@ public class Shipment extends BaseEntity {
 		return route;
 	}
 
+	private void markAllRoutesCanceled() {
+		routes.forEach(ShipmentRoute::markCanceled);
+	}
+
 	private LocalDateTime getArrivalBaseTime(ShipmentRoute currentRoute) {
 		ShipmentRoute previousRoute = routes.stream()
 			.filter(r -> r.getSequence() < currentRoute.getSequence())
-			.max((a, b) -> Integer.compare(a.getSequence(), b.getSequence()))
+			.max(Comparator.comparingInt(ShipmentRoute::getSequence))
 			.orElse(null);
 
 		// 첫 번째 경로인 경우: 현재 경로가 MOVING_TO_HUB 로 변경된 시점 기준
