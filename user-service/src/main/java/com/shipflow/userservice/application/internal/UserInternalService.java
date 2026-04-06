@@ -24,6 +24,10 @@ public class UserInternalService {
 	public GetInternalUserResult getUser(UUID userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+		if (!user.isDeleted()){
+			throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
+		}
+
 		return new GetInternalUserResult(user.getId(), user.getName(), user.getSlackId());
 	}
 
