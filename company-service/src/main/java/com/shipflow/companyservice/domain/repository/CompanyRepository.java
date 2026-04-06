@@ -1,5 +1,6 @@
 package com.shipflow.companyservice.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,6 @@ public interface CompanyRepository {
 	Slice<Company> findAll(Pageable pageable);
 
 	Optional<Company> findByManagerId(UUID id);
+
+	List<Company> findAllByHubId(UUID hubId);
 }
