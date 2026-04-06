@@ -11,4 +11,6 @@ public class GetInternalUserResult {
 	private UUID userId;
 	private String name;
 	private String slackId;
+	private UUID hubId;
+	private UUID companyId;
 }

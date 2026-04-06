@@ -11,10 +11,14 @@ public class GetInternalUserResDto {
 	private UUID id;
 	private String name;
 	private String slackId;
+	private UUID hubId;
+	private UUID companyId;
 
 	public GetInternalUserResDto(GetInternalUserResult result) {
 		this.id = result.getUserId();
 		this.name = result.getName();
 		this.slackId = result.getSlackId();
+		this.hubId = result.getHubId();
+		this.companyId = result.getCompanyId();
 	}
 }

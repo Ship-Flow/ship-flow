@@ -37,7 +37,9 @@ public class UserInternalServiceTest {
 	void getUser_success() {
 		// given
 		UUID userId = UUID.randomUUID();
-		User user = new User(userId, "tester", "테스터", "slack-1");
+		UUID hubId = UUID.randomUUID();
+		UUID companyId = UUID.randomUUID();
+		User user = new User(userId, "tester", "테스터", "slack-1", hubId, companyId);
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
@@ -48,6 +50,8 @@ public class UserInternalServiceTest {
 		assertThat(result.getUserId()).isEqualTo(userId);
 		assertThat(result.getName()).isEqualTo("테스터");
 		assertThat(result.getSlackId()).isEqualTo("slack-1");
+		assertThat(result.getHubId()).isEqualTo(hubId);
+		assertThat(result.getCompanyId()).isEqualTo(companyId);
 	}
 
 	@DisplayName("내부 유저 조회 실패 - 유저가 없으면 USER_NOT_FOUND 예외가 발생한다")

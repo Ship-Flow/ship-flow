@@ -28,7 +28,7 @@ public class UserInternalService {
 			throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
 		}
 
-		return new GetInternalUserResult(user.getId(), user.getName(), user.getSlackId());
+		return new GetInternalUserResult(user.getId(), user.getName(), user.getSlackId(), user.getHubId(), user.getCompanyId());
 	}
 
 	@Transactional
