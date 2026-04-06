@@ -3,60 +3,57 @@ server:
 
 spring:
   application:
-    name: gateway-service
+    name: gateway-server
 
   cloud:
     gateway:
-      routes:
-        - id: user-auth
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/api/auth/**
+      server:
+        webflux:
+          routes:
+            - id: user
+              uri: lb://USERSERVICE
+              predicates:
+                - Path=/api/users/**, /api/auth/**
 
-        - id: user
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/api/users/**
+            - id: company
+              uri: lb://COMPANYSERVICE
+              predicates:
+                - Path=/api/companies/**
 
-        - id: company
-          uri: lb://COMPANY-SERVICE
-          predicates:
-            - Path=/api/companies/**
+            - id: product
+              uri: lb://PRODUCTSERVICE
+              predicates:
+                - Path=/api/companies/*/products/**
 
-        - id: product
-          uri: lb://PRODUCT-SERVICE
-          predicates:
-            - Path=/api/companies*/products/**
+            - id: order
+              uri: lb://ORDERSERVICE
+              predicates:
+                - Path=/api/orders/**
 
-        - id: order
-          uri: lb://ORDER-SERVICE
-          predicates:
-            - Path=/api/orders/**
+            - id: shipment
+              uri: lb://SHIPMENTSERVICE
+              predicates:
+                - Path=/api/shipments/**, /api/shipment-managers/**
 
-        - id: shipment
-          uri: lb://SHIPMENT-SERVICE
-          predicates:
-            - Path=/api/shipments/**
+            - id: notification
+              uri: lb://NOTIFICATIONSERVICE
+              predicates:
+                - Path=/api/ai/**, /api/slack/**
 
-        - id: notification
-          uri: lb://NOTIFICATION-SERVICE
-          predicates:
-            - Path=/api/ai/**
-            - Path=/api/slack/**
-
-        - id: hub
-          uri: lb://HUB-SERVICE
-          predicates:
-            - Path=/api/hubs/**
-            - Path=/api/hub-routes/**
+            - id: hub
+              uri: lb://HUBSERVICE
+              predicates:
+                - Path=/api/hubs/**, /api/hub-routes/**
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/shipflow
+          issuer-uri: http://localhost:9001/realms/shipflow
 
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka/

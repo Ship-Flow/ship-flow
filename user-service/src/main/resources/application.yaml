@@ -30,3 +30,13 @@ keycloak:
   admin-username: ${KEYCLOAK_ADMIN}
   admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
   login-client-id: shipflow-api
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

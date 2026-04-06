@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 
-import com.shipflow.common.exception.BusinessException;
+import com.shipflow.gatewayserver.exception.BusinessException;
 import com.shipflow.gatewayserver.exception.GateErrorCode;
 
 @Component
