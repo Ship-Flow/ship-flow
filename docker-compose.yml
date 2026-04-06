@@ -72,6 +72,19 @@ services:
       retries: 5
       start_period: 30s
 
+  gatewayserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: gateway-server
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *service-env
+    depends_on:
+      <<: *service-depends-on
+
   companyservice:
     build:
       context: .
