@@ -67,13 +67,10 @@ class OrderControllerTest {
     @Test
     void createOrder_필수필드누락_400반환() throws Exception {
         when(userContext.getUserId(any())).thenReturn(userId);
+        // productId 누락
         String invalidBody = """
-                {"productId":"%s","supplierCompanyId":"%s","receiverCompanyId":"%s",
-                 "departureHubId":"%s","arrivalHubId":"%s","quantity":1,
-                 "requestDeadline":"2026-12-31T23:59:00"}
-                """.formatted(
-                OrderFixture.PRODUCT_ID, OrderFixture.SUPPLIER_ID, OrderFixture.RECEIVER_ID,
-                OrderFixture.DEP_HUB_ID, OrderFixture.ARR_HUB_ID);
+                {"quantity":1,"requestDeadline":"2026-12-31T23:59:00"}
+                """;
 
         mockMvc.perform(post("/api/orders")
                         .header("X-User-Id", userId.toString())
@@ -86,13 +83,8 @@ class OrderControllerTest {
     void createOrder_수량0이하_400반환() throws Exception {
         when(userContext.getUserId(any())).thenReturn(userId);
         String invalidBody = """
-                {"ordererId":"%s","productId":"%s","supplierCompanyId":"%s",
-                 "receiverCompanyId":"%s","departureHubId":"%s","arrivalHubId":"%s",
-                 "quantity":0,"requestDeadline":"2026-12-31T23:59:00"}
-                """.formatted(
-                OrderFixture.USER_ID, OrderFixture.PRODUCT_ID,
-                OrderFixture.SUPPLIER_ID, OrderFixture.RECEIVER_ID,
-                OrderFixture.DEP_HUB_ID, OrderFixture.ARR_HUB_ID);
+                {"productId":"%s","quantity":0,"requestDeadline":"2026-12-31T23:59:00"}
+                """.formatted(OrderFixture.PRODUCT_ID);
 
         mockMvc.perform(post("/api/orders")
                         .header("X-User-Id", userId.toString())

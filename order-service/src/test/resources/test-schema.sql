@@ -1,5 +1,11 @@
 CREATE SCHEMA IF NOT EXISTS orders;
 
+CREATE TABLE IF NOT EXISTS orders.processed_saga_events (
+    event_id        VARCHAR(36) PRIMARY KEY,
+    event_type      VARCHAR(100) NOT NULL,
+    processed_at    TIMESTAMP(6) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS orders.p_orders (
     id              UUID PRIMARY KEY,
     orderer_id      UUID NOT NULL,

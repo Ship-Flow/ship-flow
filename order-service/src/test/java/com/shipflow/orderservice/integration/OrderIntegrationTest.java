@@ -1,6 +1,8 @@
 package com.shipflow.orderservice.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shipflow.orderservice.application.dto.CreateOrderCommand;
+import com.shipflow.orderservice.application.service.OrderFetchService;
 import com.shipflow.orderservice.fixture.OrderFixture;
 import com.shipflow.orderservice.presentation.dto.OrderResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,12 +10,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -22,11 +28,22 @@ class OrderIntegrationTest extends AbstractIntegrationTest {
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @Autowired JdbcTemplate jdbcTemplate;
+    @MockitoBean OrderFetchService orderFetchService;
 
     @BeforeEach
-    void cleanUp() {
+    void setUp() {
         jdbcTemplate.execute("DELETE FROM orders.p_order_read_models");
         jdbcTemplate.execute("DELETE FROM orders.p_orders");
+
+        when(orderFetchService.fetchAndBuild(any(), any(), anyInt(), any(), any()))
+                .thenReturn(new CreateOrderCommand(
+                        OrderFixture.USER_ID, "주문자명",
+                        OrderFixture.PRODUCT_ID, "상품명",
+                        OrderFixture.SUPPLIER_ID, "공급사명",
+                        OrderFixture.RECEIVER_ID, "수신사명",
+                        OrderFixture.DEP_HUB_ID, OrderFixture.ARR_HUB_ID,
+                        10, OrderFixture.DEADLINE, "테스트 메모"
+                ));
     }
 
     @Test

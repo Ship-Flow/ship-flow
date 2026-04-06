@@ -32,7 +32,7 @@ public class OrderInternalController {
             HttpServletRequest httpRequest
     ) {
         UUID requesterId = userContext.getUserId(httpRequest);
-        OrderResult result = orderCommandService.createOrder(request.toCommand(), requesterId);
+        OrderResult result = orderCommandService.createOrder(request, requesterId);
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponse.from(result));
     }
 

@@ -121,10 +121,7 @@ public class OrderFixture {
 
     public static CreateOrderRequest createRequest() {
         return new CreateOrderRequest(
-                USER_ID, PRODUCT_ID,
-                SUPPLIER_ID, RECEIVER_ID,
-                DEP_HUB_ID, ARR_HUB_ID,
-                10, DEADLINE, "테스트 메모"
+                PRODUCT_ID, 10, DEADLINE, "테스트 메모"
         );
     }
 
