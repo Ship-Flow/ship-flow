@@ -21,6 +21,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/api/auth/login").permitAll()
 				.requestMatchers(POST, "/api/auth/signup-requests").permitAll()
+				.requestMatchers("/internal/**").authenticated()
 				.anyRequest().authenticated()
 			)
 			.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
