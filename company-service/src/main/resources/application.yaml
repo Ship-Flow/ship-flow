@@ -29,6 +29,10 @@ spring:
     host: rabbitmq
     port: 5672
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
+
 
 eureka:
   client:
