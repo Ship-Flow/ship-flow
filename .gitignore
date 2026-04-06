@@ -25,7 +25,3 @@ out/
 generated/
 .planning/
 
-keycloak/*-export.json
-keycloak/*.jks
-keycloak/*.p12
-keycloak/*.pem
