@@ -122,7 +122,7 @@ public class SlackAppService {
 	}
 
 	private void validateCreateRole(String userRole) {
-		if (!Set.of("MASTER", "HUB_MANAGER", "SHIPMENT_MANAGER ", "COMPANY_MANAGER").contains(userRole)) {
+		if (!Set.of("MASTER", "HUB_MANAGER", "SHIPMENT_MANAGER", "COMPANY_MANAGER").contains(userRole)) {
 			throw new BusinessException(SlackErrorCode.FORBIDDEN_SLACK_ACCESS);
 		}
 	}
