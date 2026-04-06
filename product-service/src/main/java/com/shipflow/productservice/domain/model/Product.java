@@ -39,7 +39,7 @@ public class Product extends BaseEntity {
 		return product;
 	}
 
-	public static Product reconstruct(UUID id, String name, BigDecimal price,
+	public static Product reconstruct(UUID id,String name, BigDecimal price,
 		Integer stock, ProductStatus status, UUID companyId, String companyName,
 		UUID hubId, Boolean isHide, UUID createdBy, LocalDateTime createdAt,
 		LocalDateTime updatedAt, UUID updatedBy, LocalDateTime deletedAt, UUID deletedBy) {
@@ -111,15 +111,15 @@ public class Product extends BaseEntity {
 		return this.stockInfo.getStock();
 	}
 
-	public UUID getCompanyId() {
+	public UUID getCompanyId () {
 		return this.vendorInfo.getCompanyId();
 	}
 
-	public String getCompanyName() {
+	public String getCompanyName () {
 		return this.vendorInfo.getCompanyName();
 	}
 
-	public UUID getHubId() {
+	public UUID getHubId () {
 		return this.vendorInfo.getHubId();
 	}
 

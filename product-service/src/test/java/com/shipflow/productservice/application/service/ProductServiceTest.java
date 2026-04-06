@@ -20,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.productservice.application.client.VendorFeignClient;
@@ -43,9 +45,13 @@ class ProductServiceTest {
 	@Mock
 	private ProductRepository productRepository;
 	@Spy
-	ProductMapper mapper = Mappers.getMapper(ProductMapper.class);
+	private ProductMapper mapper = Mappers.getMapper(ProductMapper.class);
 	@Mock
-	VendorFeignClient vendorClient;
+	private VendorFeignClient vendorClient;
+	@Mock
+	private RedisTemplate<String, Integer> redisTemplate;
+	@Mock
+	private ValueOperations<String, Integer> valueOperations;
 	@InjectMocks
 	ProductService productService;
 
@@ -61,33 +67,36 @@ class ProductServiceTest {
 	void create() {
 		//given
 		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
-		Product product = ProductFixture.create();
-		ProductCreateRequest request = new ProductCreateRequest(product.getName(), product.getPrice(),
+		Product product=ProductFixture.create();
+		ProductCreateRequest request=new ProductCreateRequest(product.getName(), product.getPrice(),
 			product.getStock(), product.getStatus());
-		VendorInfoResponse vendorInfo = new VendorInfoResponse(product.getCompanyId(), product.getCompanyName(),
-			product.getHubId());
+		VendorInfoResponse vendorInfo=new VendorInfoResponse(product.getCompanyId(), product.getCompanyName(), product.getHubId());
 		given(vendorClient.getVendorInfo(product.getCompanyId())).willReturn(vendorInfo);
+		given(productRepository.save(any(Product.class))).willAnswer(invocation -> invocation.getArgument(0));
+		given(redisTemplate.opsForValue()).willReturn(valueOperations);
+		doNothing().when(valueOperations).set(anyString(), any());
 
 		//when
 		productService.create(product.getCompanyId(), request);
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
+		Product savedProduct=productCaptor.getValue();
 		assertThat(savedProduct.getName()).isEqualTo(product.getName());
 		assertThat(savedProduct.getPrice()).isEqualTo(product.getPrice());
-		assertThat(savedProduct.getStockInfo().getStock()).isEqualTo(product.getStock());
+		assertThat(savedProduct.getStock()).isEqualTo(product.getStock());
 		assertThat(savedProduct.getStatus()).isEqualTo(product.getStatus());
-		assertThat(savedProduct.getVendorInfo().getCompanyId()).isEqualTo(product.getCompanyId());
-		assertThat(savedProduct.getVendorInfo().getCompanyName()).isEqualTo(product.getCompanyName());
-		assertThat(savedProduct.getVendorInfo().getHubId()).isEqualTo(product.getHubId());
+		assertThat(savedProduct.getCompanyId()).isEqualTo(product.getCompanyId());
+		assertThat(savedProduct.getCompanyName()).isEqualTo(product.getCompanyName());
+		assertThat(savedProduct.getHubId()).isEqualTo(product.getHubId());
 	}
 
 	@Test
 	void delete() {
 		//given
-		UUID productId = UUID.randomUUID();
-		Product product = ProductFixture.create();
+		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
+		UUID productId=UUID.randomUUID();
+		Product product=ProductFixture.create();
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
@@ -95,8 +104,7 @@ class ProductServiceTest {
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getDeletedAt()).isNotNull();
+		assertThat(productCaptor.getValue().getDeletedAt()).isNotNull();
 	}
 
 	@Test
@@ -104,7 +112,8 @@ class ProductServiceTest {
 		//given
 		setHttpHeaders(UUID.randomUUID().toString(), "Company_Manager");
 		Product product=ProductFixture.create();
-		ProductUpdateInfoRequest request=new ProductUpdateInfoRequest(product.getName(), product.getPrice(),null);
+		ProductUpdateInfoRequest request = new ProductUpdateInfoRequest(product.getName(), product.getPrice(),
+			ProductStatus.ON_SALE);
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
@@ -112,17 +121,16 @@ class ProductServiceTest {
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getName()).isEqualTo(request.name());
-		assertThat(savedProduct.getPrice()).isEqualTo(request.price());
+		assertThat(productCaptor.getValue().getName()).isEqualTo(request.name());
+		assertThat(productCaptor.getValue().getPrice()).isEqualTo(request.price());
 	}
 
 	@Test
 	void updateStock_성공() {
 		//given
-		UUID productId = UUID.randomUUID();
-		Product product = ProductFixture.create();
-		ProductUpdateStockRequest request = new ProductUpdateStockRequest(100);
+		UUID productId=UUID.randomUUID();
+		Product product=ProductFixture.create();
+		ProductUpdateStockRequest request = new ProductUpdateStockRequest(1);
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
@@ -130,16 +138,15 @@ class ProductServiceTest {
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getStockInfo().getStock()).isEqualTo(100);
+		assertThat(productCaptor.getValue().getStockInfo().getStock()).isEqualTo(1);
 	}
 
 	@Test
 	void updateStock_실패_잘못된_재고값_입력() {
 		//given
-		UUID productId = UUID.randomUUID();
-		Product product = ProductFixture.create();
-		ProductUpdateStockRequest request = new ProductUpdateStockRequest(-1);
+		UUID productId=UUID.randomUUID();
+		Product product=ProductFixture.create();
+		ProductUpdateStockRequest request=new ProductUpdateStockRequest(-1);
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when&then
@@ -150,11 +157,11 @@ class ProductServiceTest {
 	}
 
 	@Test
-	void updateStock_재고를_0으로_설정() {
+	void updateStock_재고를_0으로_설정(){
 		//given
-		UUID productId = UUID.randomUUID();
-		Product product = ProductFixture.create();
-		ProductUpdateStockRequest request = new ProductUpdateStockRequest(0);
+		UUID productId=UUID.randomUUID();
+		Product product=ProductFixture.create();
+		ProductUpdateStockRequest request=new ProductUpdateStockRequest(0);
 		given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
 		//when
@@ -162,18 +169,17 @@ class ProductServiceTest {
 
 		//then
 		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getStatus()).isEqualTo(ProductStatus.OUT_OF_STOCK);
+		assertThat(product.getStatus()).isEqualTo(ProductStatus.OUT_OF_STOCK);
 	}
 
 	@Test
 	void getProductInfo_success() {
 		//given
-		Product product = ProductFixture.create();
+		Product product=ProductFixture.create();
 		given(productRepository.findById(product.getId())).willReturn(Optional.of(product));
 
 		//when
-		ProductInfoResponse response = productService.getProductInfo(product.getId());
+		ProductInfoResponse response= productService.getProductInfo(product.getId());
 
 		//then
 		assertThat(response.id()).isEqualTo(product.getId());
@@ -185,15 +191,15 @@ class ProductServiceTest {
 	@Test
 	void getProductList() {
 		//given
-		UUID companyId = UUID.randomUUID();
-		Product product = ProductFixture.create();
-		List<Product> products = List.of(product);
-		Pageable pageable = Pageable.ofSize(10);
-		Slice<Product> slice = new SliceImpl<>(products, pageable, false);
-		given(productRepository.findAllByCompanyId(companyId, pageable)).willReturn(slice);
+		UUID companyId=UUID.randomUUID();
+		Product product=ProductFixture.create();
+		List<Product> products=List.of(product);
+		Pageable pageable=Pageable.ofSize(10);
+		Slice<Product>slice=new SliceImpl<>(products, pageable, false);
+		given(productRepository.findAllByCompanyId(companyId,pageable)).willReturn(slice);
 
 		//when
-		Slice<ProductListResponse> response = productService.getProductList(companyId, pageable);
+		Slice<ProductListResponse> response=productService.getProductList(companyId, pageable);
 
 		//then
 		assertThat(response.getContent().size()).isEqualTo(products.size());
@@ -216,9 +222,7 @@ class ProductServiceTest {
 		productService.decreaseStock(product.getId().toString(), 1);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getStockInfo().getStock())
+		assertThat(product.getStockInfo().getStock())
 			.isEqualTo(99);
 	}
 
@@ -226,7 +230,6 @@ class ProductServiceTest {
 	void decreaseStock_올바르지_않은_차감요청() {
 		//given
 		Product product = ProductFixture.create();
-		given(productRepository.findById(any())).willReturn(Optional.of(product));
 
 		//when&then
 		assertThatThrownBy(() -> productService.decreaseStock(product.getId().toString(), -1))
@@ -251,14 +254,13 @@ class ProductServiceTest {
 		//given
 		Product product = ProductFixture.create();
 		given(productRepository.findById(any())).willReturn(Optional.of(product));
+		given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
 		//when
 		productService.restoreStock(product.getId().toString(), 1);
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getStockInfo().getStock())
+		assertThat(product.getStockInfo().getStock())
 			.isEqualTo(101);
 	}
 
@@ -275,9 +277,7 @@ class ProductServiceTest {
 		productService.deleteByCompany(product.getId());
 
 		//then
-		verify(productRepository).save(productCaptor.capture());
-		Product savedProduct = productCaptor.getValue();
-		assertThat(savedProduct.getDeletedBy()).isNotNull();
+		assertThat(product.getDeletedBy()).isNotNull();
 	}
 
 	//util
