@@ -1,4 +1,4 @@
-package com.shipflow.hubservice.hub.error;
+package com.shipflow.hubservice.domain.exception;
 
 import com.shipflow.common.exception.ErrorCode;
 
@@ -9,6 +9,9 @@ public enum HubErrorCode implements ErrorCode {
 	// 조회
 	HUB_NOT_FOUND("HUB_101", HttpStatus.NOT_FOUND, "허브를 찾을 수 없습니다."),
 	HUB_ROUTE_NOT_FOUND("HUB_102", HttpStatus.NOT_FOUND, "허브 경로를 찾을 수 없습니다."),
+
+	// 권한
+	FORBIDDEN("HUB_401", HttpStatus.FORBIDDEN, "권한이 없습니다."),
 
 	// 생성/수정 유효성
 	DUPLICATE_HUB_NAME("HUB_201", HttpStatus.CONFLICT, "이미 존재하는 허브 이름입니다."),
