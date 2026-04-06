@@ -7,6 +7,8 @@ import lombok.NonNull;
 
 public record UserInfoResponse(
 	@NonNull UUID id,
-	@NotBlank String name
+	@NotBlank String name,
+	@NonNull UUID companyId,
+	@NonNull UUID HubId
 ) {
 }

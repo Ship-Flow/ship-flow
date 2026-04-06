@@ -42,11 +42,16 @@ public class CompanyService {
 	@Transactional
 	public CompanyCreateResponse createCompany(CompanyCreateRequest request) {
 		UUID createrId = getUserId();
-		String managerName = userFeignClient.getUserNameById(request.managerId()).name();
+		String managerName = userFeignClient.getUserInfoById(request.managerId()).name();
+
 		Company newCompany = Company.create(
 			request.name(), request.type(), request.hubId(),
 			request.address(), request.managerId(), managerName, createrId);
+
 		companyRepository.save(newCompany);
+
+		userFeignClient.updateCompanyManager(request.managerId());
+
 		return mapper.toCreateResponse(newCompany);
 	}
 
@@ -77,10 +82,13 @@ public class CompanyService {
 		UUID targetManagerId;
 		String managerName;
 
+		boolean isManagerChanged = false;
+
 		if (requestedManagerId != null && !requestedManagerId.equals(company.getManagerId())) {
 			// 담당자의 변경이 있는 경우에만 user 조회 요청
 			targetManagerId = requestedManagerId;
-			managerName = userFeignClient.getUserNameById(requestedManagerId).name();
+			managerName = userFeignClient.getUserInfoById(requestedManagerId).name();
+			isManagerChanged = true;
 		} else {
 			// 담당자 변경이 없을 시 현재 담당자 유지
 			targetManagerId = company.getManagerId();
@@ -97,6 +105,10 @@ public class CompanyService {
 			updaterId
 		);
 		companyRepository.save(company);
+
+		if (isManagerChanged)
+			userFeignClient.updateCompanyManager(request.managerId());
+
 		return mapper.toUpdateResponse(company);
 	}
 
@@ -152,5 +164,4 @@ public class CompanyService {
 			throw new BusinessException(CommonErrorCode.INTERNAL_SERVER_ERROR);
 		return userId;
 	}
-
 }

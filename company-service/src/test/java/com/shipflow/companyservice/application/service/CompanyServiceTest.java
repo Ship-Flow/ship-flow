@@ -69,7 +69,7 @@ class CompanyServiceTest {
 		CompanyCreateRequest request = new CompanyCreateRequest(company.getName(), company.getType(),
 			company.getHubId(), company.getAddress(), createrId);
 		UserInfoResponse userInfo = new UserInfoResponse(request.managerId(), "testManagerName");
-		given(userFeignClient.getUserNameById(request.managerId())).willReturn(userInfo);
+		given(userFeignClient.getUserInfoById(request.managerId())).willReturn(userInfo);
 
 		//when
 		companyService.createCompany(request);
@@ -128,7 +128,7 @@ class CompanyServiceTest {
 		CompanyUpdateByAdminRequest request = new CompanyUpdateByAdminRequest(
 			"testName", CompanyType.Receiver, UUID.randomUUID(), "testAddress", UUID.randomUUID());
 		UserInfoResponse userInfo = new UserInfoResponse(request.managerId(), "testManagerName");
-		given(userFeignClient.getUserNameById(request.managerId())).willReturn(userInfo);
+		given(userFeignClient.getUserInfoById(request.managerId())).willReturn(userInfo);
 		given(companyRepository.findById(any())).willReturn(Optional.of(company));
 
 		//when
