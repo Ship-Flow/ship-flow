@@ -248,7 +248,7 @@ public class ProductService {
 			return;
 
 		UUID userId = UserContext.getUserId();
-		UserInfoResponse userInfo = userClient.getUserInfoById(userId);
+		UserInfoResponse userInfo = userClient.getUserInfoById(userId).getData();
 
 		if (role.equals("HUB_MANAGER")) {
 			if (vendorClient.getVendorInfo(companyId).hubId().equals(userInfo.hubId()))

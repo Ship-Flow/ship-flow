@@ -21,7 +21,7 @@ public class UserClientImpl implements UserClient {
 	@Override
 	public UserInfo getUser(UUID userId) {
 		try {
-			return userFeignClient.getUser(userId);
+			return userFeignClient.getUser(userId).getData();
 		} catch (FeignException.NotFound e) {
 			throw new BusinessException(ShipmentErrorCode.USER_NOT_FOUND);
 		} catch (FeignException e) {
