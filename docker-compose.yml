@@ -241,7 +241,7 @@ services:
     depends_on:
       - keycloak-postgres
     healthcheck:
-          test: [ "CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080" ]
+          test: [ "CMD-SHELL", "nc -z localhost 8080" ]
           interval: 10s
           timeout: 5s
           retries: 20
