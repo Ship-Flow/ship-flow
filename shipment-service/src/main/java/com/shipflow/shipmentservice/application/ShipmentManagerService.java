@@ -118,9 +118,8 @@ public class ShipmentManagerService {
 
 	@Transactional
 	public void markPendingDeletionByUserId(UUID userId) {
-		ShipmentManager manager = shipmentManagerRepository.findByUserId(userId)
-			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_NOT_FOUND));
-		manager.markPendingDeletion();
+		shipmentManagerRepository.findByUserId(userId)
+			.ifPresent(ShipmentManager::markPendingDeletion);
 	}
 
 	@Transactional
