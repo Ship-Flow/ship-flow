@@ -33,10 +33,10 @@ public class UserInternalService {
 		User user = userRepository.findByIdAndDeletedAtIsNull(userId)
 			.orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
 
-		if (command.isHubIdUpdated()) {
+		if (command.isHubIdUpdated() || command.getHubId() != null) {
 			user.changeHubId(command.getHubId());
 		}
-		if (command.isCompanyIdUpdated()) {
+		if (command.isCompanyIdUpdated() || command.getCompanyId() != null) {
 			user.changeCompanyId(command.getCompanyId());
 		}
 

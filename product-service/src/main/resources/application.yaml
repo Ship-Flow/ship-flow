@@ -1,6 +1,6 @@
 spring:
   application:
-    name: product-service
+    name: productservice
 
   datasource:
     driver-class-name: org.postgresql.Driver

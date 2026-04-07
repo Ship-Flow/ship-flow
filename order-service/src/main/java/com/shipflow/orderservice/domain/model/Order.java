@@ -56,8 +56,10 @@ public class Order { // 도메인 모델
         order.requestNote = requestNote;
         order.deliveryAddress = deliveryAddress;
         order.createdBy = createdBy;
+        order.updatedBy = createdBy;
         order.status = OrderStatus.CREATING;
         order.createdAt = LocalDateTime.now();
+        order.updatedAt = LocalDateTime.now();
         return order;
     }
 

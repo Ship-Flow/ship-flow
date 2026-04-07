@@ -26,7 +26,7 @@ public class SecurityConfig {
 				.requestMatchers("/actuator/**").permitAll()
 				.requestMatchers("/api/auth/login").permitAll()
 				.requestMatchers(POST, "/api/auth/signup-requests").permitAll()
-				.requestMatchers("/internal/**").authenticated()
+				.requestMatchers("/internal/**").permitAll()
 				.anyRequest().authenticated()
 			)
 			.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));

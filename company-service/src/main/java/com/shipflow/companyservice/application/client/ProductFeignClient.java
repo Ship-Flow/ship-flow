@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "product-service")
+@FeignClient(name = "productservice")
 public interface ProductFeignClient {
 	@DeleteMapping("/internal/companies/{companyId}/products/deactivate")
 	Void deleteProductByCompanyId(@PathVariable("companyId") UUID companyId);

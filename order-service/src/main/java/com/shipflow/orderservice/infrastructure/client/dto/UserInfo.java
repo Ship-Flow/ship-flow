@@ -1,9 +1,11 @@
 package com.shipflow.orderservice.infrastructure.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public record UserInfo(
-        UUID userId,
-        String ordererName,
-        UUID receiverCompanyId
+        @JsonProperty("id") UUID userId,
+        @JsonProperty("name") String ordererName,
+        @JsonProperty("companyId") UUID receiverCompanyId
 ) {}

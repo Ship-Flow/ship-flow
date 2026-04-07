@@ -2,10 +2,12 @@ package com.shipflow.config.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -43,16 +45,29 @@ public class RabbitMqConfig {
 		return new DirectExchange(SAGA_DLX, true, false);
 	}
 
-	// ── RabbitTemplate (Jackson 직렬화) ───────────
+	// ── RabbitTemplate (Jackson 직렬화 + Zipkin 트레이싱) ───────────
 	@Bean
-	public RabbitTemplate rabbitTemplate(ConnectionFactory cf, ObjectMapper objectMapper) {
+	public RabbitTemplate rabbitTemplate(ConnectionFactory cf, ObjectMapper objectMapper,
+			ObservationRegistry observationRegistry) {
 		RabbitTemplate template = new RabbitTemplate(cf);
 		template.setMessageConverter(new Jackson2JsonMessageConverter(objectMapper));
+		template.setObservationEnabled(true);
 		return template;
 	}
 
 	@Bean
 	public MessageConverter messageConverter(ObjectMapper objectMapper) {
 		return new Jackson2JsonMessageConverter(objectMapper);
+	}
+
+	// ── ListenerContainerFactory (소비 측 Zipkin 트레이싱) ───────────
+	@Bean
+	public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory cf,
+			MessageConverter messageConverter, ObservationRegistry observationRegistry) {
+		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+		factory.setConnectionFactory(cf);
+		factory.setMessageConverter(messageConverter);
+		factory.setObservationEnabled(true);
+		return factory;
 	}
 }

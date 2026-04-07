@@ -2,12 +2,13 @@ package com.shipflow.productservice.application.dto.response;
 
 import java.util.UUID;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.NonNull;
 
 public record VendorInfoResponse(
-	@NonNull UUID id,
-	@NotBlank String name,
-	@NonNull UUID hubId
+	@JsonProperty("receiverCompanyId") @NonNull UUID id,
+	@JsonProperty("receiverCompanyName") String name,
+	@JsonProperty("departureCompanyHubId") @NonNull UUID hubId
 ) {
 }

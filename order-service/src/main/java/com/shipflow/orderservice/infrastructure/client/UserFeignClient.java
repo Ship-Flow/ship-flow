@@ -1,5 +1,6 @@
 package com.shipflow.orderservice.infrastructure.client;
 
+import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.orderservice.infrastructure.client.dto.UserInfo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,7 @@ import java.util.UUID;
 public interface UserFeignClient {
 
     @GetMapping("/internal/users/{userId}")
-    UserInfo getUserInfo(
+    ApiResponse<UserInfo> getUserInfo(
             @RequestHeader("X-Internal-Request") String internalRequest,
             @PathVariable("userId") UUID userId
     );

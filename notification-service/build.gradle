@@ -49,6 +49,10 @@ dependencies {
     implementation project(':common')
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+    // 7-1. Zipkin Tracing
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
     // 7. Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

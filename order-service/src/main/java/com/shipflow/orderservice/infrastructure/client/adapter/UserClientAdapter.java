@@ -26,7 +26,7 @@ public class UserClientAdapter {
     )
     public UserInfo fetch(UUID userId) {
         try {
-            return userFeignClient.getUserInfo("true", userId);
+            return userFeignClient.getUserInfo("true", userId).getData();
         }catch (RetryableException e) {
             throw e;
         }
