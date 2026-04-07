@@ -7,7 +7,7 @@
 - [🛠️ 기술 스택](#️-기술-스택)
 - [🏗️ 시스템 구조](#️-시스템-구조)
 - [👥 팀 역할 분담](#-팀-역할-분담)
-  
+
 ---
 
 ## 📅 프로젝트 기간
@@ -97,14 +97,14 @@ Swagger는 일부 서비스에 적용되어 있습니다.
 
 | 구분 | 기술 |
 | --- | --- |
-| Backend | Spring Boot 3.x, Java 21, JPA (QueryDSL) |
-| Security | Spring Cloud Gateway, Keycloak, JWT |
+| Backend | Spring Boot 3.x, Java 21, JPA (QueryDSL), FeignClient |
+| Security | Keycloak, JWT, OAuth2 Resource Server |
 | Architecture | MSA, Event-Driven, Saga Pattern |
 | DB | PostgreSQL |
 | Cache | Redis |
 | Messaging | RabbitMQ |
 | Infra | Docker, Docker Compose |
-| Service Discovery | Spring Cloud Eureka |
+| Gateway | Spring Cloud Gateway, Spring Cloud Eureka |
 | Docs | Swagger (SpringDoc) |
 | AI | Google Gemini API |
 | Slack | Slack Java SDK (`com.slack.api`) |
@@ -207,7 +207,6 @@ Swagger는 일부 서비스에 적용되어 있습니다.
 | 이현수 | Shipment Service |
 | 김지원 | User Service / Keycloak 인증 |
 | 이호영 | Notification Service (AI + Slack) |
-
 
 ---
 
