@@ -19,6 +19,11 @@ public class ShipmentRepositoryImpl implements ShipmentRepository {
 	private final ShipmentJpaRepository shipmentJpaRepository;
 
 	@Override
+	public Shipment save(Shipment shipment) {
+		return shipmentJpaRepository.save(shipment);
+	}
+
+	@Override
 	public Optional<Shipment> findById(UUID shipmentId) {
 		return shipmentJpaRepository.findById(shipmentId);
 	}
@@ -36,5 +41,10 @@ public class ShipmentRepositoryImpl implements ShipmentRepository {
 	@Override
 	public Optional<Shipment> findByIdWithRoutes(UUID shipmentId) {
 		return shipmentJpaRepository.findByIdWithRoutesAndManager(shipmentId);
+	}
+
+	@Override
+	public Optional<Shipment> findByOrderIdWithRoutes(UUID orderId) {
+		return shipmentJpaRepository.findByOrderIdWithRoutes(orderId);
 	}
 }

@@ -118,6 +118,10 @@ public class ShipmentRoute extends BaseEntity {
 		this.shipment = shipment;
 	}
 
+	public void markCanceled() {
+		this.status = ShipmentRouteStatus.CANCELED;
+	}
+
 	public void markMovingToHub() {
 		validateMovableToHub();
 		this.status = ShipmentRouteStatus.MOVING_TO_HUB;
