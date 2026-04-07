@@ -51,4 +51,25 @@ public interface ShipmentManagerJpaRepository extends JpaRepository<ShipmentMana
 		order by m.shipmentSequence asc
 		""")
 	List<ShipmentManager> findAllByType(@Param("type") ShipmentManagerType type);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.hubId = :hubId
+		and m.deletedAt is null
+		""")
+	List<ShipmentManager> findAllByHubId(@Param("hubId") UUID hubId);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.userId = :userId
+		and m.deletedAt is null
+		""")
+	Optional<ShipmentManager> findByUserId(@Param("userId") UUID userId);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.pendingDeletion = true
+		and m.deletedAt is null
+		""")
+	List<ShipmentManager> findAllPendingDeletion();
 }

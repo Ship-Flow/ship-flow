@@ -55,4 +55,19 @@ public class ShipmentManagerRepositoryImpl implements ShipmentManagerRepository 
 	public List<ShipmentManager> findAllByType(ShipmentManagerType type) {
 		return shipmentManagerJpaRepository.findAllByType(type);
 	}
+
+	@Override
+	public List<ShipmentManager> findAllByHubId(UUID hubId) {
+		return shipmentManagerJpaRepository.findAllByHubId(hubId);
+	}
+
+	@Override
+	public Optional<ShipmentManager> findByUserId(UUID userId) {
+		return shipmentManagerJpaRepository.findByUserId(userId);
+	}
+
+	@Override
+	public List<ShipmentManager> findAllPendingDeletion() {
+		return shipmentManagerJpaRepository.findAllPendingDeletion();
+	}
 }

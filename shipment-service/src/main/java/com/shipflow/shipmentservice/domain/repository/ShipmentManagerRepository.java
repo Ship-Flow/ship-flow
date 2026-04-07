@@ -25,4 +25,10 @@ public interface ShipmentManagerRepository {
 	Optional<ShipmentManager> findFirstAvailableByType(ShipmentManagerType type);
 
 	List<ShipmentManager> findAllByType(ShipmentManagerType type);
+
+	List<ShipmentManager> findAllByHubId(UUID hubId);
+
+	Optional<ShipmentManager> findByUserId(UUID userId);
+
+	List<ShipmentManager> findAllPendingDeletion();
 }

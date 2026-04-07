@@ -51,8 +51,15 @@ public class ShipmentManager extends BaseEntity {
 	@Column(name = "shipment_sequence", nullable = false)
 	private Integer shipmentSequence;
 
+	@Column(name = "pending_deletion", nullable = false)
+	private boolean pendingDeletion = false;
+
 	public void updateSequence(int sequence) {
 		this.shipmentSequence = sequence;
+	}
+
+	public void markPendingDeletion() {
+		this.pendingDeletion = true;
 	}
 
 	public void delete(UUID deletedBy) {
