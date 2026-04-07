@@ -7,11 +7,13 @@ import com.shipflow.orderservice.application.dto.CreateOrderCommand;
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.dto.UpdateOrderCommand;
 import com.shipflow.orderservice.application.service.OrderCommandService;
+import com.shipflow.orderservice.application.service.OrderFetchService;
 import com.shipflow.orderservice.domain.exception.OrderNotFoundException;
 import com.shipflow.orderservice.domain.model.Order;
 import com.shipflow.orderservice.domain.model.OrderStatus;
 import com.shipflow.orderservice.domain.repository.OrderRepository;
 import com.shipflow.orderservice.fixture.OrderFixture;
+import com.shipflow.orderservice.presentation.dto.CreateOrderRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +37,7 @@ class OrderCommandServiceTest {
     @Mock OrderRepository orderRepository;
     @Mock EventPublisher eventPublisher;
     @Mock ApplicationEventPublisher domainEventPublisher;
+    @Mock OrderFetchService orderFetchService;
     @InjectMocks OrderCommandService orderCommandService;
 
     private final UUID orderId = OrderFixture.ORDER_ID;
@@ -46,16 +50,19 @@ class OrderCommandServiceTest {
     @Test
     void createOrder_성공_저장후이벤트발행() {
         Order order = OrderFixture.order(orderId);
-        when(orderRepository.save(any(Order.class))).thenReturn(order); // 가짜 객체 save 가 실행되면 실제로 실행하지 않고 order를 return 받는 과정
 
         CreateOrderCommand cmd = new CreateOrderCommand(
-                OrderFixture.USER_ID, OrderFixture.PRODUCT_ID,
-                OrderFixture.SUPPLIER_ID, OrderFixture.RECEIVER_ID,
+                OrderFixture.USER_ID, "주문자명", OrderFixture.PRODUCT_ID, "상품명",
+                OrderFixture.SUPPLIER_ID, "공급사명",
+                OrderFixture.RECEIVER_ID, "수신사명",
                 OrderFixture.DEP_HUB_ID, OrderFixture.ARR_HUB_ID,
-                10, OrderFixture.DEADLINE, "테스트 메모"
+                10, OrderFixture.DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1"
         );
+        when(orderFetchService.fetchAndBuild(any(), any(), anyInt(), any(), any())).thenReturn(cmd);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-        OrderResult result = orderCommandService.createOrder(cmd, userId);
+        CreateOrderRequest request = OrderFixture.createRequest();
+        OrderResult result = orderCommandService.createOrder(request, userId);
 
         assertThat(result.status()).isEqualTo(OrderStatus.CREATING);
         verify(orderRepository).save(any(Order.class));

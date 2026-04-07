@@ -1,5 +1,6 @@
 package com.shipflow.orderservice.infrastructure.web;
 
+import com.shipflow.orderservice.domain.model.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 
@@ -20,11 +21,11 @@ public class UserContext {
         return UUID.fromString(userId);
     }
 
-    public String getUserRole(HttpServletRequest request) {
+    public UserRole getUserRole(HttpServletRequest request) {
         String role = request.getHeader("X-User-Role");
         if (role == null || role.isBlank()) {
             throw new IllegalArgumentException("X-User-Role 헤더가 없습니다.");
         }
-        return role;
+        return UserRole.from(role);
     }
 }

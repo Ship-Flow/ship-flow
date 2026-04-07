@@ -31,7 +31,7 @@ public class OrderFixture {
                 orderId, USER_ID, PRODUCT_ID, null,
                 SUPPLIER_ID, RECEIVER_ID, DEP_HUB_ID, ARR_HUB_ID,
                 10, OrderStatus.CREATING, null,
-                DEADLINE, "테스트 메모",
+                DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1",
                 USER_ID, LocalDateTime.of(2026, 4, 1, 9, 0),
                 null, null
         );
@@ -45,7 +45,7 @@ public class OrderFixture {
                 new HubInfo(DEP_HUB_ID, ARR_HUB_ID),
                 new Quantity(10),
                 OrderStatus.CREATING, null,
-                DEADLINE, "테스트 메모",
+                DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1",
                 USER_ID, LocalDateTime.of(2026, 4, 1, 9, 0),
                 null, null, null, null
         );
@@ -77,10 +77,28 @@ public class OrderFixture {
                 new HubInfo(DEP_HUB_ID, ARR_HUB_ID),
                 new Quantity(10),
                 OrderStatus.CREATED, null,
-                DEADLINE, "테스트 메모",
+                DEADLINE, "테스트 메모", "서울시 강남구 테스트로 1",
                 USER_ID, LocalDateTime.of(2026, 4, 1, 9, 0),
                 null, null, null, null
         );
+    }
+
+    public static OrderReadModel orderReadModelWithStatus(UUID orderId, OrderStatus status) {
+        return OrderReadModel.builder()
+                .orderId(orderId)
+                .orderStatus(status)
+                .ordererId(USER_ID)
+                .productId(PRODUCT_ID)
+                .supplierCompanyId(SUPPLIER_ID)
+                .receiverCompanyId(RECEIVER_ID)
+                .departureHubId(DEP_HUB_ID)
+                .arrivalHubId(ARR_HUB_ID)
+                .quantity(10)
+                .requestDeadline(DEADLINE)
+                .requestNote("테스트 메모")
+                .createdBy(USER_ID)
+                .createdAt(LocalDateTime.of(2026, 4, 1, 9, 0))
+                .build();
     }
 
     public static OrderReadModel createdOrderReadModel(UUID orderId) {
@@ -103,10 +121,7 @@ public class OrderFixture {
 
     public static CreateOrderRequest createRequest() {
         return new CreateOrderRequest(
-                USER_ID, PRODUCT_ID,
-                SUPPLIER_ID, RECEIVER_ID,
-                DEP_HUB_ID, ARR_HUB_ID,
-                10, DEADLINE, "테스트 메모"
+                PRODUCT_ID, 10, DEADLINE, "테스트 메모"
         );
     }
 

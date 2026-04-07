@@ -4,6 +4,7 @@ import com.shipflow.orderservice.application.dto.CancelOrderCommand;
 import com.shipflow.orderservice.application.dto.CreateOrderCommand;
 import com.shipflow.orderservice.application.dto.OrderResult;
 import com.shipflow.orderservice.application.dto.UpdateOrderCommand;
+import com.shipflow.orderservice.presentation.dto.CreateOrderRequest;
 import com.shipflow.common.messaging.publisher.EventPublisher;
 import com.shipflow.orderservice.domain.event.*;
 import com.shipflow.orderservice.domain.model.ShipmentStatus;
@@ -29,8 +30,14 @@ public class OrderCommandService {
     private final OrderRepository orderRepository;
     private final EventPublisher rabbitPublisher;
     private final ApplicationEventPublisher domainEventPublisher;
+    private final OrderFetchService orderFetchService;
 
-    public OrderResult createOrder(CreateOrderCommand cmd, UUID requesterId) {
+    public OrderResult createOrder(CreateOrderRequest request, UUID ordererId) {
+        CreateOrderCommand cmd = orderFetchService.fetchAndBuild(
+                ordererId, request.productId(), request.quantity(),
+                request.requestDeadline(), request.requestNote()
+        );
+
         Order order = Order.create(
                 cmd.ordererId(),
                 cmd.productId(),
@@ -39,14 +46,16 @@ public class OrderCommandService {
                 new Quantity(cmd.quantity()),
                 cmd.requestDeadline(),
                 cmd.requestNote(),
-                requesterId
+                cmd.deliveryAddress(),
+                ordererId
         );
         Order saved = orderRepository.save(order);
 
         domainEventPublisher.publishEvent(new OrderCreatingEvent(
-                saved.getId(), saved.getOrdererId(), saved.getProductId(),
-                saved.getCompanyInfo().getSupplierCompanyId(),
-                saved.getCompanyInfo().getReceiverCompanyId(),
+                saved.getId(), saved.getOrdererId(), cmd.ordererName(),
+                saved.getProductId(), cmd.productName(),
+                saved.getCompanyInfo().getSupplierCompanyId(), cmd.supplierCompanyName(),
+                saved.getCompanyInfo().getReceiverCompanyId(), cmd.receiverCompanyName(),
                 saved.getHubInfo().getDepartureHubId(),
                 saved.getHubInfo().getArrivalHubId(),
                 saved.getQuantity().getValue(),
@@ -71,13 +80,16 @@ public class OrderCommandService {
         rabbitPublisher.publish(
                 new OrderCreatedEvent(
                         saved.getId(),
+                        saved.getOrdererId(),
                         saved.getCompanyInfo().getSupplierCompanyId(),
                         saved.getCompanyInfo().getReceiverCompanyId(),
                         saved.getProductId(),
                         saved.getQuantity().getValue(),
                         saved.getHubInfo().getDepartureHubId(),
                         saved.getHubInfo().getArrivalHubId(),
-                        saved.getRequestDeadline()
+                        saved.getRequestDeadline(),
+                        saved.getRequestNote(),
+                        saved.getDeliveryAddress()
                 )
         );
     }

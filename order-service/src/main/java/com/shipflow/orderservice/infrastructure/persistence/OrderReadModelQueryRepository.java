@@ -1,15 +1,10 @@
-package com.shipflow.orderservice.domain.repository;
+package com.shipflow.orderservice.infrastructure.persistence;
 
 import com.shipflow.orderservice.application.dto.OrderSearchCondition;
 import com.shipflow.orderservice.domain.model.OrderReadModel;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import java.util.Optional;
-import java.util.UUID;
-
-public interface OrderReadModelRepository {
-    Optional<OrderReadModel> findById(UUID orderId);
-    OrderReadModel save(OrderReadModel readModel);
+public interface OrderReadModelQueryRepository {
     Slice<OrderReadModel> search(OrderSearchCondition condition, Pageable pageable);
 }

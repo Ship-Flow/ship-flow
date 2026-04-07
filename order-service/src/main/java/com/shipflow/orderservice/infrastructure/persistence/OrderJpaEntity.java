@@ -56,6 +56,8 @@ public class OrderJpaEntity extends BaseEntity {  // 데이터 모델
 
     private String requestNote;
 
+    private String deliveryAddress;
+
     // Order -> OrderJpaEntity (Order 객체를 DB 에 저장할때)
     public static OrderJpaEntity from(Order order) {
         OrderJpaEntity entity = new OrderJpaEntity();
@@ -70,6 +72,7 @@ public class OrderJpaEntity extends BaseEntity {  // 데이터 모델
         entity.cancelReason = order.getCancelReason();
         entity.requestDeadline = order.getRequestDeadline();
         entity.requestNote = order.getRequestNote();
+        entity.deliveryAddress = order.getDeliveryAddress();
         entity.createdBy = order.getCreatedBy();
         entity.createdAt = order.getCreatedAt();
         entity.updatedBy = order.getUpdatedBy();
@@ -84,7 +87,7 @@ public class OrderJpaEntity extends BaseEntity {  // 데이터 모델
         return Order.reconstruct(
                 id, ordererId, productId, shipmentId,
                 companyInfo, hubInfo, quantity,
-                status, cancelReason, requestDeadline, requestNote,
+                status, cancelReason, requestDeadline, requestNote, deliveryAddress,
                 createdBy, createdAt, updatedBy, updatedAt, deletedBy, deletedAt
         );
     }
