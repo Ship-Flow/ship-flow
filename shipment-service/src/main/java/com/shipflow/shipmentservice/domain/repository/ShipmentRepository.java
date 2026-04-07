@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import com.shipflow.shipmentservice.domain.Shipment;
 
 public interface ShipmentRepository {
+	Shipment save(Shipment shipment);
+
 	Optional<Shipment> findById(UUID shipmentId);
 
 	Optional<Shipment> findByIdWithManager(UUID shipmentId);
@@ -16,4 +18,6 @@ public interface ShipmentRepository {
 	List<Shipment> findAll(Pageable pageable);
 
 	Optional<Shipment> findByIdWithRoutes(UUID shipmentId);
+
+	Optional<Shipment> findByOrderIdWithRoutes(UUID orderId);
 }

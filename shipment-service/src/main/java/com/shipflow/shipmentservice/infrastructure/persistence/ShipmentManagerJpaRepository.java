@@ -1,5 +1,6 @@
 package com.shipflow.shipmentservice.infrastructure.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,4 +34,44 @@ public interface ShipmentManagerJpaRepository extends JpaRepository<ShipmentMana
 	);
 
 	Optional<ShipmentManager> findByIdAndDeletedAtIsNull(UUID managerId);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.type = :type
+		and m.deletedAt is null
+		and m.pendingDeletion = false
+		order by m.shipmentSequence asc
+		limit 1
+		""")
+	Optional<ShipmentManager> findFirstAvailableByType(@Param("type") ShipmentManagerType type);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.type = :type
+		and m.deletedAt is null
+		and m.pendingDeletion = false
+		order by m.shipmentSequence asc
+		""")
+	List<ShipmentManager> findAllByType(@Param("type") ShipmentManagerType type);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.hubId = :hubId
+		and m.deletedAt is null
+		""")
+	List<ShipmentManager> findAllByHubId(@Param("hubId") UUID hubId);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.userId = :userId
+		and m.deletedAt is null
+		""")
+	Optional<ShipmentManager> findByUserId(@Param("userId") UUID userId);
+
+	@Query("""
+		select m from ShipmentManager m
+		where m.pendingDeletion = true
+		and m.deletedAt is null
+		""")
+	List<ShipmentManager> findAllPendingDeletion();
 }

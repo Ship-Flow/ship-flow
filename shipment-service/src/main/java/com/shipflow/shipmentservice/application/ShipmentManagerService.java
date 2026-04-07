@@ -27,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class ShipmentManagerService {
 
+	private static final UUID SYSTEM_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
 	private final ShipmentManagerRepository shipmentManagerRepository;
 	private final UserClient userClient;
 
@@ -106,5 +108,23 @@ public class ShipmentManagerService {
 			.orElseThrow(() -> new BusinessException(ShipmentErrorCode.SHIPMENT_MANAGER_NOT_FOUND));
 
 		shipmentManager.delete(userId);
+	}
+
+	@Transactional
+	public void markPendingDeletionByHubId(UUID hubId) {
+		List<ShipmentManager> managers = shipmentManagerRepository.findAllByHubId(hubId);
+		managers.forEach(ShipmentManager::markPendingDeletion);
+	}
+
+	@Transactional
+	public void markPendingDeletionByUserId(UUID userId) {
+		shipmentManagerRepository.findByUserId(userId)
+			.ifPresent(ShipmentManager::markPendingDeletion);
+	}
+
+	@Transactional
+	public void deleteAllPending() {
+		List<ShipmentManager> pending = shipmentManagerRepository.findAllPendingDeletion();
+		pending.forEach(m -> m.delete(SYSTEM_ID));
 	}
 }
