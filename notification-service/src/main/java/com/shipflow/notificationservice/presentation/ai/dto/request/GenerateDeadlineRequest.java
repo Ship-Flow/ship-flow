@@ -7,20 +7,21 @@ import java.util.UUID;
 import com.shipflow.notificationservice.application.ai.dto.command.GenerateDeadlineCommand;
 import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record GenerateDeadlineRequest(
 	@NotNull UUID orderId,
 	@NotNull UUID relatedShipmentId,
-	@NotNull UUID shipmentManagerId,
-	@NotNull String receiverSlackId,
+	UUID shipmentManagerId,              // @NotNull 제거 - 이벤트에서 못받음
+	@NotBlank String receiverSlackId,    // @NotNull -> @NotBlank
 	@NotNull UUID productId,
-	@NotNull String product,
+	@NotBlank String product,            // @NotNull -> @NotBlank
 	@NotNull Integer quantity,
 	@NotNull UUID departureHubId,
-	@NotNull String fromHub,
+	@NotBlank String fromHub,            // @NotNull -> @NotBlank
 	@NotNull UUID arrivalHubId,
-	@NotNull String toHub,
+	@NotBlank String toHub,              // @NotNull -> @NotBlank
 	List<String> route,
 	String requestNote,
 	@NotNull LocalDateTime deadline,

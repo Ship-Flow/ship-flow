@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +21,7 @@ import com.shipflow.notificationservice.application.slack.SlackAppService;
 import com.shipflow.notificationservice.application.slack.dto.command.SearchSlackMessageCommand;
 import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
 import com.shipflow.notificationservice.domain.slack.type.SlackSendStatus;
+import com.shipflow.notificationservice.presentation.common.BasePageRequest;
 import com.shipflow.notificationservice.presentation.common.BasePageResponse;
 import com.shipflow.notificationservice.presentation.slack.dto.request.SendSlackMessageRequest;
 import com.shipflow.notificationservice.presentation.slack.dto.request.UpdateSlackMessageRequest;
@@ -80,7 +80,7 @@ public class SlackController {
 		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAtFrom,
 		@RequestParam(required = false)
 		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAtTo,
-		Pageable pageable
+		BasePageRequest pageRequest
 	) {
 		Page<SlackMessageResponse> page = slackAppService.getSlackMessages(
 				new SearchSlackMessageCommand(
@@ -92,7 +92,7 @@ public class SlackController {
 					createdAtFrom,
 					createdAtTo
 				),
-				pageable
+				pageRequest.toPageable()
 			)
 			.map(SlackMessageResponse::from);
 
