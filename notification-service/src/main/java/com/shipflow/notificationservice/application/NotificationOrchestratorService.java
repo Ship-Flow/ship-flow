@@ -40,7 +40,16 @@ public class NotificationOrchestratorService {
 	public void handleShipmentCreated(ShipmentCreatedEvent event) {
 		//1. 주문 정보 조회
 		OrderReadModelResponse order = getOrderReadModel(event.getOrderId());
-		String slackId = resolveSlackId(event);
+		String slackId = event.getShipmentManagerSlackId();
+
+		// slackId 없으면 AI만 저장하고 슬랙 발송 스킵
+		if (slackId == null || slackId.isBlank()) {
+			GenerateDeadlineCommand command = toGenerateDeadlineCommand(event, order, UNKNOWN);
+			AiLogResult aiResult = aiAppService.generateAiLog(command);
+			// 5. 슬랙 발송 불가 → AiLog 상태 업데이트 (별도 트랜잭션)
+			markSlackSendFail(aiResult.aiId());
+			return;
+		}
 
 		// 2. AI 호출 + AiLog 저장 → AiAppService
 		GenerateDeadlineCommand command = toGenerateDeadlineCommand(event, order, slackId);
@@ -111,11 +120,6 @@ public class NotificationOrchestratorService {
 		} catch (Exception e) {
 			return null;
 		}
-	}
-
-	private String resolveSlackId(ShipmentCreatedEvent event) {
-		String slackId = event.getShipmentManagerSlackId();
-		return (slackId == null || slackId.isBlank()) ? UNKNOWN : slackId;
 	}
 
 	private String extractProductText(OrderReadModelResponse order) {

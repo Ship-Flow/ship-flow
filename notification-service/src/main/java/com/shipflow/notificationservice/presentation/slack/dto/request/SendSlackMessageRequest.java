@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
 
 public record SendSlackMessageRequest(
 	@NotBlank
-	@Pattern(regexp = "^[UCDG][A-Z0-9]+$", message = "올바른 Slack ID 형식이 아닙니다.")
+	@Pattern(regexp = "^[UCDGW][A-Z0-9]+$", message = "올바른 Slack ID 형식이 아닙니다.")
 	String receiverSlackId,
 
 	UUID relatedShipmentId,
