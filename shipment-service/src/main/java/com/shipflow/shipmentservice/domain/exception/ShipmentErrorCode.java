@@ -30,6 +30,10 @@ public enum ShipmentErrorCode implements ErrorCode {
 	SHIPMENT_MANAGER_SLACK_ID_REQUIRED(HttpStatus.BAD_REQUEST, "배송 담당자 slackId는 필수입니다."),
 	INVALID_SHIPMENT_SEQUENCE(HttpStatus.BAD_REQUEST, "배송 순번은 0 이상이어야 합니다."),
 
+	// Auth
+	MISSING_USER_ID(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
+	MISSING_USER_ROLE(HttpStatus.FORBIDDEN, "권한 정보가 없습니다."),
+
 	// External Service
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 	USER_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "사용자 서비스에 연결할 수 없습니다."),

@@ -16,11 +16,11 @@ import com.shipflow.shipmentservice.application.ShipmentService;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentCompleteResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentRouteUpdateResult;
 import com.shipflow.shipmentservice.application.dto.result.ShipmentUpdateResult;
+import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentReqDto;
+import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentRouteReqDto;
 import com.shipflow.shipmentservice.presentation.dto.response.GetShipmentResDto;
 import com.shipflow.shipmentservice.presentation.dto.response.GetShipmentRouteListResDto;
-import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentReqDto;
 import com.shipflow.shipmentservice.presentation.dto.response.PatchShipmentResDto;
-import com.shipflow.shipmentservice.presentation.dto.request.PatchShipmentRouteReqDto;
 import com.shipflow.shipmentservice.presentation.dto.response.PatchShipmentRouteResDto;
 import com.shipflow.shipmentservice.presentation.dto.response.ShipmentCompleteResDto;
 import com.shipflow.shipmentservice.presentation.dto.response.ShipmentSearchResDto;
@@ -39,7 +39,8 @@ public class ShipmentController {
 	 */
 	@GetMapping("/api/shipments")
 	public ApiResponse<List<ShipmentSearchResDto>> searchShipment(
-		Pageable pageable
+		Pageable pageable,
+		UserContext userContext
 	) {
 		List<ShipmentSearchResDto> shipmentList = shipmentService.searchShipment(pageable).stream()
 			.map(ShipmentSearchResDto::fromResult)
@@ -52,7 +53,8 @@ public class ShipmentController {
 	 */
 	@GetMapping("/api/shipments/{shipmentId}")
 	public ApiResponse<GetShipmentResDto> getShipment(
-		@PathVariable UUID shipmentId
+		@PathVariable UUID shipmentId,
+		UserContext userContext
 	) {
 		return ApiResponse.ok(GetShipmentResDto.fromResult(shipmentService.getShipment(shipmentId)));
 	}
@@ -62,7 +64,8 @@ public class ShipmentController {
 	 */
 	@GetMapping("/api/shipments/{shipmentId}/routes")
 	public ApiResponse<List<GetShipmentRouteListResDto>> getShipmentRoutes(
-		@PathVariable UUID shipmentId
+		@PathVariable UUID shipmentId,
+		UserContext userContext
 	) {
 		List<GetShipmentRouteListResDto> routes = shipmentService.getShipmentRoutes(shipmentId).stream()
 			.map(GetShipmentRouteListResDto::fromResult)
@@ -76,7 +79,8 @@ public class ShipmentController {
 	@PatchMapping("/api/shipments/{shipmentId}")
 	public ApiResponse<PatchShipmentResDto> updateShipment(
 		@PathVariable UUID shipmentId,
-		@Valid @RequestBody PatchShipmentReqDto request
+		@Valid @RequestBody PatchShipmentReqDto request,
+		UserContext userContext
 	) {
 		ShipmentUpdateResult result = shipmentService.updateShipment(shipmentId, request.toCommand());
 		return ApiResponse.ok(PatchShipmentResDto.fromResult(result));
@@ -89,20 +93,21 @@ public class ShipmentController {
 	public ApiResponse<PatchShipmentRouteResDto> updateShipmentRoute(
 		@PathVariable UUID shipmentId,
 		@PathVariable UUID routeId,
-		@Valid @RequestBody PatchShipmentRouteReqDto request
+		@Valid @RequestBody PatchShipmentRouteReqDto request,
+		UserContext userContext
 	) {
 		ShipmentRouteUpdateResult result = shipmentService.updateShipmentRoute(
 			shipmentId,
 			routeId,
 			request.toCommand()
 		);
-
 		return ApiResponse.ok(PatchShipmentRouteResDto.fromResult(result));
 	}
 
 	@PostMapping("/api/shipments/{shipmentId}/complete")
 	public ApiResponse<ShipmentCompleteResDto> completeShipment(
-		@PathVariable UUID shipmentId
+		@PathVariable UUID shipmentId,
+		UserContext userContext
 	) {
 		ShipmentCompleteResult result = shipmentService.completeShipment(shipmentId);
 		return ApiResponse.ok(ShipmentCompleteResDto.fromResult(result));
