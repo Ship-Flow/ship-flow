@@ -20,7 +20,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9001/realms/shipflow
+          issuer-uri: http://keycloak:8080/realms/shipflow
 
   cloud:
     openfeign:
@@ -31,13 +31,13 @@ spring:
             readTimeout: 5000
 
 keycloak:
-  server-url: http://localhost:9001
-  realm: master
-  user-realm: shipflow
-  admin-client-id: admin-cli
-  admin-username: ${KEYCLOAK_ADMIN}
+  server-url: http://keycloak:8080
+  realm: ${KEYCLOAK_REALM}
+  user-realm: ${KEYCLOAK_REALM_USER}
+  admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}
+  admin-username: ${KEYCLOAK_ADMIN_USERNAME}
   admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
-  login-client-id: shipflow-api
+  login-client-id: ${KEYCLOAK_LOGIN_CLIENT_ID}
 
 eureka:
   client:

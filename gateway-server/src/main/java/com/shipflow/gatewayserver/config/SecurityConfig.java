@@ -2,15 +2,33 @@ package com.shipflow.gatewayserver.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import reactor.core.publisher.Mono;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
 public class SecurityConfig {
 
     private static final String[] WHITELIST = {
@@ -29,7 +47,6 @@ public class SecurityConfig {
     public static final String SHIPMANAGER = "/api/shipment-managers/**";
     public static final String AILOG = "/api/ai/**";
     public static final String SLACK = "/api/slack/**";
-
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -77,9 +94,36 @@ public class SecurityConfig {
                 )
 
                 .oauth2ResourceServer(oauth -> oauth
-                        .jwt(Customizer.withDefaults())
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor()))
                 )
 
                 .build();
+    }
+
+    @Bean
+    public Converter<Jwt, Mono<AbstractAuthenticationToken>> grantedAuthoritiesExtractor() {
+        Converter<Jwt, Collection<GrantedAuthority>> delegate = jwt -> {
+            JwtGrantedAuthoritiesConverter defaultConverter = new JwtGrantedAuthoritiesConverter();
+            Collection<GrantedAuthority> defaultAuthorities = defaultConverter.convert(jwt);
+
+            Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+            List<GrantedAuthority> realmRoles = List.of();
+
+            if (realmAccess != null && realmAccess.get("roles") instanceof List<?> roles) {
+                realmRoles = roles.stream()
+                        .map(Object::toString)
+                        .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+            }
+
+            return Stream.concat(defaultAuthorities.stream(), realmRoles.stream())
+                    .collect(Collectors.toSet());
+        };
+
+        return new ReactiveJwtAuthenticationConverterAdapter(jwt -> {
+            Collection<GrantedAuthority> authorities = delegate.convert(jwt);
+            return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
+        });
     }
 }

@@ -31,6 +31,6 @@ public class SecurityConfig {
 
 	@Bean
 	public JwtDecoder jwtDecoder() {
-		return JwtDecoders.fromIssuerLocation("http://localhost:9001/realms/shipflow");
+		return JwtDecoders.fromIssuerLocation("http://keycloak:8080/realms/shipflow");
 	}
 }

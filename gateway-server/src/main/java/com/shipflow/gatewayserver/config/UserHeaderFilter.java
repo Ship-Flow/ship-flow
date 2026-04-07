@@ -1,5 +1,7 @@
 package com.shipflow.gatewayserver.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -19,56 +21,68 @@ import com.shipflow.gatewayserver.exception.GateErrorCode;
 @Component
 public class UserHeaderFilter implements GlobalFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(UserHeaderFilter.class);
+
     private static final String USER_ID_HEADER = "X-User-Id";
     private static final String USER_ROLE_HEADER = "X-User-Role";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-        // 모든 요청에서 먼저 헤더 제거 (핵심!)
+        log.info("[UserHeaderFilter] entered. path={}, method={}",
+                exchange.getRequest().getURI().getPath(),
+                exchange.getRequest().getMethod());
+
         ServerWebExchange sanitizedExchange = exchange.mutate()
-            .request(exchange.getRequest().mutate()
-                .headers(headers -> {
-                    headers.remove(USER_ID_HEADER);
-                    headers.remove(USER_ROLE_HEADER);
-                })
-                .build())
-            .build();
+                .request(exchange.getRequest().mutate()
+                        .headers(headers -> {
+                            headers.remove(USER_ID_HEADER);
+                            headers.remove(USER_ROLE_HEADER);
+                        })
+                        .build())
+                .build();
 
         return sanitizedExchange.getPrincipal()
-            .ofType(Authentication.class)
-            .flatMap(auth -> {
+                .doOnNext(p -> log.info("[UserHeaderFilter] principal={}", p.getClass().getName()))
+                .switchIfEmpty(Mono.fromRunnable(() ->
+                        log.warn("[UserHeaderFilter] principal is empty")
+                ))
+                .ofType(Authentication.class)
+                .doOnNext(auth -> log.info("[UserHeaderFilter] auth class={}", auth.getClass().getName()))
+                .flatMap(auth -> {
+                    if (auth instanceof JwtAuthenticationToken jwtAuth) {
+                        Jwt jwt = jwtAuth.getToken();
 
-                if (auth instanceof JwtAuthenticationToken jwtAuth) {
-                    Jwt jwt = jwtAuth.getToken();
+                        String userId = jwt.getSubject();
+                        String role = extractRole(jwt);
 
-                    String userId = jwt.getSubject();
-                    String role = extractRole(jwt);
+                        log.info("[UserHeaderFilter] JWT subject={}", userId);
+                        log.info("[UserHeaderFilter] JWT role={}", role);
+                        log.info("[UserHeaderFilter] realm_access={}", jwt.getClaimAsMap("realm_access"));
 
-                    if (userId == null || userId.isBlank() || role == null || role.isBlank()) {
-                        return Mono.error(new BusinessException(GateErrorCode.MISSING_ROLES));
+                        if (userId == null || userId.isBlank() || role == null || role.isBlank()) {
+                            return Mono.error(new BusinessException(GateErrorCode.MISSING_ROLES));
+                        }
+
+                        ServerHttpRequest mutated = sanitizedExchange.getRequest().mutate()
+                                .headers(headers -> {
+                                    headers.add(USER_ID_HEADER, userId);
+                                    headers.add(USER_ROLE_HEADER, role);
+                                })
+                                .build();
+
+                        return chain.filter(
+                                sanitizedExchange.mutate().request(mutated).build()
+                        );
                     }
 
-                    // JWT 값으로만 재주입
-                    ServerHttpRequest mutated = sanitizedExchange.getRequest().mutate()
-                        .headers(headers -> {
-                            headers.add(USER_ID_HEADER, userId);
-                            headers.add(USER_ROLE_HEADER, role);
-                        })
-                        .build();
-
-                    return chain.filter(
-                        sanitizedExchange.mutate().request(mutated).build()
-                    );
-                }
-
-                return chain.filter(sanitizedExchange);
-            })
-            .switchIfEmpty(chain.filter(sanitizedExchange));
+                    log.warn("[UserHeaderFilter] Authentication exists but not JwtAuthenticationToken");
+                    return chain.filter(sanitizedExchange);
+                })
+                .switchIfEmpty(chain.filter(sanitizedExchange));
     }
 
-
-    private String extractRole(Jwt jwt) { //role 추출
+    private String extractRole(Jwt jwt) {
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
         if (realmAccess == null) {
             throw new BusinessException(GateErrorCode.MISSING_REALM_ACCESS);
