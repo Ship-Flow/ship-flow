@@ -39,6 +39,7 @@ public interface ShipmentManagerJpaRepository extends JpaRepository<ShipmentMana
 		select m from ShipmentManager m
 		where m.type = :type
 		and m.deletedAt is null
+		and m.pendingDeletion = false
 		order by m.shipmentSequence asc
 		limit 1
 		""")
@@ -48,6 +49,7 @@ public interface ShipmentManagerJpaRepository extends JpaRepository<ShipmentMana
 		select m from ShipmentManager m
 		where m.type = :type
 		and m.deletedAt is null
+		and m.pendingDeletion = false
 		order by m.shipmentSequence asc
 		""")
 	List<ShipmentManager> findAllByType(@Param("type") ShipmentManagerType type);
