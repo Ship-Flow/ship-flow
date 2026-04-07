@@ -29,6 +29,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // Service Discovery
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
     // Feign
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
 
@@ -47,9 +51,6 @@ dependencies {
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-    // Feign
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

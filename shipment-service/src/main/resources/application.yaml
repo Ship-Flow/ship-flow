@@ -1,13 +1,15 @@
 spring:
   application:
-    name: shipment-service
+    name: shipmentservice
 
+  #DB
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:shipflow}?currentSchema=shipment
     username: ${DB_USER:shipflow}
     password: ${DB_PASSWORD:1234}
 
+  #JPA
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,11 +19,13 @@ spring:
         format_sql: true
         default_schema: shipment
 
+  #Redis
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  # RabbitMQ
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: 5672
@@ -34,3 +38,35 @@ spring:
           max-attempts: 3
           initial-interval: 1000ms
           multiplier: 2.0
+server:
+  port: 8080
+
+# Service Discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discoveryserver:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+# Feign
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
