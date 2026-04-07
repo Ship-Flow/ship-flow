@@ -90,6 +90,7 @@ public class ShipmentService {
 				saved.getArrivalHubId(),
 				command.requestDeadline(),
 				command.requestNote(),
+				companyManager.getSlackId(),
 				eventRoutes
 			));
 

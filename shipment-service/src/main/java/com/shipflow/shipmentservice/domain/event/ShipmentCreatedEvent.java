@@ -13,6 +13,7 @@ public record ShipmentCreatedEvent(
 	UUID arrivalHubId,
 	LocalDateTime requestDeadline,
 	String requestNote,
+	String shipmentManagerSlackId,
 	List<Route> routes
 ) {
 	public record Route(int sequence, UUID departureHubId, UUID arrivalHubId) {

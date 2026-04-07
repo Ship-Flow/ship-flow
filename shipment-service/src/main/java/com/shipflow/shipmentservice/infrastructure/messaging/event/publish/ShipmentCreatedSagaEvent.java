@@ -22,6 +22,7 @@ public class ShipmentCreatedSagaEvent extends SagaEvent {
 	private final UUID arrivalHubId;
 	private final LocalDateTime requestDeadline;
 	private final String requestNote;
+	private final String shipmentManagerSlackId;
 	private final List<Route> routes;
 
 	public ShipmentCreatedSagaEvent(ShipmentCreatedEvent event) {
@@ -34,6 +35,7 @@ public class ShipmentCreatedSagaEvent extends SagaEvent {
 		this.arrivalHubId = event.arrivalHubId();
 		this.requestDeadline = event.requestDeadline();
 		this.requestNote = event.requestNote();
+		this.shipmentManagerSlackId = event.shipmentManagerSlackId();
 		this.routes = event.routes().stream()
 			.map(r -> new Route(r.sequence(), r.departureHubId(), r.arrivalHubId()))
 			.toList();
