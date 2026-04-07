@@ -38,7 +38,7 @@ public class Shipment extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@Column(name = "order_id", nullable = false)
+	@Column(name = "order_id", nullable = false, unique = true)
 	private UUID orderId;
 
 	@Enumerated(EnumType.STRING)
