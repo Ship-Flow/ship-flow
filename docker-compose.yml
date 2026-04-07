@@ -215,6 +215,12 @@ services:
       - "5433:5432"
     volumes:
       - shipflow_keycloak_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   keycloak:
     build:
@@ -239,13 +245,14 @@ services:
     ports:
       - "9001:8080"
     depends_on:
-      - keycloak-postgres
+      keycloak-postgres:
+        condition: service_healthy
     healthcheck:
-          test: [ "CMD-SHELL", "nc -z localhost 8080" ]
-          interval: 10s
-          timeout: 5s
-          retries: 20
-          start_period: 120s
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 180s
 
 volumes:
   shipflow_postgres_data:
