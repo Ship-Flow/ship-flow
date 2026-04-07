@@ -74,7 +74,7 @@ public class ProductService {
 		validateAuth(companyId);
 
 		UUID deleterId = UserContext.getUserId();
-		Product product = findProductById(productId);
+		Product product = validateProductOwnership(productId, companyId);
 		product.delete(deleterId);
 		productRepository.save(product);
 
@@ -173,10 +173,8 @@ public class ProductService {
 			.orElseThrow(() -> new BusinessException(CommonErrorCode.INTERNAL_SERVER_ERROR));
 
 		if(currentStock<0){
-			Long restoreStock=redisTemplate.opsForValue().increment(stockKey, (long)quantity);
-			return new StockInfoResponse(productId, product.getName(), product.getCompanyId(),
-				product.getCompanyName(), product.getHubId(),
-				restoreStock != null ? restoreStock.intValue() : currentStock.intValue());
+			redisTemplate.opsForValue().increment(stockKey, (long)quantity);
+			throw new BusinessException(ProductErrorCode.EXCEEDS_STOCK_LEVEL);
 		}
 
 		redisTemplate.opsForValue().set(occupancyKey, quantity, Duration.ofSeconds(5));
