@@ -1,6 +1,6 @@
 spring:
   application:
-    name: notification-service
+    name: notificationservice
 
   datasource:
     driver-class-name: org.postgresql.Driver

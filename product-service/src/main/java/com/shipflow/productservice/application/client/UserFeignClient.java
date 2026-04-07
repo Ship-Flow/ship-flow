@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.productservice.application.dto.response.UserInfoResponse;
 
-@FeignClient(name = "user-service")
+@FeignClient(name = "userservice")
 public interface UserFeignClient {
 	@GetMapping("/internal/users/{userId}")
 	ApiResponse<UserInfoResponse> getUserInfoById(@PathVariable("userId") UUID userId);

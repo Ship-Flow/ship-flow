@@ -1,0 +1,814 @@
+{
+  "info": {
+    "_postman_id": "f20d4b3e-fd5d-4f03-a7f8-9ccee2c638f5",
+    "name": "Ship-flow E2E (주문+배송)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "----------- 사전 준비 -----------",
+      "request": { "method": "GET", "header": [] },
+      "response": []
+    },
+    {
+      "name": "로그인",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "pm.collectionVariables.set(\"token\", res.accessToken);",
+              "pm.test(\"로그인 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"master\",\n    \"password\": \"master1234\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/auth/login",
+          "host": ["{{base-url}}"],
+          "path": ["api", "auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "허브생성",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "pm.collectionVariables.set(\"hubId\", res.data.id);",
+              "pm.test(\"허브 생성 성공\", () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"서울 중앙 허브\",\n    \"address\": \"서울특별시 중구 을지로 100\",\n    \"latitude\": 37.5665,\n    \"longitude\": 126.9780,\n    \"managerId\": \"{{userId}}\",\n    \"managerName\": \"master\"\n  }",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/hubs",
+          "host": ["{{base-url}}"],
+          "path": ["api", "hubs"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "허브2 생성 (도착 허브)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "pm.collectionVariables.set(\"hubId2\", res.data.id);",
+              "pm.test(\"허브2 생성 성공\", () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"부산 물류 허브\",\n    \"address\": \"부산광역시 해운대구 센텀중앙로 48\",\n    \"latitude\": 35.1796,\n    \"longitude\": 129.0756,\n    \"managerId\": \"{{userId}}\",\n    \"managerName\": \"master\"\n  }",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/hubs",
+          "host": ["{{base-url}}"],
+          "path": ["api", "hubs"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "허브 경로 생성 (Hub1 → Hub2)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"허브 경로 생성 성공\", () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"departureHubId\": \"{{hubId}}\",\n    \"arrivalHubId\": \"{{hubId2}}\",\n    \"duration\": 240,\n    \"distance\": 450.0\n  }",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/hub-routes",
+          "host": ["{{base-url}}"],
+          "path": ["api", "hub-routes"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "업체등록",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "pm.collectionVariables.set(\"companyId\", res.data.id);",
+              "pm.test(\"업체 등록 성공\", () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"테스트 공급사\",\n    \"type\": \"Supplier\",\n    \"hubId\": \"{{hubId}}\",\n    \"address\": \"서울특별시 강남구 테헤란로 50\",\n    \"managerId\": \"{{userId}}\"\n  }",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/companies",
+          "host": ["{{base-url}}"],
+          "path": ["api", "companies"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "업체2 등록 (수령업체)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "pm.collectionVariables.set(\"companyId2\", res.data.id);",
+              "pm.test(\"업체2 등록 성공\", () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"테스트 수령사\",\n    \"type\": \"Receiver\",\n    \"hubId\": \"{{hubId2}}\",\n    \"address\": \"부산광역시 해운대구 마린시티 2로 33\",\n    \"managerId\": \"{{userId}}\"\n  }",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/companies",
+          "host": ["{{base-url}}"],
+          "path": ["api", "companies"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "상품생성",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"productId\", pm.response.json().data.id);",
+              "pm.test(\"상품 생성 성공\", () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"E2E 테스트 상품\",\n    \"price\": 50000,\n    \"stock\": 100\n  }",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/companies/{{companyId}}/products",
+          "host": ["{{base-url}}"],
+          "path": ["api", "companies", "{{companyId}}", "products"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송담당자 등록 (COMPANY 타입)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "pm.collectionVariables.set(\"companyManagerId\", res.data.id);",
+              "pm.test(\"COMPANY 배송담당자 등록 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"hubId\": \"{{hubId}}\",\n  \"type\": \"COMPANY\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/shipment-managers",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipment-managers"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송담당자 등록 (HUB 타입)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "pm.collectionVariables.set(\"shipmentManagerId\", res.data.id);",
+              "pm.test(\"HUB 배송담당자 등록 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"hubId\": \"{{hubId}}\",\n  \"type\": \"HUB\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/shipment-managers",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipment-managers"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "----------- 주문 생성 -----------",
+      "request": { "method": "GET", "header": [] },
+      "response": []
+    },
+    {
+      "name": "주문 생성",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"orderId\", pm.response.json().id);",
+              "pm.test(\"주문 생성 성공\", () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\"productId\": \"{{productId}}\",\n\"quantity\": 5,\n\"requestDeadline\": \"2026-12-31T23:59:00\",\n\"requestNote\": \"E2E 테스트 주문\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/orders",
+          "host": ["{{base-url}}"],
+          "path": ["api", "orders"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "주문 조회",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"주문 조회 성공\", () => pm.response.to.have.status(200));",
+              "const res = pm.response.json();",
+              "console.log('주문 상태:', res.status);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/orders/{{orderId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "orders", "{{orderId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "재고감소확인",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"재고감소 확인 성공\", () => pm.response.to.have.status(200));",
+              "const res = pm.response.json();",
+              "console.log('현재 재고:', res.data.stock);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/companies/{{companyId}}/products/{{productId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "companies", "{{companyId}}", "products", "{{productId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "----------- 배송 진행 -----------",
+      "request": { "method": "GET", "header": [] },
+      "response": []
+    },
+    {
+      "name": "배송 목록 조회 (shipmentId 확인)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.data && res.data.length > 0) {",
+              "  pm.collectionVariables.set(\"shipmentId\", res.data[0].shipmentId);",
+              "  console.log('shipmentId:', res.data[0].shipmentId);",
+              "}",
+              "pm.test(\"배송 목록 조회 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/shipments?page=0&size=10",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments"],
+          "query": [
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "10" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 상세 조회",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"배송 상세 조회 성공\", () => pm.response.to.have.status(200));",
+              "const res = pm.response.json();",
+              "console.log('배송 상태:', res.data.status);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 경로 목록 조회 (routeId 확인)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.data && res.data.length > 0) {",
+              "  pm.collectionVariables.set(\"routeId\", res.data[0].shipmentRouteId);",
+              "  console.log('routeId:', res.data[0].shipmentRouteId);",
+              "  console.log('경로 상태:', res.data[0].status);",
+              "}",
+              "pm.test(\"배송 경로 조회 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}/routes",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}", "routes"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 경로 상태: 허브 출발 (MOVING_TO_HUB)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"경로 MOVING_TO_HUB 변경 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"MOVING_TO_HUB\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}/routes/{{routeId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}", "routes", "{{routeId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 경로 상태: 허브 도착 (ARRIVED_AT_HUB)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"경로 ARRIVED_AT_HUB 변경 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"ARRIVED_AT_HUB\",\n  \"actualDistance\": 15.5\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}/routes/{{routeId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}", "routes", "{{routeId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 상태: 허브 출발 (MOVING_TO_HUB)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"배송 MOVING_TO_HUB 변경 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"MOVING_TO_HUB\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 상태: 허브 도착 (ARRIVED_AT_HUB)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"배송 ARRIVED_AT_HUB 변경 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"ARRIVED_AT_HUB\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 상태: 업체 이동 중 (MOVING_TO_COMPANY)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"배송 MOVING_TO_COMPANY 변경 성공\", () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"MOVING_TO_COMPANY\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "----------- 완료 -----------",
+      "request": { "method": "GET", "header": [] },
+      "response": []
+    },
+    {
+      "name": "배송 완료 처리 (COMPLETED)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"배송 완료 성공\", () => pm.response.to.have.status(200));",
+              "const res = pm.response.json();",
+              "console.log('배송 최종 상태:', res.data.status);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}/complete",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}", "complete"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "배송 최종 상태 확인",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"배송 상태 COMPLETED 확인\", () => {",
+              "  const res = pm.response.json();",
+              "  pm.expect(res.data.status).to.equal('COMPLETED');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/shipments/{{shipmentId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "shipments", "{{shipmentId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "주문 완료 상태 확인",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"주문 최종 상태 확인\", () => pm.response.to.have.status(200));",
+              "const res = pm.response.json();",
+              "console.log('주문 최종 상태:', res.status);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base-url}}/api/orders/{{orderId}}",
+          "host": ["{{base-url}}"],
+          "path": ["api", "orders", "{{orderId}}"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": { "type": "text/javascript", "exec": [""] }
+    },
+    {
+      "listen": "test",
+      "script": { "type": "text/javascript", "exec": [""] }
+    }
+  ],
+  "variable": [
+    { "key": "base-url", "value": "http://localhost:8000" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "0c6a758d-afe4-47a4-9f09-df82c6e99653" },
+    { "key": "hubId", "value": "" },
+    { "key": "hubId2", "value": "" },
+    { "key": "companyId", "value": "" },
+    { "key": "companyId2", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "orderId", "value": "" },
+    { "key": "shipmentId", "value": "" },
+    { "key": "routeId", "value": "" },
+    { "key": "shipmentManagerId", "value": "" },
+    { "key": "companyManagerId", "value": "" }
+  ]
+}

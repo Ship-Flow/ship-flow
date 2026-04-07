@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.shipflow.common.exception.ApiResponse;
 import com.shipflow.shipmentservice.application.client.dto.HubRouteResult;
 
-@FeignClient(name = "hub-service", path = "/internal")
+@FeignClient(name = "hubservice", path = "/internal")
 public interface HubFeignClient {
 	@GetMapping("/hub-routes")
 	ApiResponse<List<HubRouteResult>> getHubRoutes(

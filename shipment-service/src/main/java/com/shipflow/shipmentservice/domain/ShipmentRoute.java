@@ -92,6 +92,7 @@ public class ShipmentRoute extends BaseEntity {
 		this.estimatedDuration = estimatedDuration != null ? estimatedDuration : 0;
 		this.actualDistance = BigDecimal.ZERO;
 		this.actualDuration = 0;
+		this.status = status;
 		this.shipmentManager = shipmentManager;
 	}
 

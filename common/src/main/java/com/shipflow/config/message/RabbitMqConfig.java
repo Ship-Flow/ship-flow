@@ -7,13 +7,16 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 @Configuration
 public class RabbitMqConfig {
@@ -60,7 +63,7 @@ public class RabbitMqConfig {
 		return new Jackson2JsonMessageConverter(objectMapper);
 	}
 
-	// ── ListenerContainerFactory (소비 측 Zipkin 트레이싱) ───────────
+	// ── ListenerContainerFactory (소비 측 Zipkin 트레이싱 + 재시도 제한) ───────────
 	@Bean
 	public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory cf,
 			MessageConverter messageConverter, ObservationRegistry observationRegistry) {
@@ -68,6 +71,18 @@ public class RabbitMqConfig {
 		factory.setConnectionFactory(cf);
 		factory.setMessageConverter(messageConverter);
 		factory.setObservationEnabled(true);
+		factory.setDefaultRequeueRejected(false); // 실패 시 재투입 금지 → DLQ로 이동
+		factory.setAdviceChain(retryInterceptor());
 		return factory;
+	}
+
+	// 3회 시도 후 DLQ로 영구 이동 (1s → 2s 대기)
+	@Bean
+	public RetryOperationsInterceptor retryInterceptor() {
+		return RetryInterceptorBuilder.stateless()
+			.maxAttempts(3)
+			.backOffOptions(1000, 2.0, 4000)
+			.recoverer(new RejectAndDontRequeueRecoverer())
+			.build();
 	}
 }
