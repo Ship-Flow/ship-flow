@@ -7,7 +7,7 @@
 - [🛠️ 기술 스택](#️-기술-스택)
 - [🏗️ 시스템 구조](#️-시스템-구조)
 - [👥 팀 역할 분담](#-팀-역할-분담)
-
+  
 ---
 
 ## 📅 프로젝트 기간
@@ -76,12 +76,20 @@ docker-compose up -d
 | Gateway | 8000 |
 | Eureka (Discovery) | 8761 |
 | Keycloak | 9001 |
-| Notification Service | 8087 |
 | RabbitMQ Management | 15672 |
 | PostgreSQL | 5432 |
 | Redis | 6379 |
 
-> 각 비즈니스 서비스(Hub, Company, Order 등)는 Gateway(8000)를 통해 접근합니다.
+> 모든 비즈니스 서비스는 내부적으로 8080을 사용하며, **Gateway(8000)를 통해 접근**합니다.
+
+### API 문서 (Swagger)
+
+Swagger는 일부 서비스에 적용되어 있습니다.
+
+| 서비스 | URL |
+| --- | --- |
+| Hub Service | `http://localhost:8000/api/hubs/swagger-ui.html` |
+| Notification Service | `http://localhost:8000/api/ai/swagger-ui.html` |
 
 ---
 
@@ -127,14 +135,64 @@ docker-compose up -d
 - **서비스 간 비동기 통신** → RabbitMQ (Saga 패턴)
 - **이벤트 멱등성 처리** → Redis (`saga:processed:{eventId}`)
 
-### 주요 이벤트 흐름
+### 주요 이벤트 흐름 (Saga Pattern)
+
+모든 서비스 간 이벤트는 **RabbitMQ Topic Exchange**를 통해 흐르며,
+각 서비스는 **DLQ(Dead Letter Queue)** 와 **Redis 기반 멱등성 처리**로 신뢰성을 보장합니다.
+
+#### 📦 주문 생성 Saga (정상 흐름)
 ```
-주문 생성
-  → Shipment Service: 배송 + 배송 경로 생성
-  → RabbitMQ: ShipmentCreatedEvent 발행
-  → Notification Service: 이벤트 수신
-      → Gemini API: 최종 발송 시한 계산
-      → Slack: 발송 허브 담당자에게 알림 발송
+[Order Service]
+  → order.creation.started 발행
+
+[Product Service] order.creation.started 수신
+  → 재고 차감 시도
+  → product.stock.decreased 발행
+
+[Shipment Service] product.stock.decreased 수신
+  → 배송 + 배송 경로 생성
+  → shipment.created 발행
+
+[Order Service] shipment.created 수신
+  → 주문 상태 CONFIRMED 업데이트
+  → order.created 발행
+
+[Notification Service] shipment.created 수신 (별도 큐)
+  → Gemini API: 최종 발송 시한 계산
+  → Slack: 발송 허브 담당자에게 알림 발송
+```
+
+#### 🔁 주문 생성 실패 보상 흐름 (Rollback)
+```
+[Product Service] 재고 부족 → product.stock.decreased.failed 발행
+
+[Order Service] product.stock.decreased.failed 수신
+  → 주문 상태 FAILED 처리
+  → order.creation.failed 발행
+
+[Product Service] order.creation.failed 수신
+  → 재고 복원 처리
+```
+
+#### ❌ 주문 취소 흐름
+```
+[Order Service] 주문 취소 요청
+  → order.canceled 발행
+
+[Product Service] order.canceled 수신
+  → 재고 복원 처리
+
+[Shipment Service] order.canceled 수신
+  → 배송 Soft Delete 처리
+```
+
+#### ✅ 배송 완료 흐름
+```
+[Shipment Service] 배송 완료 처리
+  → shipment.completed 발행
+
+[Order Service] shipment.completed 수신
+  → 주문 상태 COMPLETED 업데이트
 ```
 
 ---
@@ -143,12 +201,13 @@ docker-compose up -d
 
 | 이름 | 담당 |
 | --- | --- |
-| 안정후 | Hub Service / Hub Route  |
+| 안정후 | Hub Service / Hub Route (경로 탐색) |
 | 여정진 | Company Service / Product Service |
 | 김준원 | Order Service |
 | 이현수 | Shipment Service |
 | 김지원 | User Service / Keycloak 인증 |
 | 이호영 | Notification Service (AI + Slack) |
+
 
 ---
 
