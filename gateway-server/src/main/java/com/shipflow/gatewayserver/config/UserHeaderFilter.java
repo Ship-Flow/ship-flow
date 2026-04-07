@@ -1,7 +1,7 @@
 package com.shipflow.gatewayserver.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.shipflow.gatewayserver.exception.BusinessException;
+import com.shipflow.gatewayserver.exception.GateErrorCode;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -15,13 +15,10 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 
-import com.shipflow.gatewayserver.exception.BusinessException;
-import com.shipflow.gatewayserver.exception.GateErrorCode;
+import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Component
 public class UserHeaderFilter implements GlobalFilter {
-
-    private static final Logger log = LoggerFactory.getLogger(UserHeaderFilter.class);
 
     private static final String USER_ID_HEADER = "X-User-Id";
     private static final String USER_ROLE_HEADER = "X-User-Role";
@@ -55,10 +52,6 @@ public class UserHeaderFilter implements GlobalFilter {
 
                         String userId = jwt.getSubject();
                         String role = extractRole(jwt);
-
-                        log.info("[UserHeaderFilter] JWT subject={}", userId);
-                        log.info("[UserHeaderFilter] JWT role={}", role);
-                        log.info("[UserHeaderFilter] realm_access={}", jwt.getClaimAsMap("realm_access"));
 
                         if (userId == null || userId.isBlank() || role == null || role.isBlank()) {
                             return Mono.error(new BusinessException(GateErrorCode.MISSING_ROLES));

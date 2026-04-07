@@ -220,7 +220,6 @@ services:
     environment:
       realm: ${KEYCLOAK_REALM}
       user-realm: ${KEYCLOAK_REALM_USER}
-      environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USERNAME}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}

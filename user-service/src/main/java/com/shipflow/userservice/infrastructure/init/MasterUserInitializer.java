@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Configuration
@@ -20,8 +19,17 @@ public class MasterUserInitializer {
     private final UserRepository userRepository;
 
     @Bean
+    @Transactional
     public ApplicationRunner initMasterUser() {
-        return args -> createMasterUserIfNotExists();
+        return args -> {
+            String username = "master";
+            if (userRepository.findByUsername(username).isPresent()) {
+                return;
+            }
+            UUID masterId = UUID.fromString("0c6a758d-afe4-47a4-9f09-df82c6e99653");
+            User master = new User(masterId, "master", "master", "master-admin", UserRole.MASTER, UserStatus.APPROVED);
+            userRepository.save(master);
+        };
     }
 
     @Transactional
@@ -34,7 +42,6 @@ public class MasterUserInitializer {
         }
 
         UUID masterId = UUID.fromString("0c6a758d-afe4-47a4-9f09-df82c6e99653");
-        LocalDateTime now = LocalDateTime.now();
 
         User master = new User(masterId, "master", "master", "master-admin", UserRole.MASTER, UserStatus.APPROVED);
         userRepository.save(master);
