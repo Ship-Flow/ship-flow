@@ -6,6 +6,7 @@ import com.shipflow.common.exception.ErrorCode;
 
 public enum SlackErrorCode implements ErrorCode {
 	//슬랙 발송
+	FORBIDDEN_SLACK_ACCESS("FORBIDDEN_SLACK_ACCESS", HttpStatus.FORBIDDEN, "슬랙 메시지 접근 권한이 없습니다."),
 	SLACK_MESSAGE_NOT_FOUND("SLACK_MESSAGE_NOT_FOUND", HttpStatus.NOT_FOUND, "슬랙 메시지를 찾을 수 없습니다."),
 	SLACK_SEND_FAILED("SLACK_SEND_FAILED", HttpStatus.BAD_REQUEST, "슬랙 메시지 발송에 실패했습니다."),
 	INVALID_SLACK_ID_FORMAT("INVALID_SLACK_ID_FORMAT", HttpStatus.BAD_REQUEST, "지원하지 않는 Slack ID 형식입니다."),

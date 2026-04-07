@@ -6,6 +6,7 @@ import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,11 +18,9 @@ import com.shipflow.notificationservice.infrastructure.client.ai.config.GeminiPr
 import com.shipflow.notificationservice.infrastructure.client.ai.dto.GeminiRequest;
 import com.shipflow.notificationservice.infrastructure.client.ai.dto.GeminiResponse;
 
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
 public class GeminiApiClient implements AiGenerator {
 
 	private static final String API_KEY_HEADER = "x-goog-api-key";
@@ -32,9 +31,17 @@ public class GeminiApiClient implements AiGenerator {
 	private final WebClient webClient;
 	private final GeminiProperties geminiProperties;
 
+	public GeminiApiClient(
+		@Qualifier("geminiWebClient") WebClient webClient,
+		GeminiProperties geminiProperties
+	) {
+		this.webClient = webClient;
+		this.geminiProperties = geminiProperties;
+	}
+
 	@Override
 	public AiResponseInfo generate(String prompt) {
-		
+
 		validatePrompt(prompt);
 		GeminiResponse response;
 

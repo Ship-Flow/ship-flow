@@ -82,6 +82,13 @@ public class SlackMessage extends BaseEntity {
 		this.sentAt = LocalDateTime.now();
 	}
 
+	public void updateMessage(String newMessage) {  // userId 파라미터 제거
+		if (newMessage == null || newMessage.isBlank()) {
+			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_REQUIRED);
+		}
+		this.message = newMessage;
+	}
+
 	public void markDeleted(UUID userId) {
 		validateDeletable();
 		super.softDelete(userId);
@@ -105,14 +112,6 @@ public class SlackMessage extends BaseEntity {
 		}
 	}
 
-	public void updateMessage(String newMessage) {
-		if (newMessage == null || newMessage.isBlank()) {
-			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_REQUIRED);
-		}
-
-		this.message = newMessage;
-	}
-
 	public void validateDeletable() {
 		if (this.getDeletedAt() != null) {
 			throw new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND);
@@ -126,5 +125,5 @@ public class SlackMessage extends BaseEntity {
 	public void markFail() {
 		this.sendStatus = SlackSendStatus.FAIL;
 	}
-	
+
 }

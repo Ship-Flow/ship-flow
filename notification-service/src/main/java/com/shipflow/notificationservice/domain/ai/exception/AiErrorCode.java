@@ -7,6 +7,7 @@ import com.shipflow.common.exception.ErrorCode;
 public enum AiErrorCode implements ErrorCode {
 
 	// 조회
+	FORBIDDEN_AI_ACCESS("FORBIDDEN_AI_ACCESS", HttpStatus.FORBIDDEN, "AI 접근 권한이 없습니다."),
 	AI_LOG_NOT_FOUND("AI_LOG_NOT_FOUND", HttpStatus.NOT_FOUND, "AI 로그를 찾을 수 없습니다."),
 
 	// 이벤트
