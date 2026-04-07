@@ -1,12 +1,15 @@
 package com.shipflow.notificationservice.application.slack;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shipflow.common.exception.BusinessException;
+import com.shipflow.notificationservice.application.slack.dto.command.SearchSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.command.SendSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.command.UpdateSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.result.SlackMessageResult;
@@ -27,19 +30,20 @@ public class SlackAppService {
 	private final SlackSender slackSender;
 
 	// 메시지 전송
-	// TODO: 인증 적용 후 userId 받아 createdBy 처리
 	@Transactional
 	public SlackMessageResult sendSlackMessage(SendSlackMessageCommand command) {
+		//권한 확인
+		validateCreateRole(command.userRole());
 
-		SlackMessage slackMessage = slackMessageRepository.save(
-			new SlackMessage(
-				command.receiverSlackId(),
-				command.relatedShipmentId(),
-				command.relatedAiLogId(),
-				command.message(),
-				command.messageType()
-			)
+		SlackMessage slackMessage = new SlackMessage(
+			command.receiverSlackId(),
+			command.relatedShipmentId(),
+			command.relatedAiLogId(),
+			command.message(),
+			command.messageType()
 		);
+
+		slackMessage = slackMessageRepository.save(slackMessage);
 
 		try {
 			SlackSendInfo result = slackSender.sendMessage(
@@ -55,7 +59,9 @@ public class SlackAppService {
 	}
 
 	// 단건 조회
-	public SlackMessageResult getSlackMessage(UUID slackId) {
+	public SlackMessageResult getSlackMessage(UUID userId, String userRole, UUID slackId) {
+		//권한 확인
+		validateMasterRole(userRole);
 		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(slackId)
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
 
@@ -63,17 +69,22 @@ public class SlackAppService {
 	}
 
 	// 목록 조회
-	public List<SlackMessageResult> getSlackMessages() {
-		return slackMessageRepository.findAllByDeletedAtIsNull()
-			.stream()
-			.map(SlackMessageResult::from)
-			.toList();
+	public Page<SlackMessageResult> getSlackMessages(
+		SearchSlackMessageCommand command,
+		Pageable pageable
+	) {
+		//권한 확인
+		validateMasterRole(command.userRole());
+
+		return slackMessageRepository.search(command, pageable)
+			.map(SlackMessageResult::from);
 	}
 
 	//슬랙 메세지 수정
-	// TODO: 인증 적용 후 userId 받아 updatedBy 처리
 	@Transactional
 	public SlackMessageResult updateSlackMessage(UpdateSlackMessageCommand command) {
+		//권한 확인
+		validateMasterRole(command.userRole());
 
 		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(command.slackId())
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
@@ -92,13 +103,14 @@ public class SlackAppService {
 	}
 
 	//슬랙 메세지 삭제
-	// TODO: 인증 적용 후 userId 받아 deletedBy 처리
 	@Transactional
-	public void deleteSlackMessage(UUID slackId, UUID userId) {
+	public void deleteSlackMessage(UUID userId, String userRole, UUID slackId) {
+		//권한 확인
+		validateMasterRole(userRole);
+
 		SlackMessage slackMessage = slackMessageRepository.findByIdAndDeletedAtIsNull(slackId)
 			.orElseThrow(() -> new BusinessException(SlackErrorCode.SLACK_MESSAGE_NOT_FOUND));
 
-		// 도메인 검증을 먼저 수행한 후, 외부 Slack 삭제 API 호출
 		slackMessage.validateDeletable();
 
 		slackSender.deleteMessage(
@@ -107,5 +119,17 @@ public class SlackAppService {
 		);
 
 		slackMessage.markDeleted(userId);
+	}
+
+	private void validateCreateRole(String userRole) {
+		if (!Set.of("MASTER", "HUB_MANAGER", "SHIPMENT_MANAGER", "COMPANY_MANAGER").contains(userRole)) {
+			throw new BusinessException(SlackErrorCode.FORBIDDEN_SLACK_ACCESS);
+		}
+	}
+
+	private void validateMasterRole(String userRole) {
+		if (!"MASTER".equals(userRole)) {
+			throw new BusinessException(SlackErrorCode.FORBIDDEN_SLACK_ACCESS);
+		}
 	}
 }

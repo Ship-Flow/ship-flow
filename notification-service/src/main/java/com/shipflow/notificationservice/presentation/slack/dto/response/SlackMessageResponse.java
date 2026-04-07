@@ -1,7 +1,6 @@
 package com.shipflow.notificationservice.presentation.slack.dto.response;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import com.shipflow.notificationservice.application.slack.dto.result.SlackMessageResult;
@@ -35,9 +34,4 @@ public record SlackMessageResponse(
 		);
 	}
 
-	public static List<SlackMessageResponse> from(List<SlackMessageResult> results) {
-		return results.stream()
-			.map(SlackMessageResponse::from)
-			.toList();
-	}
 }

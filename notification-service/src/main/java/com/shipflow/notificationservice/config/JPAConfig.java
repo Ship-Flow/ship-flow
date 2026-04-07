@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -24,6 +26,8 @@ import jakarta.persistence.PersistenceContext;
 @EntityScan(basePackages = "com.shipflow.notificationservice")
 public class JPAConfig {
 
+	private static final UUID SYSTEM_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
 	@PersistenceContext
 	private EntityManager em;
 
@@ -36,11 +40,22 @@ public class JPAConfig {
 	@Bean
 	public AuditorAware<UUID> auditorAware() {
 		return () -> {
-			/*
-			 * TODO: Spring Security 연동 시 아래 방식으로 변경
-			 * - SecurityContext에서 로그인 사용자 UUID 추출하여 반환
-			 */
-			return Optional.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+			try {
+				ServletRequestAttributes attrs =
+					(ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+
+				// 요청 컨텍스트 없는 경우만 SYSTEM_UUID (RabbitMQ 등)
+				if (attrs == null)
+					return Optional.of(SYSTEM_UUID);
+
+				String userId = attrs.getRequest().getHeader("X-User-Id");
+				if (userId == null || userId.isBlank())
+					throw new IllegalStateException("X-User-Id 헤더가 없습니다.");
+
+				return Optional.of(UUID.fromString(userId));
+			} catch (Exception e) {
+				return Optional.of(SYSTEM_UUID);
+			}
 		};
 	}
 }

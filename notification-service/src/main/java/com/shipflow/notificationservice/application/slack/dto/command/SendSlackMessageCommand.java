@@ -5,6 +5,8 @@ import java.util.UUID;
 import com.shipflow.notificationservice.domain.slack.type.SlackMessageType;
 
 public record SendSlackMessageCommand(
+	UUID userId,
+	String userRole,
 	String receiverSlackId,
 	UUID relatedShipmentId,
 	UUID relatedAiLogId,

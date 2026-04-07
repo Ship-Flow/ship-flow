@@ -41,7 +41,7 @@ public abstract class BaseEntity {
 	protected LocalDateTime deletedAt;
 
 	protected UUID deletedBy;
-
+	
 	protected void softDelete(UUID userId) {
 		this.deletedAt = LocalDateTime.now();
 		this.deletedBy = userId;

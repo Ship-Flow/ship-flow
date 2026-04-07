@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.application.ai.AiAppService;
@@ -29,6 +31,7 @@ import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 import com.shipflow.notificationservice.domain.ai.vo.AiResponseInfo;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AiAppServiceTest {
 
 	@Mock
@@ -153,6 +156,8 @@ class AiAppServiceTest {
 	@Test
 	void get_success() {
 		UUID id = UUID.randomUUID();
+		UUID userId = UUID.randomUUID();
+		String userRole = "MASTER";
 
 		AiLog aiLog = new AiLog(
 			UUID.randomUUID(),
@@ -166,7 +171,7 @@ class AiAppServiceTest {
 		when(aiLogRepository.findByIdAndDeletedAtIsNull(id))
 			.thenReturn(Optional.of(aiLog));
 
-		AiLogResult result = aiAppService.getAiLog(id);
+		AiLogResult result = aiAppService.getAiLog(userId, userRole, id); // 3개로 수정
 
 		assertThat(result.requestStatus()).isEqualTo(AiRequestStatus.SUCCESS);
 	}
@@ -174,14 +179,16 @@ class AiAppServiceTest {
 	private GenerateDeadlineCommand validCommand() {
 		GenerateDeadlineCommand command = mock(GenerateDeadlineCommand.class);
 
+		when(command.orderId()).thenReturn(UUID.randomUUID());
+		when(command.ordererId()).thenReturn(UUID.randomUUID());
 		when(command.relatedShipmentId()).thenReturn(UUID.randomUUID());
 		when(command.shipmentManagerId()).thenReturn(UUID.randomUUID());
 		when(command.requestType()).thenReturn(AiRequestType.DEADLINE);
 		when(command.fromHub()).thenReturn("경기");
 		when(command.toHub()).thenReturn("부산");
 		when(command.product()).thenReturn("상품");
+		when(command.quantity()).thenReturn(10);
 		when(command.deadline()).thenReturn(LocalDateTime.now());
-
 		return command;
 	}
 }

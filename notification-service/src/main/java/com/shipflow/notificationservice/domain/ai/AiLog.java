@@ -45,7 +45,7 @@ public class AiLog extends BaseEntity {
 
 	@Column(name = "work_date")
 	private LocalDate workDate;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "send_status", length = 20, nullable = false)
 	private SlackSendStatus sendStatus;

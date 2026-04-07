@@ -1,6 +1,5 @@
 package com.shipflow.notificationservice.presentation.ai.dto.request;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -12,50 +11,44 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record GenerateDeadlineRequest(
-
-	@NotNull(message = "relatedShipmentId는 필수입니다.")
-	UUID relatedShipmentId,
-
-	@NotNull(message = "shipmentManagerId는 필수입니다.")
-	UUID shipmentManagerId,
-
-	@NotBlank(message = "fromHub는 필수입니다.")
-	String fromHub,
-
-	@NotBlank(message = "toHub는 필수입니다.")
-	String toHub,
-
+	@NotNull UUID orderId,
+	@NotNull UUID relatedShipmentId,
+	UUID shipmentManagerId,              // @NotNull 제거 - 이벤트에서 못받음
+	@NotBlank String receiverSlackId,    // @NotNull -> @NotBlank
+	@NotNull UUID productId,
+	@NotBlank String product,            // @NotNull -> @NotBlank
+	@NotNull Integer quantity,
+	@NotNull UUID departureHubId,
+	@NotBlank String fromHub,            // @NotNull -> @NotBlank
+	@NotNull UUID arrivalHubId,
+	@NotBlank String toHub,              // @NotNull -> @NotBlank
 	List<String> route,
-
-	@NotBlank(message = "product는 필수입니다.")
-	String product,
-
 	String requestNote,
-
-	@NotNull(message = "deadline은 필수입니다.")
-	LocalDateTime deadline,
-
-	String workingHours,
-
-	@NotNull(message = "requestType은 필수입니다.")
-	AiRequestType requestType,
-
-	LocalDate workDate
+	@NotNull LocalDateTime deadline,
+	String workingHours
 ) {
-
-	public GenerateDeadlineCommand toCommand() {
+	public GenerateDeadlineCommand toCommand(UUID ordererId) {
 		return new GenerateDeadlineCommand(
+			orderId,
+			ordererId,
 			relatedShipmentId,
 			shipmentManagerId,
+			receiverSlackId,
+			null,
+			null,
+			productId,
+			product,
+			quantity,
+			departureHubId,
 			fromHub,
+			arrivalHubId,
 			toHub,
 			route,
-			product,
 			requestNote,
 			deadline,
 			workingHours,
-			requestType,
-			workDate
+			AiRequestType.DEADLINE,
+			null
 		);
 	}
 }

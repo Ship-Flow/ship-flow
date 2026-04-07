@@ -15,9 +15,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.shipflow.common.exception.BusinessException;
 import com.shipflow.notificationservice.application.slack.SlackAppService;
+import com.shipflow.notificationservice.application.slack.dto.command.SearchSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.command.SendSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.command.UpdateSlackMessageCommand;
 import com.shipflow.notificationservice.application.slack.dto.result.SlackMessageResult;
@@ -51,10 +56,14 @@ class SlackAppServiceTest {
 		@DisplayName("수동 발송에 성공하면 SUCCESS 상태로 저장")
 		void sendSlackMessage_success() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 			UUID relatedShipmentId = UUID.randomUUID();
 			UUID relatedAiLogId = UUID.randomUUID();
 
 			SendSlackMessageCommand command = new SendSlackMessageCommand(
+				userId,
+				userRole,
 				"U0APZGV2NRH",
 				relatedShipmentId,
 				relatedAiLogId,
@@ -98,10 +107,14 @@ class SlackAppServiceTest {
 		@DisplayName("슬랙 전송에 실패하면 FAIL 상태로 저장")
 		void sendSlackMessage_fail() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 			UUID relatedShipmentId = UUID.randomUUID();
 			UUID relatedAiLogId = UUID.randomUUID();
 
 			SendSlackMessageCommand command = new SendSlackMessageCommand(
+				userId,
+				userRole,
 				"U0APZGV2NRH",
 				relatedShipmentId,
 				relatedAiLogId,
@@ -138,6 +151,8 @@ class SlackAppServiceTest {
 		@DisplayName("존재하는 메시지 단건 조회 성공")
 		void getSlackMessage_success() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 			UUID slackId = UUID.randomUUID();
 
 			SlackMessage slackMessage = new SlackMessage(
@@ -153,7 +168,7 @@ class SlackAppServiceTest {
 				.thenReturn(Optional.of(slackMessage));
 
 			// when
-			SlackMessageResult result = slackAppService.getSlackMessage(slackId);
+			SlackMessageResult result = slackAppService.getSlackMessage(userId, userRole, slackId);
 
 			// then
 			assertThat(result.receiverSlackId()).isEqualTo("U0APZGV2NRH");
@@ -165,13 +180,15 @@ class SlackAppServiceTest {
 		@DisplayName("존재하지 않는 메시지 조회 시 BusinessException 발생")
 		void getSlackMessage_notFound() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 			UUID slackId = UUID.randomUUID();
 
 			when(slackMessageRepository.findByIdAndDeletedAtIsNull(slackId))
 				.thenReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> slackAppService.getSlackMessage(slackId))
+			assertThatThrownBy(() -> slackAppService.getSlackMessage(userId, userRole, slackId))
 				.isInstanceOf(BusinessException.class);
 		}
 	}
@@ -184,6 +201,9 @@ class SlackAppServiceTest {
 		@DisplayName("삭제되지 않은 메시지 목록 전체 조회")
 		void getSlackMessages_success() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
+
 			SlackMessage first = new SlackMessage(
 				"U0APZGV2NRH",
 				UUID.randomUUID(),
@@ -202,18 +222,23 @@ class SlackAppServiceTest {
 			);
 			second.markFail();
 
-			when(slackMessageRepository.findAllByDeletedAtIsNull())
-				.thenReturn(List.of(first, second));
+			Pageable pageable = PageRequest.of(0, 10);
+			SearchSlackMessageCommand command = new SearchSlackMessageCommand(
+				userId, userRole, null, null, null, null, null
+			);
+
+			when(slackMessageRepository.search(any(SearchSlackMessageCommand.class), any(Pageable.class)))
+				.thenReturn(new PageImpl<>(List.of(first, second), pageable, 2));
 
 			// when
-			List<SlackMessageResult> results = slackAppService.getSlackMessages();
+			Page<SlackMessageResult> results = slackAppService.getSlackMessages(command, pageable);
 
 			// then
-			assertThat(results).hasSize(2);
-			assertThat(results.get(0).message()).isEqualTo("첫 번째 메시지");
-			assertThat(results.get(0).sendStatus()).isEqualTo(SlackSendStatus.SUCCESS);
-			assertThat(results.get(1).message()).isEqualTo("두 번째 메시지");
-			assertThat(results.get(1).sendStatus()).isEqualTo(SlackSendStatus.FAIL);
+			assertThat(results.getContent()).hasSize(2);
+			assertThat(results.getContent().get(0).message()).isEqualTo("첫 번째 메시지");
+			assertThat(results.getContent().get(0).sendStatus()).isEqualTo(SlackSendStatus.SUCCESS);
+			assertThat(results.getContent().get(1).message()).isEqualTo("두 번째 메시지");
+			assertThat(results.getContent().get(1).sendStatus()).isEqualTo(SlackSendStatus.FAIL);
 		}
 	}
 
@@ -225,9 +250,13 @@ class SlackAppServiceTest {
 		@DisplayName("SUCCESS 상태의 메시지는 수정 가능")
 		void updateSlackMessage_success() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 			UUID slackId = UUID.randomUUID();
 
 			UpdateSlackMessageCommand command = new UpdateSlackMessageCommand(
+				userId,
+				userRole,
 				slackId,
 				"수정된 메시지"
 			);
@@ -264,9 +293,13 @@ class SlackAppServiceTest {
 		@DisplayName("존재하지 않는 메시지 수정 시 BusinessException 발생")
 		void updateSlackMessage_notFound() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 			UUID slackId = UUID.randomUUID();
 
 			UpdateSlackMessageCommand command = new UpdateSlackMessageCommand(
+				userId,
+				userRole,
 				slackId,
 				"수정된 메시지"
 			);
@@ -285,9 +318,13 @@ class SlackAppServiceTest {
 		@DisplayName("아직 발송되지 않은(slackTs 없는) 메시지는 수정 불가")
 		void updateSlackMessage_notSent() {
 			// given
+			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 			UUID slackId = UUID.randomUUID();
 
 			UpdateSlackMessageCommand command = new UpdateSlackMessageCommand(
+				userId,
+				userRole,
 				slackId,
 				"수정된 메시지"
 			);
@@ -322,6 +359,7 @@ class SlackAppServiceTest {
 			// given
 			UUID slackId = UUID.randomUUID();
 			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 
 			SlackMessage slackMessage = new SlackMessage(
 				"U0APZGV2NRH",
@@ -342,7 +380,7 @@ class SlackAppServiceTest {
 				));
 
 			// when
-			slackAppService.deleteSlackMessage(slackId, userId);
+			slackAppService.deleteSlackMessage(userId, userRole, slackId);
 
 			// then
 			verify(slackSender).deleteMessage("C0AQ2G43EUD", "1742891400.123456");
@@ -356,12 +394,13 @@ class SlackAppServiceTest {
 			// given
 			UUID slackId = UUID.randomUUID();
 			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 
 			when(slackMessageRepository.findByIdAndDeletedAtIsNull(slackId))
 				.thenReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> slackAppService.deleteSlackMessage(slackId, userId))
+			assertThatThrownBy(() -> slackAppService.deleteSlackMessage(userId, userRole, slackId))
 				.isInstanceOf(BusinessException.class);
 
 			verify(slackSender, never()).deleteMessage(any(), any());
@@ -373,6 +412,7 @@ class SlackAppServiceTest {
 			// given
 			UUID slackId = UUID.randomUUID();
 			UUID userId = UUID.randomUUID();
+			String userRole = "MASTER";
 
 			SlackMessage slackMessage = new SlackMessage(
 				"U0APZGV2NRH",
@@ -391,7 +431,7 @@ class SlackAppServiceTest {
 			// null channelId/ts로 deleteMessage가 호출될 수 있음 → 실제 동작 확인 후 조정
 
 			// when & then
-			assertThatThrownBy(() -> slackAppService.deleteSlackMessage(slackId, userId))
+			assertThatThrownBy(() -> slackAppService.deleteSlackMessage(userId, userRole, slackId))
 				.isInstanceOf(BusinessException.class);
 
 			verify(slackSender, never()).deleteMessage(any(), any());

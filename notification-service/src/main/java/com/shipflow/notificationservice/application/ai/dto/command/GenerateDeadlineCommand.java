@@ -8,15 +8,29 @@ import java.util.UUID;
 import com.shipflow.notificationservice.domain.ai.type.AiRequestType;
 
 public record GenerateDeadlineCommand(
+	UUID orderId,
+	UUID ordererId,
 	UUID relatedShipmentId,
 	UUID shipmentManagerId,
+	String receiverSlackId,
+
+	UUID supplierCompanyId,
+	UUID receiverCompanyId,
+
+	UUID productId,
+	String product,
+	Integer quantity,
+
+	UUID departureHubId,
 	String fromHub,
+	UUID arrivalHubId,
 	String toHub,
 	List<String> route,
-	String product,
+
 	String requestNote,
 	LocalDateTime deadline,
 	String workingHours,
+
 	AiRequestType requestType,
 	LocalDate workDate
 ) {

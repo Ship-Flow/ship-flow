@@ -1,12 +1,15 @@
 spring:
+  main:
+    web-application-type: servlet
+
   application:
-    name: notification-service
+    name: notificationservice
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema=notification
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${POSTGRES_DB:shipflow}?currentSchema=notification
+    username: ${POSTGRES_USER:shipflow}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     hibernate:
@@ -18,11 +21,25 @@ spring:
   config:
     import: optional:file:.env
 
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
+    host: ${RABBITMQ_HOST:rabbitmq}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          multiplier: 2
+          max-interval: 10000
 
 slack:
   bot-token: ${SLACK_BOT_TOKEN}
@@ -30,3 +47,19 @@ slack:
 gemini:
   api-key: ${GEMINI_API_KEY}
   url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discoveryserver:8761/eureka/}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
