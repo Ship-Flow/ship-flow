@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "deliveryservice")
 public interface DeliveryClient {
 
-	@DeleteMapping("/internal/delivery-managers/{hubId}")
+	@DeleteMapping("/internal/delivery-managers/hubs/{hubId}")
 	void deleteCompanyDeliveryManagers(
 		@RequestHeader("X-Internal-Request") String internalRequest,
 		@RequestHeader("X-User-Id") String requestUserId,

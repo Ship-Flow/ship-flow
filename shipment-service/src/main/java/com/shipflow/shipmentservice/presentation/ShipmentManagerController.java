@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,14 +36,18 @@ public class ShipmentManagerController {
 
 	@PostMapping
 	public ApiResponse<PostShipmentManagerResDto> createShipmentManager(
-		@Valid @RequestBody PostShipmentManagerReqDto request
+		@Valid @RequestBody PostShipmentManagerReqDto request,
+		UserContext userContext
 	) {
 		ShipmentManagerCreateResult result = shipmentManagerService.createShipmentManager(request.toCommand());
 		return ApiResponse.ok(PostShipmentManagerResDto.fromResult(result));
 	}
 
 	@GetMapping("/{managerId}")
-	public ApiResponse<GetShipmentManagerResDto> getShipmentManager(@PathVariable UUID managerId) {
+	public ApiResponse<GetShipmentManagerResDto> getShipmentManager(
+		@PathVariable UUID managerId,
+		UserContext userContext
+	) {
 		ShipmentManagerResult result = shipmentManagerService.getShipmentManager(managerId);
 		return ApiResponse.ok(GetShipmentManagerResDto.fromResult(result));
 	}
@@ -53,7 +56,8 @@ public class ShipmentManagerController {
 	public ApiResponse<List<GetShipmentManagerSearchResDto>> searchShipmentManager(
 		@RequestParam(required = false) ShipmentManagerType type,
 		@RequestParam(required = false) UUID hubId,
-		Pageable pageable
+		Pageable pageable,
+		UserContext userContext
 	) {
 		ShipmentManagerSearchQuery query = ShipmentManagerSearchQuery.builder()
 			.type(type)
@@ -69,9 +73,9 @@ public class ShipmentManagerController {
 	@DeleteMapping("/{managerId}")
 	public ApiResponse<Void> deleteShipmentManager(
 		@PathVariable UUID managerId,
-		@RequestHeader("X-User-Id") UUID userId
+		UserContext userContext
 	) {
-		shipmentManagerService.deleteShipmentManager(managerId, userId);
+		shipmentManagerService.deleteShipmentManager(managerId, userContext.userId());
 		return ApiResponse.ok(null);
 	}
 }

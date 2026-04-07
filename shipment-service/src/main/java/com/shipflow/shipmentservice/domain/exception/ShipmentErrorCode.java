@@ -9,6 +9,10 @@ public enum ShipmentErrorCode implements ErrorCode {
 	// Shipment
 	SHIPMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "배송을 찾을 수 없습니다."),
 	INVALID_SHIPMENT_STATUS(HttpStatus.BAD_REQUEST, "잘못된 배송 상태입니다."),
+	SHIPMENT_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 배송입니다."),
+	SHIPMENT_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 배송입니다."),
+	SHIPMENT_NOT_CANCELABLE_STATUS(HttpStatus.BAD_REQUEST, "현재 배송이 시작되어 취소가 불가능합니다."),
+	SHIPMENT_ROUTES_NOT_ALL_COMPLETED(HttpStatus.BAD_REQUEST, "완료되지 않은 배송 경로가 존재합니다."),
 
 	// ShipmentRoute
 	SHIPMENT_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "배송 경로를 찾을 수 없습니다."),
@@ -26,9 +30,15 @@ public enum ShipmentErrorCode implements ErrorCode {
 	SHIPMENT_MANAGER_SLACK_ID_REQUIRED(HttpStatus.BAD_REQUEST, "배송 담당자 slackId는 필수입니다."),
 	INVALID_SHIPMENT_SEQUENCE(HttpStatus.BAD_REQUEST, "배송 순번은 0 이상이어야 합니다."),
 
+	// Auth
+	MISSING_USER_ID(HttpStatus.UNAUTHORIZED, "인증 정보가 없습니다."),
+	MISSING_USER_ROLE(HttpStatus.FORBIDDEN, "권한 정보가 없습니다."),
+
 	// External Service
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 	USER_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "사용자 서비스에 연결할 수 없습니다."),
+	HUB_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "허브 경로를 찾을 수 없습니다."),
+	HUB_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "허브 서비스에 연결할 수 없습니다."),
 
 	// Validation
 	INVALID_ACTUAL_DISTANCE(HttpStatus.BAD_REQUEST, "실제 이동 거리는 0보다 커야 합니다."),

@@ -1,5 +1,6 @@
-package com.shipflow.orderservice.infrastructure.messaging.event.consume;
+package com.shipflow.shipmentservice.infrastructure.messaging.event.consume;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -11,12 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ShipmentCompletedEvent extends SagaEvent {
+public class OrderCanceledEvent extends SagaEvent {
 
 	private UUID orderId;
-
-	public ShipmentCompletedEvent(UUID orderId) {
-		super("shipment.completed");
-		this.orderId = orderId;
-	}
 }

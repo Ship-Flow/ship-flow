@@ -2,12 +2,14 @@ spring:
   application:
     name: shipment-service
 
+  # Database Configuration
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:shipflow}?currentSchema=shipment
     username: ${DB_USER:shipflow}
     password: ${DB_PASSWORD:1234}
 
+  # JPA / Hibernate Configuration
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,10 +19,61 @@ spring:
         format_sql: true
         default_schema: shipment
 
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+          multiplier: 2.0
+
+server:
+  port: 8080
+
+# Service Discovery (Eureka)
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discoveryserver:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+# Monitoring & Tracing (Actuator & Zipkin)
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
   tracing:
     sampling:
       probability: 1.0
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_BASE_URL:http://localhost:9411}/api/v2/spans
+
+# Feign Client Configuration
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
