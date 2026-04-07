@@ -49,7 +49,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9001/realms/shipflow
+          issuer-uri: http://keycloak:8080/realms/shipflow
 
 eureka:
   client:

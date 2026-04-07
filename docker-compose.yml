@@ -174,8 +174,16 @@ services:
       - "8080"
     environment:
       <<: *service-env
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_REALM_USER: ${KEYCLOAK_REALM_USER}
+      KEYCLOAK_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KEYCLOAK_ADMIN_CLIENT_ID: ${KEYCLOAK_ADMIN_CLIENT_ID}
+      KEYCLOAK_LOGIN_CLIENT_ID: ${KEYCLOAK_LOGIN_CLIENT_ID}
     depends_on:
       <<: *service-depends-on
+      keycloak :
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -207,6 +215,12 @@ services:
       - "5433:5432"
     volumes:
       - shipflow_keycloak_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   keycloak:
     build:
@@ -216,8 +230,12 @@ services:
     container_name: shipflow-keycloak
     restart: unless-stopped
     environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      realm: ${KEYCLOAK_REALM}
+      user-realm: ${KEYCLOAK_REALM_USER}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USERNAME}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}
+      login-client-id: ${KEYCLOAK_LOGIN_CLIENT_ID}
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
       KC_DB_USERNAME: keycloak
@@ -227,7 +245,14 @@ services:
     ports:
       - "9001:8080"
     depends_on:
-      - keycloak-postgres
+      keycloak-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 180s
 
 volumes:
   shipflow_postgres_data:

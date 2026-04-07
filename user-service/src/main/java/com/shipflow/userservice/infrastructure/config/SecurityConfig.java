@@ -28,9 +28,4 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-
-	@Bean
-	public JwtDecoder jwtDecoder() {
-		return JwtDecoders.fromIssuerLocation("http://localhost:9001/realms/shipflow");
-	}
 }

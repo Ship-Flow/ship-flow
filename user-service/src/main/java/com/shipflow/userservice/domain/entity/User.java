@@ -58,14 +58,24 @@ public class User extends BaseEntity {
 		this.name = name;
 		this.slackId = slackId;
 		this.status = UserStatus.PENDING;
-		this.createdAt = LocalDateTime.now();
+
+		LocalDateTime now = LocalDateTime.now();
+		this.createdAt = now;
 		this.createdBy = id;
+		this.updatedAt = now;
+		this.updatedBy = id;
 	}
 
 	public User(UUID id, String username, String name, String slackId, UUID hubId, UUID companyId) {
 		this(id, username, name, slackId);
 		this.hubId = hubId;
 		this.companyId = companyId;
+	}
+
+	public User(UUID id, String username, String name, String slackId, UserRole role, UserStatus status) {
+		this(id, username, name, slackId);
+		this.status = status;
+		this.role = role;
 	}
 
 	public void approve(UserRole role){ //승인
