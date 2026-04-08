@@ -12,7 +12,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "p_order_read_models")
+@Table(
+    name = "p_order_read_models",
+    indexes = {
+        @Index(name = "idx_read_models_orderer_created", columnList = "orderer_id, created_at DESC")
+    }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderReadModelJpaEntity {

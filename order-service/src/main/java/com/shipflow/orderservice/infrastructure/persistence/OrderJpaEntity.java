@@ -17,7 +17,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "p_orders")
+@Table(
+    name = "p_orders",
+    indexes = {
+        @Index(name = "idx_orders_orderer_id", columnList = "orderer_id")
+    }
+)
 @SQLDelete(sql = "UPDATE p_orders SET deleted_at = NOW() WHERE id = ?")  // 논리삭제
 @SQLRestriction("deleted_at IS NULL") // 모든 Query 문을 실행 할 때 delete_at 이 NULL 인 것만 가져오도록
 @Getter
