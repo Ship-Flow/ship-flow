@@ -42,22 +42,23 @@
 
 | 지표 | Before (인덱스 없음) | After (인덱스 있음) | 개선율 |
 |------|---------------------|---------------------|--------|
-| 평균 응답시간 | {before_avg}ms | {after_avg}ms | {avg_rate}% ↓ |
-| P95 응답시간 | {before_p95}ms | {after_p95}ms | {p95_rate}% ↓ |
-| TPS | {before_tps} | {after_tps} | {tps_rate}% ↑ |
+| 평균 응답시간 | 19.16ms | 8.18ms | **57.3% ↓** |
+| P95 응답시간 | 32.48ms | 12.35ms | **62.0% ↓** |
+| TPS | 417.73 req/s | 460.90 req/s | **10.3% ↑** |
 
-> 위 수치는 k6 실측값으로 교체하세요. 실행 방법은 아래 참고.
+> 측정 환경: k6 VU 50명, 30초, 데이터 10만 건 (orderer 1,000명 분산)
 
 **실행계획 비교 (EXPLAIN ANALYZE):**
 
 ```
--- Before (Seq Scan)
-Seq Scan on p_order_read_models  (cost=0.00..XXXX.XX rows=XXXX ...)
+-- Before (Seq Scan — 인덱스 없음, 10만 건 전체 스캔)
+Seq Scan on p_order_read_models  (cost=0.00..4475.25 rows=100 ...)
   Filter: ((deleted_at IS NULL) AND (orderer_id = '...'))
 
--- After (Index Scan)
-Index Scan using idx_read_models_orderer_created on p_order_read_models  (cost=0.00..XX.XX rows=XX ...)
+-- After (Index Scan — 인덱스로 해당 orderer 데이터만 직접 접근)
+Index Scan using idx_read_models_orderer_created on p_order_read_models  (cost=0.42..402.17 rows=100 ...)
   Index Cond: (orderer_id = '...')
+  Execution Time: 0.059 ms
 ```
 
 ---
