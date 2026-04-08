@@ -7,7 +7,7 @@ import java.util.UUID;
 import com.shipflow.productservice.domain.model.ProductStatus;
 
 public record ProductCreateResponse(
-	String name, String description, BigDecimal price, Integer stock,
+	UUID id, String name, String description, BigDecimal price, Integer stock,
 	ProductStatus status, UUID companyId, String companyName,
 	UUID hubId, Boolean isHide, LocalDateTime createdAt
 ) {
