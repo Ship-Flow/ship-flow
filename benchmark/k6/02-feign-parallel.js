@@ -77,7 +77,7 @@ export default function () {
     'has orderId': (r) => {
       try {
         const body = JSON.parse(r.body);
-        return body && body.data && body.data.orderId != null;
+        return body && body.id != null;
       } catch {
         return false;
       }
